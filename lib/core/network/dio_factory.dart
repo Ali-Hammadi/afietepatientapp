@@ -1,0 +1,531 @@
+import 'dart:async';
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:afietepatientapp/core/network/api_endpoints.dart';
+import 'package:afietepatientapp/core/routes/app_route.dart';
+import 'package:afietepatientapp/core/network/token_storage.dart';
+import 'package:afietepatientapp/core/utils/logger.dart';
+import 'package:afietepatientapp/core/reset/nuclear_reset_helper.dart';
+
+abstract class DioFactory {
+  static const String baseUrl = 'https://workserveys.pythonanywhere.com';
+  static Completer<bool>? _refreshCompleter;
+
+  static Dio create() {
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: baseUrl,
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20),
+        sendTimeout: const Duration(seconds: 20),
+        headers: {'Content-Type': 'application/json'},
+      ),
+    );
+
+    // During development, enable detailed request/response logging to help
+    // diagnose network issues (payloads, headers, bodies). Enabled only
+    // when running in debug mode so production logs stay clean.
+    if (kDebugMode) {
+      final log = loggerFor('DioFactory');
+      dio.interceptors.add(
+        LogInterceptor(
+          request: true,
+          requestHeader: true,
+          requestBody: true,
+          responseHeader: true,
+          responseBody: true,
+          error: true,
+          logPrint: (obj) => log.info('$obj'),
+        ),
+      );
+    }
+
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final token = await TokenStorage.getAccessToken();
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          handler.next(options);
+        },
+        onError: (err, handler) async {
+          final missingUser = _isMissingUserResponse(
+            err.response?.statusCode,
+            err.response?.data,
+            err.requestOptions.path,
+          );
+
+          if (missingUser) {
+            await TokenStorage.clearTokens();
+            NuclearResetHelper.navigatorKey.currentState
+                ?.pushNamedAndRemoveUntil(
+                  MyRoutes.splashScreen,
+                  (route) => false,
+                );
+          }
+
+          final unauthorized = err.response?.statusCode == 401;
+          final alreadyRetried =
+              err.requestOptions.headers['x-no-retry'] == true;
+          var shouldNuclearReset = false;
+
+          if (missingUser) {
+            shouldNuclearReset = false;
+          } else if (unauthorized && !alreadyRetried) {
+            final refreshed = await _tryRefreshToken(dio);
+            if (refreshed) {
+              final retryOptions = err.requestOptions;
+              retryOptions.headers['x-no-retry'] = true;
+              final newAccessToken = await TokenStorage.getAccessToken();
+              if (newAccessToken != null && newAccessToken.isNotEmpty) {
+                retryOptions.headers['Authorization'] =
+                    'Bearer $newAccessToken';
+              }
+
+              try {
+                final retryResponse = await dio.fetch<dynamic>(retryOptions);
+                return handler.resolve(retryResponse);
+              } catch (_) {
+                // Fallback to default mapped error below.
+                shouldNuclearReset = true;
+              }
+            } else {
+              shouldNuclearReset = true;
+            }
+          } else if (unauthorized && alreadyRetried) {
+            shouldNuclearReset = true;
+          }
+
+          if (shouldNuclearReset) {
+            await TokenStorage.clearTokens();
+            NuclearResetHelper.navigatorKey.currentState
+                ?.pushNamedAndRemoveUntil(
+                  MyRoutes.splashScreen,
+                  (route) => false,
+                );
+          }
+
+          final cleanMessage = _mapDioErrorToMessage(err);
+          handler.reject(
+            DioException(
+              requestOptions: err.requestOptions,
+              response: err.response,
+              type: err.type,
+              error: cleanMessage,
+              message: cleanMessage,
+            ),
+          );
+        },
+      ),
+    );
+
+    return dio;
+  }
+
+  static Future<bool> _tryRefreshToken(Dio dio) async {
+    final refreshToken = await TokenStorage.getRefreshToken();
+    if (refreshToken == null || refreshToken.isEmpty) {
+      return false;
+    }
+
+    // Serialize refresh requests: if one is already in progress, wait for it
+    if (_refreshCompleter != null) {
+      return _refreshCompleter!.future;
+    }
+
+    _refreshCompleter = Completer<bool>();
+
+    try {
+      final refreshDio = Dio(
+        BaseOptions(
+          baseUrl: baseUrl,
+          connectTimeout: const Duration(seconds: 20),
+          receiveTimeout: const Duration(seconds: 20),
+          sendTimeout: const Duration(seconds: 20),
+          headers: {'Content-Type': 'application/json'},
+        ),
+      );
+
+      final response = await refreshDio.post<Map<String, dynamic>>(
+        ApiEndpoints.tokenRefresh,
+        data: {ApiEndpoints.keyRefresh: refreshToken},
+      );
+
+      final refreshedAccessToken =
+          _extractAccessToken(response.data) ??
+          _extractAccessToken(response.data?['data']) ??
+          '';
+      if (refreshedAccessToken.isEmpty) {
+        _refreshCompleter!.complete(false);
+        return false;
+      }
+
+      final refreshedRefreshToken =
+          _extractRefreshToken(response.data) ??
+          _extractRefreshToken(response.data?['data']) ??
+          refreshToken;
+
+      await TokenStorage.saveTokens(
+        accessToken: refreshedAccessToken,
+        refreshToken: refreshedRefreshToken,
+      );
+
+      _refreshCompleter!.complete(true);
+      return true;
+    } catch (_) {
+      await TokenStorage.clearTokens();
+      _refreshCompleter!.complete(false);
+      return false;
+    } finally {
+      _refreshCompleter = null;
+    }
+  }
+
+  static String _mapDioErrorToMessage(DioException err) {
+    if (err.type == DioExceptionType.connectionTimeout ||
+        err.type == DioExceptionType.sendTimeout ||
+        err.type == DioExceptionType.receiveTimeout) {
+      return 'The connection timed out. Please try again.';
+    }
+
+    if (err.type == DioExceptionType.connectionError) {
+      return 'Unable to connect to server. Check your internet connection.';
+    }
+
+    if (err.type == DioExceptionType.cancel) {
+      return 'Request was cancelled.';
+    }
+
+    final statusCode = err.response?.statusCode;
+    final data = err.response?.data;
+    final responseMessage = _toUserFriendlyMessage(
+      _extractResponseMessage(data),
+    );
+
+    if (_isMissingUserResponse(statusCode, data, err.requestOptions.path)) {
+      return 'No account was found for this email. If the account was deleted, please sign in again or start a new registration.';
+    }
+
+    if (_isInvalidOtpResponse(statusCode, data)) {
+      return 'The verification code is invalid or expired. Please request a new code and try again.';
+    }
+
+    if (_isExpiredTokenResponse(statusCode, data)) {
+      return 'Your session has expired. Please sign in again.';
+    }
+
+    if (statusCode == 400) {
+      return responseMessage ??
+          'Your request could not be processed. Please review the entered data and try again.';
+    }
+    if (statusCode == 401) {
+      return responseMessage ?? 'Authentication failed. Please sign in again.';
+    }
+    if (statusCode == 403) {
+      return responseMessage ??
+          'Access is forbidden for this account or action.';
+    }
+    if (statusCode == 404) {
+      return responseMessage ?? 'Requested resource was not found.';
+    }
+    if (statusCode == 409) {
+      return responseMessage ?? 'A conflicting resource already exists.';
+    }
+    if (statusCode == 422) {
+      return responseMessage ?? 'Validation failed. Please review your input.';
+    }
+    if (statusCode == 429) {
+      return responseMessage ?? 'Too many requests. Please try again later.';
+    }
+    if (statusCode != null && statusCode >= 500) {
+      return responseMessage ?? 'Server error. Please try again later.';
+    }
+
+    return responseMessage ?? 'Unexpected error occurred. Please try again.';
+  }
+
+  static String? _extractResponseMessage(dynamic data) {
+    if (data == null) {
+      return null;
+    }
+
+    if (data is String) {
+      final text = data.trim();
+      if (text.isEmpty) {
+        return null;
+      }
+      return _isGenericBackendMessage(text) ? null : text;
+    }
+
+    if (data is List) {
+      for (final item in data) {
+        final found = _extractResponseMessage(item);
+        if (found != null && found.isNotEmpty) {
+          return found;
+        }
+      }
+      return null;
+    }
+
+    if (data is Map<String, dynamic>) {
+      final directMessage = data['message']?.toString();
+      if (directMessage != null &&
+          directMessage.isNotEmpty &&
+          !_isGenericBackendMessage(directMessage)) {
+        return directMessage;
+      }
+
+      final detailMessage = data['detail']?.toString();
+      if (detailMessage != null &&
+          detailMessage.isNotEmpty &&
+          !_isGenericBackendMessage(detailMessage)) {
+        return detailMessage;
+      }
+
+      final nonFieldErrors = data['non_field_errors'];
+      final nonFieldMessage = _extractResponseMessage(nonFieldErrors);
+      if (nonFieldMessage != null && nonFieldMessage.isNotEmpty) {
+        return nonFieldMessage;
+      }
+
+      const reservedKeys = {
+        'message',
+        'detail',
+        'error',
+        'errors',
+        'status',
+        'code',
+      };
+
+      for (final entry in data.entries) {
+        if (reservedKeys.contains(entry.key.toLowerCase())) {
+          continue;
+        }
+        final found = _extractResponseMessage(entry.value);
+        if (found != null && found.isNotEmpty) {
+          return found;
+        }
+      }
+
+      final errorObj = data['error'];
+      final errorMessage = _extractResponseMessage(errorObj);
+      if (errorMessage != null && errorMessage.isNotEmpty) {
+        return errorMessage;
+      }
+
+      final errors = data['errors'];
+      final errorsMessage = _extractResponseMessage(errors);
+      if (errorsMessage != null && errorsMessage.isNotEmpty) {
+        return errorsMessage;
+      }
+
+      if (directMessage != null && directMessage.isNotEmpty) {
+        return directMessage;
+      }
+
+      if (detailMessage != null && detailMessage.isNotEmpty) {
+        return detailMessage;
+      }
+    }
+
+    return null;
+  }
+
+  static bool _isMissingUserResponse(
+    int? statusCode,
+    dynamic data,
+    String requestPath,
+  ) {
+    if (statusCode != 404) {
+      return false;
+    }
+
+    final normalizedPath = requestPath.toLowerCase();
+    final isAccountRoute = normalizedPath.contains('/api/users/') ||
+        normalizedPath.contains('/api/patients/') ||
+        normalizedPath.contains('/api/auth/') ||
+        normalizedPath.endsWith('/profile') ||
+        normalizedPath.endsWith('/profile/');
+
+    if (!isAccountRoute) {
+      return false;
+    }
+
+    final message = _extractResponseMessage(data)?.toLowerCase() ?? '';
+    return message.contains('no user matches the given query') ||
+        message.contains('no user') ||
+        message.contains('not found') ||
+        message.contains('deleted');
+  }
+
+  static bool _isInvalidOtpResponse(int? statusCode, dynamic data) {
+    if (statusCode != 400) {
+      return false;
+    }
+
+    final message = _extractResponseMessage(data)?.toLowerCase() ?? '';
+    return message.contains('invalid otp') ||
+        message.contains('invalid code') ||
+        message.contains('expired');
+  }
+
+  static bool _isExpiredTokenResponse(int? statusCode, dynamic data) {
+    if (statusCode != 403) {
+      return false;
+    }
+
+    final message = _extractResponseMessage(data)?.toLowerCase() ?? '';
+    if (message.contains('token_not_valid') ||
+        (message.contains('token') && message.contains('expired'))) {
+      return true;
+    }
+
+    if (data is Map<String, dynamic>) {
+      final code = data['code']?.toString().toLowerCase() ?? '';
+      if (code == 'token_not_valid') {
+        return true;
+      }
+
+      final messages = data['messages'];
+      if (messages is List) {
+        for (final item in messages) {
+          final text = item is Map
+              ? '${item['message'] ?? ''} ${item['detail'] ?? ''}'
+                  .toLowerCase()
+              : item.toString().toLowerCase();
+          if (text.contains('token') && text.contains('expired')) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  static bool _isGenericBackendMessage(String message) {
+    final normalized = message.trim().toLowerCase();
+    return normalized == 'invalid request. please check your input.' ||
+        normalized == 'invalid request' ||
+        normalized == 'bad request';
+  }
+
+  static String? _toUserFriendlyMessage(String? message) {
+    if (message == null || message.trim().isEmpty) {
+      return null;
+    }
+
+    final normalized = message.trim().toLowerCase();
+    if (normalized.contains('inactive') ||
+        normalized.contains('disabled') ||
+        normalized.contains('blocked') ||
+        normalized.contains('suspended') ||
+        normalized.contains('deactivated')) {
+      return 'This account is inactive or restricted on the server, so sign-in is currently unavailable. Please contact support if you believe this is an error.';
+    }
+    if (normalized.contains('already verified')) {
+      return 'Your account is already verified. Please sign in directly.';
+    }
+    if (normalized.contains('already exists') ||
+        normalized.contains('user with this email')) {
+      return 'This email is already registered. Please sign in or use another email.';
+    }
+    if (normalized.contains('does not exist') ||
+        normalized.contains('not found')) {
+      return 'No account was found for this data. Please check your input or create a new account.';
+    }
+    if (normalized.contains('invalid otp') ||
+        normalized.contains('invalid code')) {
+      return 'The verification code is incorrect or expired. Please request a new code.';
+    }
+    if (normalized.contains('password') && normalized.contains('incorrect')) {
+      return 'The current password is incorrect. Please try again.';
+    }
+    if (_isGenericBackendMessage(normalized)) {
+      return 'Your request could not be processed. Please review the entered data and try again.';
+    }
+
+    return message.trim();
+  }
+
+  static String? _extractAccessToken(dynamic data) {
+    if (data is Map<String, dynamic>) {
+      // Common token fields used by various backends
+      final candidates = ['access', 'access_token', 'accessToken'];
+
+      for (final key in candidates) {
+        final v = data[key];
+        if (v != null && v.toString().isNotEmpty) return v.toString();
+      }
+
+      // Nested containers: data -> tokens or tokens -> access(_token)
+      final nested = data['data'];
+      if (nested is Map<String, dynamic>) {
+        final nestedCandidates = ['access', 'access_token', 'accessToken'];
+        for (final key in nestedCandidates) {
+          final v = nested[key];
+          if (v != null && v.toString().isNotEmpty) return v.toString();
+        }
+
+        final tokens = nested['tokens'];
+        if (tokens is Map<String, dynamic>) {
+          final v =
+              tokens['access'] ??
+              tokens['access_token'] ??
+              tokens['accessToken'];
+          if (v != null && v.toString().isNotEmpty) return v.toString();
+        }
+      }
+
+      // Top-level tokens container
+      final tokens = data['tokens'];
+      if (tokens is Map<String, dynamic>) {
+        final v =
+            tokens['access'] ?? tokens['access_token'] ?? tokens['accessToken'];
+        if (v != null && v.toString().isNotEmpty) return v.toString();
+      }
+    }
+
+    return null;
+  }
+
+  static String? _extractRefreshToken(dynamic data) {
+    if (data is Map<String, dynamic>) {
+      final candidates = ['refresh', 'refresh_token', 'refreshToken'];
+
+      for (final key in candidates) {
+        final v = data[key];
+        if (v != null && v.toString().isNotEmpty) return v.toString();
+      }
+
+      final nested = data['data'];
+      if (nested is Map<String, dynamic>) {
+        for (final key in candidates) {
+          final v = nested[key];
+          if (v != null && v.toString().isNotEmpty) return v.toString();
+        }
+
+        final tokens = nested['tokens'];
+        if (tokens is Map<String, dynamic>) {
+          final v =
+              tokens['refresh'] ??
+              tokens['refresh_token'] ??
+              tokens['refreshToken'];
+          if (v != null && v.toString().isNotEmpty) return v.toString();
+        }
+      }
+
+      final tokens = data['tokens'];
+      if (tokens is Map<String, dynamic>) {
+        final v =
+            tokens['refresh'] ??
+            tokens['refresh_token'] ??
+            tokens['refreshToken'];
+        if (v != null && v.toString().isNotEmpty) return v.toString();
+      }
+    }
+
+    return null;
+  }
+}

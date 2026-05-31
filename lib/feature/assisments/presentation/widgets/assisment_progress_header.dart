@@ -1,0 +1,45 @@
+import 'package:afietepatientapp/core/constants/settings_strings.dart';
+import 'package:afietepatientapp/core/constants/styles.dart';
+import 'package:flutter/material.dart';
+
+class CustomAssismentProgressHeader extends StatelessWidget {
+  final double progress;
+  final int questionIndex;
+  final int totalQuestions;
+
+  const CustomAssismentProgressHeader({
+    super.key,
+    required this.progress,
+    required this.questionIndex,
+    required this.totalQuestions,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LinearProgressIndicator(
+          value: progress,
+          minHeight: 6,
+          color: colorScheme.primary,
+          backgroundColor: colorScheme.primaryContainer.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: Text(
+            SettingsStrings.assismentProgressLabel(
+              questionIndex,
+              totalQuestions,
+            ),
+            style: AppStyles.bodySmall,
+          ),
+        ),
+      ],
+    );
+  }
+}

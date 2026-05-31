@@ -1,0 +1,71 @@
+import 'package:bloc/bloc.dart';
+import 'package:afietepatientapp/core/constants/feeling_type.dart';
+import 'package:afietepatientapp/core/usecases/usecase.dart';
+import 'package:afietepatientapp/feature/feeling/domain/entities/feeling_entry_entity.dart';
+import 'package:afietepatientapp/feature/feeling/domain/usecase/feeling_usecases.dart';
+import 'package:equatable/equatable.dart';
+
+part 'feeling_state.dart';
+
+class FeelingCubit extends Cubit<FeelingState> {
+  final SaveFeelingUseCase saveFeelingUseCase;
+  final GetCurrentFeelingUseCase getCurrentFeelingUseCase;
+  final GetFeelingHistoryUseCase getFeelingHistoryUseCase;
+
+  FeelingCubit(
+    this.saveFeelingUseCase,
+    this.getCurrentFeelingUseCase,
+    this.getFeelingHistoryUseCase,
+  ) : super(FeelingInitial());
+
+  Future<void> loadFeelingHub() async {
+    emit(FeelingLoading());
+
+    await getCurrentFeelingUseCase(NoParams());
+    final historyResult = await getFeelingHistoryUseCase(
+      const GetFeelingHistoryParams(limit: 30),
+    );
+    final history = historyResult.fold(
+      (_) => <FeelingEntryEntity>[],
+      (items) => items,
+    );
+
+    // Always start the hub with no preselected feeling so users can pick again
+    // after leaving the screen or reopening the app.
+    emit(FeelingLoaded(selectedFeeling: null, history: history));
+  }
+
+  Future<void> selectFeeling(FeelingType feeling, {int intensity = 3}) async {
+    final currentState = state;
+    final previousHistory = currentState is FeelingLoaded
+        ? currentState.history
+        : <FeelingEntryEntity>[];
+
+    emit(FeelingLoaded(selectedFeeling: feeling, history: previousHistory));
+
+    final saveResult = await saveFeelingUseCase(
+      SaveFeelingParams(feeling: feeling, intensity: intensity),
+    );
+
+    final historyResult = await getFeelingHistoryUseCase(
+      const GetFeelingHistoryParams(limit: 30),
+    );
+
+    saveResult.fold(
+      (failure) => emit(
+        FeelingError(
+          failure.errorMessage,
+          selectedFeeling: feeling,
+          history: previousHistory,
+        ),
+      ),
+      (_) {
+        final history = historyResult.fold(
+          (_) => previousHistory,
+          (items) => items,
+        );
+        emit(FeelingLoaded(selectedFeeling: feeling, history: history));
+      },
+    );
+  }
+}

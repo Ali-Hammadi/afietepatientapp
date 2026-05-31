@@ -1,0 +1,193 @@
+import 'package:afietepatientapp/core/constants/styles.dart';
+import 'package:afietepatientapp/core/constants/settings_strings.dart';
+import 'package:afietepatientapp/core/routes/app_route.dart';
+import 'package:afietepatientapp/core/widget/custom_button.dart';
+import 'package:afietepatientapp/feature/payment/domain/entities/payment_entity.dart';
+import 'package:afietepatientapp/feature/payment/presentation/cubit/payment_cubit.dart';
+import 'package:afietepatientapp/feature/payment/presentation/widgets/payment_input_field.dart';
+import 'package:afietepatientapp/feature/payment/presentation/widgets/payment_method_tile.dart';
+import 'package:afietepatientapp/feature/payment/presentation/widgets/payment_summary_card.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class PaymentScreen extends StatelessWidget {
+  final PaymentRequestEntity request;
+
+  const PaymentScreen({super.key, required this.request});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        elevation: 0,
+        title: Text(
+          SettingsStrings.paymentTitle,
+          style: AppStyles.headingMedium,
+        ),
+      ),
+      body: BlocConsumer<PaymentCubit, PaymentState>(
+        listener: (context, state) {
+          if (state is PaymentSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  SettingsStrings.paymentSuccessfulWith(
+                    state.payment.transactionRef,
+                  ),
+                ),
+              ),
+            );
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              MyRoutes.homeScreen,
+              (route) => false,
+            );
+          }
+
+          if (state is PaymentFailure) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
+          }
+        },
+        builder: (context, state) {
+          final cubit = context.read<PaymentCubit>();
+          final selectedMethod = cubit.selectedMethod;
+          final isProcessing = state is PaymentProcessing;
+
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(AppStyles.padding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomPaymentSummaryCard(request: request),
+                          const SizedBox(height: 28),
+                          Text(
+                            SettingsStrings.paymentMethodTitle,
+                            style: AppStyles.headingMedium,
+                          ),
+                          const SizedBox(height: 12),
+                          CustomPaymentMethodTile(
+                            title: SettingsStrings.creditDebitCard,
+                            icon: Icons.credit_card_outlined,
+                            selected: selectedMethod == PaymentMethod.card,
+                            onTap: isProcessing
+                                ? null
+                                : () => cubit.selectMethod(PaymentMethod.card),
+                          ),
+                          const SizedBox(height: 10),
+                          CustomPaymentMethodTile(
+                            title: SettingsStrings.applePay,
+                            icon: Icons.apple,
+                            selected: selectedMethod == PaymentMethod.wallet,
+                            onTap: isProcessing
+                                ? null
+                                : () =>
+                                      cubit.selectMethod(PaymentMethod.wallet),
+                          ),
+                          const SizedBox(height: 18),
+                          Text(
+                            SettingsStrings.cardInformationTitle,
+                            style: AppStyles.headingSmall,
+                          ),
+                          const SizedBox(height: 8),
+                          CustomPaymentInputField(
+                            hint: '0000 0000 0000 0000',
+                            prefixIcon: Icons.credit_card,
+                          ),
+                          const SizedBox(height: 14),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: CustomPaymentInputField(
+                                  label: SettingsStrings.expiryDateLabel,
+                                  hint: 'MM/YY',
+                                ),
+                              ),
+                              SizedBox(width: 14),
+                              Expanded(
+                                child: CustomPaymentInputField(
+                                  label: SettingsStrings.cvvLabel,
+                                  hint: '123',
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          CustomPaymentInputField(
+                            label: SettingsStrings.cardholderNameLabel,
+                            hint: SettingsStrings.nameOnCardHint,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Center(
+                    child: SizedBox(
+                      width: 180,
+                      child: CustomButton(
+                        widget: isProcessing
+                            ? SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: colorScheme.onPrimary,
+                                ),
+                              )
+                            : Text(
+                                SettingsStrings.payAmount(
+                                  _formatAmount(request.amount),
+                                ),
+                                style: AppStyles.headingSmall.copyWith(
+                                  color: colorScheme.onPrimary,
+                                ),
+                              ),
+                        onPressed: isProcessing
+                            ? null
+                            : () {
+                                final finalRequest = PaymentRequestEntity(
+                                  doctorId: request.doctorId,
+                                  patientId: request.patientId,
+                                  doctorName: request.doctorName,
+                                  scheduledAt: request.scheduledAt,
+                                  durationSlots: request.durationSlots,
+                                  sessionType: request.sessionType,
+                                  amount: request.amount,
+                                  currency: request.currency,
+                                  method: selectedMethod,
+                                );
+                                cubit.processPayment(finalRequest);
+                              },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  String _formatAmount(double amount) {
+    if (amount == amount.truncateToDouble()) {
+      return amount.toStringAsFixed(0);
+    }
+    return amount.toStringAsFixed(2);
+  }
+}

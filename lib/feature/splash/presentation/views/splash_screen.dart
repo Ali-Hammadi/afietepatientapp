@@ -1,0 +1,108 @@
+import 'dart:async';
+import 'package:afietepatientapp/core/assets/icon_image_links.dart';
+import 'package:afietepatientapp/core/network/token_storage.dart';
+import 'package:afietepatientapp/core/routes/app_route.dart';
+import 'package:afietepatientapp/feature/auth/presentation/cubits/auth_cubit.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+
+  Future<void> _navigateAfterSplash() async {
+    final authCubit = context.read<AuthCubit>();
+
+    final pendingSignup = await authCubit.restorePendingSignupSession();
+    if (!mounted) return;
+
+    if (pendingSignup != null) {
+      Navigator.pushReplacementNamed(
+        context,
+        MyRoutes.verifyAccountScreen,
+        arguments: pendingSignup.email,
+      );
+      return;
+    }
+
+    final token = await TokenStorage.getAccessToken();
+    if (!mounted) return;
+
+    if (token != null && token.isNotEmpty) {
+      final restored = await authCubit.restoreSession();
+      if (!mounted) return;
+
+      if (restored && authCubit.state is AuthLoaded) {
+        Navigator.pushReplacementNamed(context, MyRoutes.homeScreen);
+        return;
+      }
+    }
+
+    Navigator.pushReplacementNamed(context, MyRoutes.signup);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _controller.forward();
+
+    // After splash animation, continue based on saved auth state.
+    Timer(const Duration(seconds: 2), () {
+      if (mounted) {
+        _controller.reverse().then((_) {
+          if (mounted) {
+            _navigateAfterSplash();
+          }
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(ImageLinks.appIcon, width: 160, height: 160),
+              const SizedBox(height: 20),
+              const Text(
+                'TherapyApp',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const Text(
+                'Profissional support any time, anywhere',
+                style: TextStyle(fontSize: 18),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

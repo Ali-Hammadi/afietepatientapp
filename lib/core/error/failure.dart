@@ -1,0 +1,389 @@
+import 'package:dio/dio.dart';
+
+abstract class Failure {
+  final String errorMessage;
+
+  const Failure(this.errorMessage);
+}
+
+class ServerFailure extends Failure {
+  ServerFailure(super.errorMessage);
+
+  factory ServerFailure.fromDioError(DioException dioError) {
+    final cleanError = dioError.error?.toString().trim();
+    if (cleanError != null && cleanError.isNotEmpty) {
+      if (_isGenericMessage(cleanError) || _looksLikeHtml(cleanError)) {
+        final statusCode = dioError.response?.statusCode;
+        final responseData = dioError.response?.data;
+        final parsed = ServerFailure.fromResponse(statusCode, responseData);
+        if (parsed.errorMessage.isNotEmpty &&
+            !_isGenericMessage(parsed.errorMessage) &&
+            !_looksLikeHtml(parsed.errorMessage)) {
+          return parsed;
+        }
+      }
+
+      return ServerFailure(_toUserFriendlyMessage(cleanError));
+    }
+
+    switch (dioError.type) {
+      case DioExceptionType.connectionTimeout:
+        return ServerFailure('Connection timed out');
+
+      case DioExceptionType.receiveTimeout:
+        return ServerFailure('Failed to receive data');
+
+      case DioExceptionType.sendTimeout:
+        return ServerFailure('Failed to send data');
+
+      case DioExceptionType.badCertificate:
+        return ServerFailure('Certificate is not trusted');
+
+      case DioExceptionType.badResponse:
+        return ServerFailure.fromResponse(
+          dioError.response?.statusCode,
+          dioError.response?.data,
+        );
+
+      case DioExceptionType.cancel:
+        return ServerFailure('Request was cancelled');
+
+      case DioExceptionType.connectionError:
+        return ServerFailure('Failed to connect to server');
+
+      case DioExceptionType.unknown:
+        if (dioError.message?.contains('SocketException') ?? false) {
+          return ServerFailure('No internet connection');
+        }
+        return ServerFailure("Unexpected error, please try again");
+    }
+  }
+
+  factory ServerFailure.fromResponse(int? statusCode, dynamic response) {
+    String? extractedMessage;
+    String code = '';
+
+    if (response is Map<String, dynamic>) {
+      final error = response['error'];
+      if (error is Map<String, dynamic>) {
+        extractedMessage = error['message']?.toString();
+        code = error['code']?.toString() ?? '';
+      }
+
+      extractedMessage ??= _nonGeneric(response['detail']?.toString());
+      extractedMessage ??= _nonGeneric(response['message']?.toString());
+
+      final nonFieldErrors = response['non_field_errors'];
+      if (extractedMessage == null &&
+          nonFieldErrors is List &&
+          nonFieldErrors.isNotEmpty) {
+        extractedMessage = _extractNestedMessage(nonFieldErrors);
+      }
+
+      extractedMessage ??= _extractNestedMessage(response);
+
+      extractedMessage ??= response['message']?.toString();
+      extractedMessage ??= response['detail']?.toString();
+    } else {
+      extractedMessage = _extractNestedMessage(response);
+    }
+
+    extractedMessage = _toUserFriendlyMessage(extractedMessage ?? '');
+
+    if (statusCode == 403 && _isExpiredTokenResponse(response, code)) {
+      return ServerFailure(
+        'Your session has expired. Please sign in again.',
+      );
+    }
+
+    if (statusCode == 400) {
+      return ServerFailure(
+        extractedMessage.isNotEmpty
+            ? extractedMessage
+            : 'Your request could not be processed. Please review the entered data and try again.',
+      );
+    } else if (statusCode == 401) {
+      return ServerFailure(
+        extractedMessage.isNotEmpty
+            ? extractedMessage
+            : 'Authentication failed. Please sign in again.',
+      );
+    } else if (statusCode == 422) {
+      // Validation errors often return 422 - present field-level guidance
+      return ServerFailure(
+        extractedMessage.isNotEmpty
+            ? extractedMessage
+            : 'There are validation issues with the provided data. Please check the highlighted fields and try again.',
+      );
+    } else if (statusCode == 429) {
+      // Rate limiting
+      return ServerFailure(
+        extractedMessage.isNotEmpty
+            ? extractedMessage
+            : 'Too many requests. Please wait a moment and try again.',
+      );
+    } else if (statusCode == 403) {
+      return ServerFailure(
+        extractedMessage.isNotEmpty
+            ? extractedMessage
+            : 'Access is forbidden for this account or action.',
+      );
+    } else if (statusCode == 404) {
+      return ServerFailure(
+        extractedMessage.isNotEmpty
+            ? extractedMessage
+            : "${code.isNotEmpty ? '$code ' : ''}Your request was not found, please try again",
+      );
+    } else if (statusCode == 500) {
+      return ServerFailure(
+        "${code.isNotEmpty ? '$code ' : ''}Internal server error, please try later",
+      );
+    } else {
+      return ServerFailure(
+        extractedMessage.isNotEmpty
+            ? extractedMessage
+            : 'Something went wrong. Please try again.',
+      );
+    }
+  }
+
+  static String? _extractNestedMessage(dynamic value) {
+    if (value == null) {
+      return null;
+    }
+
+    if (value is String) {
+      final text = value.trim();
+      if (text.isEmpty) {
+        return null;
+      }
+      return _isGenericMessage(text) ? null : text;
+    }
+
+    if (value is List) {
+      for (final item in value) {
+        final found = _extractNestedMessage(item);
+        if (found != null && found.isNotEmpty) {
+          return found;
+        }
+      }
+      return null;
+    }
+
+    if (value is Map) {
+      const reservedKeys = {
+        'message',
+        'detail',
+        'error',
+        'errors',
+        'status',
+        'code',
+      };
+
+      final map = value.cast<dynamic, dynamic>();
+
+      // Backend may return deactivated accounts with an `is_active` flag
+      // alongside a generic message like "A user with this email already exists.".
+      // Prefer a stable deactivation message so higher layers can route to the
+      // reactivation flow.
+      if (_hasInactiveAccountFlag(map) &&
+          (map.containsKey('message') ||
+              map.containsKey('detail') ||
+              map.containsKey('email') ||
+              map.containsKey('user'))) {
+        return 'This account has been deactivated.';
+      }
+
+      final directMessage = map['message']?.toString();
+      final directDetail = map['detail']?.toString();
+
+      final messageCandidate = _nonGeneric(directMessage);
+      if (messageCandidate != null) {
+        return messageCandidate;
+      }
+
+      final detailCandidate = _nonGeneric(directDetail);
+      if (detailCandidate != null) {
+        return detailCandidate;
+      }
+
+      for (final entry in map.entries) {
+        final key = entry.key.toString().toLowerCase();
+        if (reservedKeys.contains(key)) {
+          continue;
+        }
+        final found = _extractNestedMessage(entry.value);
+        if (found != null && found.isNotEmpty) {
+          return found;
+        }
+      }
+
+      final fromError = _extractNestedMessage(map['error']);
+      if (fromError != null && fromError.isNotEmpty) {
+        return fromError;
+      }
+
+      final fromErrors = _extractNestedMessage(map['errors']);
+      if (fromErrors != null && fromErrors.isNotEmpty) {
+        return fromErrors;
+      }
+
+      if (directMessage != null && directMessage.trim().isNotEmpty) {
+        return directMessage.trim();
+      }
+      if (directDetail != null && directDetail.trim().isNotEmpty) {
+        return directDetail.trim();
+      }
+      return null;
+    }
+
+    return value.toString();
+  }
+
+  static bool _hasInactiveAccountFlag(Map<dynamic, dynamic> map) {
+    if (!map.containsKey('is_active') && !map.containsKey('isActive')) {
+      return false;
+    }
+
+    final raw = map.containsKey('is_active')
+        ? map['is_active']
+        : map['isActive'];
+    return _isFalseLike(raw);
+  }
+
+  static bool _isFalseLike(dynamic value) {
+    if (value == null) {
+      return false;
+    }
+    if (value is bool) {
+      return value == false;
+    }
+    if (value is num) {
+      return value == 0;
+    }
+    if (value is String) {
+      final normalized = value.trim().toLowerCase();
+      return normalized == 'false' || normalized == '0' || normalized == 'no';
+    }
+    if (value is List) {
+      return value.any(_isFalseLike);
+    }
+    return false;
+  }
+
+  static String? _nonGeneric(String? message) {
+    if (message == null) {
+      return null;
+    }
+    final text = message.trim();
+    if (text.isEmpty || _isGenericMessage(text)) {
+      return null;
+    }
+    return text;
+  }
+
+  static bool _isGenericMessage(String message) {
+    final normalized = message.trim().toLowerCase();
+    return normalized == 'invalid request. please check your input.' ||
+        normalized == 'invalid request' ||
+        normalized == 'bad request' ||
+        normalized == 'authentication error' ||
+        normalized == 'ops there was an error, please try again';
+  }
+
+  static bool _looksLikeHtml(String message) {
+    final normalized = message.trim().toLowerCase();
+    return normalized.startsWith('<!doctype html') ||
+        normalized.startsWith('<html') ||
+        normalized.contains('<head>') ||
+        normalized.contains('<body>') ||
+        normalized.contains('</html>');
+  }
+
+  static bool _isExpiredTokenResponse(dynamic response, String code) {
+    if (code.toLowerCase() == 'token_not_valid') {
+      return true;
+    }
+
+    if (response is Map<String, dynamic>) {
+      final detail = response['detail']?.toString().toLowerCase() ?? '';
+      final message = response['message']?.toString().toLowerCase() ?? '';
+      if ((detail.contains('token') && detail.contains('expired')) ||
+          (message.contains('token') && message.contains('expired'))) {
+        return true;
+      }
+
+      final messages = response['messages'];
+      if (messages is List) {
+        for (final item in messages) {
+          final text = item is Map
+              ? '${item['message'] ?? ''} ${item['detail'] ?? ''}'
+                  .toLowerCase()
+              : item.toString().toLowerCase();
+          if (text.contains('token') && text.contains('expired')) {
+            return true;
+          }
+        }
+      }
+    }
+
+    final text = response?.toString().toLowerCase() ?? '';
+    return text.contains('token_not_valid') ||
+        (text.contains('token') && text.contains('expired'));
+  }
+
+  static String _toUserFriendlyMessage(String message) {
+    final trimmed = message.trim();
+    if (trimmed.isEmpty) {
+      return trimmed;
+    }
+
+    if (_looksLikeHtml(trimmed)) {
+      return 'Your request could not be processed. Please try again.';
+    }
+
+    final normalized = trimmed.toLowerCase();
+    if (normalized.contains('inactive') ||
+        normalized.contains('disabled') ||
+        normalized.contains('blocked') ||
+        normalized.contains('suspended') ||
+        normalized.contains('deactivated')) {
+      return 'This account is inactive or restricted on the server, so sign-in is currently unavailable. Please contact support if you believe this is an error.';
+    }
+    if (normalized.contains('token') && normalized.contains('expired')) {
+      return 'Your session has expired. Please sign in again.';
+    }
+    if (normalized.contains('already verified')) {
+      return 'Your account is already verified. Please sign in directly.';
+    }
+    if (normalized.contains('already exists') ||
+        normalized.contains('user with this email')) {
+      return 'This email is already registered. If sign-in says your account is not verified, complete verification first.';
+    }
+    if (normalized.contains(
+          'no active account found with the given credentials',
+        ) ||
+        normalized.contains('given credentials')) {
+      return 'Email or password is incorrect. If you recently signed up, verify your account before signing in.';
+    }
+    if (normalized.contains('does not exist') ||
+        normalized.contains('not found')) {
+      return 'No account was found for this data. Please check your input or create a new account.';
+    }
+    if (normalized.contains('rate limit') || normalized.contains('too many')) {
+      return 'You have made too many requests. Please wait a moment and try again.';
+    }
+    if (normalized.contains('invalid otp') ||
+        normalized.contains('invalid code')) {
+      return 'The verification code is incorrect or expired. Please request a new code.';
+    }
+    if (normalized.contains('password') && normalized.contains('incorrect')) {
+      return 'The current password is incorrect. Please try again.';
+    }
+    if (_isGenericMessage(normalized)) {
+      return 'Your request could not be processed. Please review the entered data and try again.';
+    }
+
+    return trimmed;
+  }
+}

@@ -1,0 +1,45 @@
+import 'package:afietepatientapp/core/error/failure.dart';
+import 'package:afietepatientapp/core/usecases/usecase.dart';
+import 'package:afietepatientapp/feature/auth/domain/entities/auth_user_entity.dart';
+import 'package:afietepatientapp/feature/auth/domain/repositories/auth_repository.dart';
+import 'package:dartz/dartz.dart';
+
+class UpdateProfileParams {
+  final String? dateOfBirth;
+  final String? gender;
+  final String? phoneNumber;
+  final String? psychologicalHistory;
+
+  final String? correlationId;
+
+  const UpdateProfileParams({
+    this.dateOfBirth,
+    this.gender,
+    this.phoneNumber,
+    this.psychologicalHistory,
+
+    this.correlationId,
+  });
+}
+
+/// Usecase for updating user profile information (partially or fully).
+/// All fields are optional; only provided fields are updated.
+/// Requires access token (authenticated request).
+class UpdateProfileInfoUseCase
+    implements UseCase<UserAuthEntity, UpdateProfileParams> {
+  final AuthRepository repository;
+
+  const UpdateProfileInfoUseCase(this.repository);
+
+  @override
+  Future<Either<Failure, UserAuthEntity>> call(UpdateProfileParams params) {
+    return repository.updateProfileInfo(
+      dateOfBirth: params.dateOfBirth,
+      gender: params.gender,
+      phoneNumber: params.phoneNumber,
+      psychologicalHistory: params.psychologicalHistory,
+
+      correlationId: params.correlationId,
+    );
+  }
+}
