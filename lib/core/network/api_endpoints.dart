@@ -72,8 +72,8 @@ abstract class ApiEndpoints {
   static const String keyToken = 'token';
   static const String keyIdToken = 'id_token';
 
-    static const String allDoctors = '$doctors/';
-    static String doctorById(String id) => '$doctors/$id/';
+  static const String allDoctors = '$doctors/';
+  static String doctorById(String id) => '$doctors/$id/';
   static const String doctorRegister = '$doctors/register/';
   // Align with Swagger paths: profile update at /doctors/profile/
   static const String doctorProfileUpdate = '$doctors/profile/';
