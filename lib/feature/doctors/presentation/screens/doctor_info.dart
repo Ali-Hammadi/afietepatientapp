@@ -1,4 +1,4 @@
-import 'package:afietepatientapp/core/assets/icon_image_links.dart';
+import 'package:afietepatientapp/feature/doctors/presentation/widgets/doctor_profile_image.dart';
 import 'package:afietepatientapp/core/constants/settings_strings.dart';
 import 'package:afietepatientapp/core/constants/styles.dart';
 import 'package:afietepatientapp/core/routes/app_route.dart';
@@ -9,6 +9,7 @@ import 'package:afietepatientapp/feature/articles/presentation/widgets/article_c
 import 'package:afietepatientapp/feature/auth/presentation/cubits/auth_cubit.dart';
 import 'package:afietepatientapp/feature/doctors/domain/entites/doctor_entity.dart';
 import 'package:afietepatientapp/feature/doctors/presentation/cubits/doctors_cubit.dart';
+import 'package:afietepatientapp/core/assets/icon_image_links.dart';
 import 'package:afietepatientapp/feature/home/presentation/widgets/custom_container.dart';
 import 'package:afietepatientapp/feature/report/domain/entities/report_entity.dart';
 import 'package:flutter/material.dart';
@@ -107,10 +108,7 @@ class _DoctorInfoState extends State<DoctorInfo> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: Column(
                     children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundImage: AssetImage(ImageLinks.man1),
-                      ),
+                      _buildDoctorPhoto(doctor),
                       Padding(
                         padding: const EdgeInsets.symmetric(
                           vertical: AppStyles.padding,
@@ -227,6 +225,11 @@ class _DoctorInfoState extends State<DoctorInfo> {
         );
       },
     );
+  }
+
+  Widget _buildDoctorPhoto(DoctorEntity? doctor) {
+    final imageUrl = doctor?.imageUrl;
+    return CustomDoctorProfileImage(height: 100, imageUrl: imageUrl);
   }
 
   String _doctorTitle(DoctorEntity? doctor) {

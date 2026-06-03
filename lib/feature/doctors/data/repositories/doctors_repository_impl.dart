@@ -79,4 +79,35 @@ class DoctorsRepositoryImpl implements DoctorsRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, DoctorEntity>> getDoctorPublicProfile(
+    String username,
+  ) async {
+    try {
+      final doctor = await remoteDataSource.getDoctorPublicProfile(username);
+      return Right(doctor.toEntity());
+    } on DioException catch (e) {
+      return Left(ServerFailure.fromDioError(e));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<DateTime>>> getDoctorAvailableSlots(
+    String username,
+  ) async {
+    try {
+      final slots = await remoteDataSource.getDoctorAvailableSlots(username);
+      return Right(slots);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return const Right(<DateTime>[]);
+      }
+      return Left(ServerFailure.fromDioError(e));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

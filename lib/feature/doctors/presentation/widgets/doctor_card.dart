@@ -35,7 +35,7 @@ class CustomDoctorCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                CustomDoctorProfileImage(height: 100),
+                CustomDoctorProfileImage(height: 100, imageUrl: doctor.imageUrl),
                 Expanded(
                   child: ListTile(
                     title: Text(doctor.name),

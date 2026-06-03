@@ -8,6 +8,8 @@ abstract class DoctorsRemoteDataSource {
   Future<DoctorModel> getDoctorById(String id);
   Future<DoctorModel> getCurrentDoctorProfile();
   Future<DoctorScheduleModel> getDoctorScheduleById(String id);
+  Future<DoctorModel> getDoctorPublicProfile(String username);
+  Future<List<DateTime>> getDoctorAvailableSlots(String username);
 }
 
 class DoctorsRemoteDataSourceImpl implements DoctorsRemoteDataSource {
@@ -179,6 +181,96 @@ class DoctorsRemoteDataSourceImpl implements DoctorsRemoteDataSource {
       return data;
     }
     throw _notFoundException('schedule');
+  }
+
+  @override
+  Future<DoctorModel> getDoctorPublicProfile(String username) async {
+    final path = ApiEndpoints.doctorPublicProfile(username);
+    try {
+      final response = await _dio.get(path);
+      if (response.statusCode == 200) {
+        final data = _parseDoctorMap(response.data);
+        final enriched = Map<String, dynamic>.from(data);
+        final user = enriched['user'] as Map<String, dynamic>? ?? const {};
+        if (!enriched.containsKey('id') || enriched['id'] == null) {
+          final uname = user['username']?.toString();
+          if (uname != null && uname.isNotEmpty) {
+            enriched['id'] = uname;
+          }
+        }
+        if (enriched.containsKey('photo') && !enriched.containsKey('imageUrl')) {
+          enriched['imageUrl'] = enriched['photo'];
+        }
+        final doctor = DoctorModel.fromJson(enriched);
+        return doctor;
+      }
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+      );
+    } on DioException {
+      rethrow;
+    } catch (e) {
+      throw DioException(
+        requestOptions: RequestOptions(path: path),
+        error: e,
+        type: DioExceptionType.unknown,
+      );
+    }
+  }
+
+  @override
+  Future<List<DateTime>> getDoctorAvailableSlots(String username) async {
+    final path = ApiEndpoints.doctorAvailableSlots(username);
+    try {
+      final response = await _dio.get(path);
+      if (response.statusCode == 200) {
+        return _parseAvailableSlots(response.data);
+      }
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+      );
+    } on DioException {
+      rethrow;
+    } catch (e) {
+      throw DioException(
+        requestOptions: RequestOptions(path: path),
+        error: e,
+        type: DioExceptionType.unknown,
+      );
+    }
+  }
+
+  List<DateTime> _parseAvailableSlots(dynamic data) {
+    List<dynamic> rawList;
+    if (data is List) {
+      rawList = data;
+    } else if (data is Map<String, dynamic>) {
+      rawList =
+          (data['slots'] ?? data['available_slots'] ?? data['times'] ?? [])
+              as List;
+    } else {
+      return const [];
+    }
+
+    final result = <DateTime>[];
+    for (final item in rawList) {
+      if (item is String) {
+        final dt = DateTime.tryParse(item);
+        if (dt != null) result.add(dt);
+      } else if (item is Map<String, dynamic>) {
+        final raw =
+            item['start_time'] ?? item['time'] ?? item['slot'] ?? item['date'];
+        if (raw != null) {
+          final dt = DateTime.tryParse(raw.toString());
+          if (dt != null) result.add(dt);
+        }
+      }
+    }
+    return result;
   }
 
   DioException _notFoundException(String path) {

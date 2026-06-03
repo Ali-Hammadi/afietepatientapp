@@ -42,13 +42,39 @@ class DoctorsCubit extends Cubit<DoctorsState> {
 
   Future<void> loadDoctorById(String id) async {
     emit(const DoctorLoading());
-    final result = await getDoctorByIdUseCase(GetDoctorByIdParams(id: id));
-    result.fold((failure) => emit(DoctorError(failure.errorMessage)), (
-      doctor,
-    ) async {
-      final mergedDoctor = await _mergeDoctorScheduleIfNeeded(doctor);
-      emit(DoctorLoaded(mergedDoctor));
-    });
+
+    final repository = getDoctorByIdUseCase.repository;
+
+    final profileResult = await repository.getDoctorPublicProfile(id);
+    final slotsResult = await repository.getDoctorAvailableSlots(id);
+
+    DoctorEntity baseDoctor;
+
+    if (profileResult.isRight()) {
+      baseDoctor = profileResult.getOrElse(
+        () => DoctorEntity(id: id),
+      );
+    } else {
+      final fallbackResult = await getDoctorByIdUseCase(
+        GetDoctorByIdParams(id: id),
+      );
+      if (fallbackResult.isLeft()) {
+        fallbackResult.fold(
+          (failure) => emit(DoctorError(failure.errorMessage)),
+          (_) => null,
+        );
+        return;
+      }
+      baseDoctor = fallbackResult.getOrElse(() => DoctorEntity(id: id));
+      baseDoctor = await _mergeDoctorScheduleIfNeeded(baseDoctor);
+    }
+
+    final slots = slotsResult.getOrElse(() => const <DateTime>[]);
+    final mergedDoctor = slots.isNotEmpty
+        ? baseDoctor.copyWith(externalAvailableSlots: slots)
+        : baseDoctor;
+
+    emit(DoctorLoaded(mergedDoctor));
   }
 
   Future<DoctorEntity> _mergeDoctorScheduleIfNeeded(DoctorEntity doctor) async {
@@ -61,30 +87,7 @@ class DoctorsCubit extends Cubit<DoctorsState> {
 
     return scheduleResult.fold(
       (_) => doctor,
-      (schedule) => _withSchedule(doctor, schedule),
-    );
-  }
-
-  DoctorEntity _withSchedule(
-    DoctorEntity doctor,
-    DoctorSchedule schedule,
-  ) {
-    return DoctorEntity(
-      id: doctor.id,
-      email: doctor.email,
-      username: doctor.username,
-      gender: doctor.gender,
-      birthDate: doctor.birthDate,
-      phone: doctor.phone,
-      firstName: doctor.firstName,
-      lastName: doctor.lastName,
-      age: doctor.age,
-      jobTitle: doctor.jobTitle,
-      specialties: doctor.specialties,
-      experienceYears: doctor.experienceYears,
-      bio: doctor.bio,
-      sessionPrices: doctor.sessionPrices,
-      schedules: [schedule],
+      (schedule) => doctor.copyWith(schedules: [schedule]),
     );
   }
 

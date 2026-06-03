@@ -191,7 +191,10 @@ class DoctorModel extends Equatable {
           _readString(json['rating']) ??
           _formatRating(_readDouble(json['ratingValue'])),
       imageUrl:
-          _readString(json['imageUrl']) ?? _readString(json['image_url']) ?? '',
+          _readString(json['imageUrl']) ??
+          _readString(json['image_url']) ??
+          _readString(json['photo']) ??
+          '',
       description: bio ?? '',
       isOnline:
           _readBool(json['isOnline']) ?? _readBool(json['is_online']) ?? false,
@@ -298,6 +301,7 @@ class DoctorModel extends Equatable {
     email: email,
     username: username,
     gender: gender,
+    imageUrl: imageUrl.isNotEmpty ? imageUrl : null,
     birthDate: birthDate,
     phone: phone,
     firstName: firstName,

@@ -50,6 +50,7 @@ class DoctorEntity {
   final String? bio;
   final List<DoctorSessionPrice> sessionPrices;
   final List<DoctorSchedule> schedules;
+  final List<DateTime>? externalAvailableSlots;
 
   DoctorEntity({
     required this.id,
@@ -68,6 +69,7 @@ class DoctorEntity {
     this.bio,
     this.sessionPrices = const [],
     this.schedules = const [],
+    this.externalAvailableSlots,
   });
 
   String get name => _composeName(firstName, lastName, username, email ?? '');
@@ -88,7 +90,12 @@ class DoctorEntity {
 
   DateTime get createdAt => DateTime.now();
 
-  List<DateTime> get availableTimes => _deriveAvailableTimes(schedules);
+  List<DateTime> get availableTimes {
+    if (externalAvailableSlots != null && externalAvailableSlots!.isNotEmpty) {
+      return externalAvailableSlots!;
+    }
+    return _deriveAvailableTimes(schedules);
+  }
 
   List<int> get availableDurations =>
       _deriveAvailableDurations(sessionPrices, schedules);
@@ -99,6 +106,47 @@ class DoctorEntity {
   ConsultationFee get consultationFee =>
       _consultationFeeFromSessionPrices(sessionPrices) ??
       const ConsultationFee(textChat: 10, videoCall: 20, voiceCall: 15);
+
+  DoctorEntity copyWith({
+    String? id,
+    String? email,
+    String? username,
+    String? gender,
+    String? imageUrl,
+    DateTime? birthDate,
+    String? phone,
+    String? firstName,
+    String? lastName,
+    String? age,
+    String? jobTitle,
+    List<String>? specialties,
+    int? experienceYears,
+    String? bio,
+    List<DoctorSessionPrice>? sessionPrices,
+    List<DoctorSchedule>? schedules,
+    List<DateTime>? externalAvailableSlots,
+  }) {
+    return DoctorEntity(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      username: username ?? this.username,
+      gender: gender ?? this.gender,
+      imageUrl: imageUrl ?? this.imageUrl,
+      birthDate: birthDate ?? this.birthDate,
+      phone: phone ?? this.phone,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      age: age ?? this.age,
+      jobTitle: jobTitle ?? this.jobTitle,
+      specialties: specialties ?? this.specialties,
+      experienceYears: experienceYears ?? this.experienceYears,
+      bio: bio ?? this.bio,
+      sessionPrices: sessionPrices ?? this.sessionPrices,
+      schedules: schedules ?? this.schedules,
+      externalAvailableSlots:
+          externalAvailableSlots ?? this.externalAvailableSlots,
+    );
+  }
 }
 
 String _composeName(
