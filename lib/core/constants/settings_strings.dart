@@ -428,6 +428,8 @@ abstract class SettingsStrings {
   static String get articlesLabel => _t('Articles', 'المقالات');
   static String get readMore => _t('Read more', 'اقرأ المزيد');
   static String get readLess => _t('Read less', 'اقرأ أقل');
+  static String get like => _t('Like', 'إعجاب');
+  static String get dislike => _t('Dislike', 'عدم الإعجاب');
   static String likesLabel(int count) => _t('$count Likes', '$count إعجاب');
   static String dislikesLabel(int count) =>
       _t('$count Dislikes', '$count عدم إعجاب');

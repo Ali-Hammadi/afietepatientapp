@@ -32,6 +32,36 @@ class ArticlesRepositoryImpl implements ArticlesRepository {
   }
 
   @override
+  Future<Either<Failure, List<ArticleEntity>>> getRecommendedArticles() async {
+    try {
+      final articles = await remoteDataSource.getRecommendedArticles();
+      return Right(articles.map((model) => model.toEntity()).toList());
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return const Right([]);
+      }
+      return Left(ServerFailure.fromDioError(e));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<ArticleEntity>>> getTrendingArticles() async {
+    try {
+      final articles = await remoteDataSource.getTrendingArticles();
+      return Right(articles.map((model) => model.toEntity()).toList());
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return const Right([]);
+      }
+      return Left(ServerFailure.fromDioError(e));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, List<ArticleEntity>>> getArticlesByDoctor(
     String doctorId,
   ) async {
@@ -88,20 +118,21 @@ class ArticlesRepositoryImpl implements ArticlesRepository {
 
   @override
   Future<Either<Failure, void>> likeArticle(String articleId) async {
-    try {
-      await remoteDataSource.likeArticle(articleId);
-      return const Right(null);
-    } on DioException catch (e) {
-      return Left(ServerFailure.fromDioError(e));
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
+    return reactToArticle(articleId, 'like');
   }
 
   @override
   Future<Either<Failure, void>> dislikeArticle(String articleId) async {
+    return reactToArticle(articleId, 'dislike');
+  }
+
+  @override
+  Future<Either<Failure, void>> reactToArticle(
+    String articleId,
+    String reaction,
+  ) async {
     try {
-      await remoteDataSource.dislikeArticle(articleId);
+      await remoteDataSource.reactToArticle(articleId, reaction);
       return const Right(null);
     } on DioException catch (e) {
       return Left(ServerFailure.fromDioError(e));

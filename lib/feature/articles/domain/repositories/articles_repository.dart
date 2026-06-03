@@ -7,6 +7,8 @@ abstract class ArticlesRepository {
     String? userDiagnosis,
     int limit = 5,
   });
+  Future<Either<Failure, List<ArticleEntity>>> getRecommendedArticles();
+  Future<Either<Failure, List<ArticleEntity>>> getTrendingArticles();
   Future<Either<Failure, List<ArticleEntity>>> getArticlesByDoctor(
     String doctorId,
   );
@@ -15,6 +17,7 @@ abstract class ArticlesRepository {
     int pageSize = 10,
   });
   Future<Either<Failure, ArticleEntity>> getArticleById(String articleId);
+  Future<Either<Failure, void>> reactToArticle(String articleId, String reaction);
   Future<Either<Failure, void>> likeArticle(String articleId);
   Future<Either<Failure, void>> dislikeArticle(String articleId);
 }

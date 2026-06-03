@@ -1,4 +1,4 @@
-import 'dart:math';
+// removed unused import
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,10 +9,13 @@ part 'articles_state.dart';
 
 class ArticlesCubit extends Cubit<ArticlesState> {
   final GetArticlesForHomeUseCase getArticlesForHomeUseCase;
+  final GetRecommendedArticlesUseCase getRecommendedArticlesUseCase;
+  final GetTrendingArticlesUseCase getTrendingArticlesUseCase;
   final GetArticlesByDoctorUseCase getArticlesByDoctorUseCase;
   final GetAllArticlesUseCase getAllArticlesUseCase;
   final GetArticleByIdUseCase getArticleByIdUseCase;
   final LikeArticleUseCase likeArticleUseCase;
+  final ReactToArticleUseCase reactToArticleUseCase;
   final DislikeArticleUseCase dislikeArticleUseCase;
   List<ArticleEntity>? _currentArticles;
   bool _currentIsForHome = false;
@@ -22,10 +25,13 @@ class ArticlesCubit extends Cubit<ArticlesState> {
 
   ArticlesCubit({
     required this.getArticlesForHomeUseCase,
+    required this.getRecommendedArticlesUseCase,
+    required this.getTrendingArticlesUseCase,
     required this.getArticlesByDoctorUseCase,
     required this.getAllArticlesUseCase,
     required this.getArticleByIdUseCase,
     required this.likeArticleUseCase,
+    required this.reactToArticleUseCase,
     required this.dislikeArticleUseCase,
   }) : super(const ArticlesInitial());
 
@@ -90,6 +96,32 @@ class ArticlesCubit extends Cubit<ArticlesState> {
     );
   }
 
+  Future<void> loadRecommendedArticles() async {
+    emit(const ArticlesLoading());
+    final result = await getRecommendedArticlesUseCase();
+
+    result.fold((failure) => emit(ArticlesError(failure.errorMessage)), (
+      articles,
+    ) {
+      _currentArticles = List<ArticleEntity>.from(articles);
+      _currentIsForHome = true;
+      emit(ArticlesLoaded(articles: _currentArticles!, isForHome: true));
+    });
+  }
+
+  Future<void> loadTrendingArticles() async {
+    emit(const ArticlesLoading());
+    final result = await getTrendingArticlesUseCase();
+
+    result.fold((failure) => emit(ArticlesError(failure.errorMessage)), (
+      articles,
+    ) {
+      _currentArticles = List<ArticleEntity>.from(articles);
+      _currentIsForHome = false;
+      emit(ArticlesLoaded(articles: _currentArticles!, isForHome: false));
+    });
+  }
+
   Future<void> reloadCurrent() async {
     if (_currentDoctorId != null) {
       await loadArticlesByDoctor(_currentDoctorId!);
@@ -105,61 +137,38 @@ class ArticlesCubit extends Cubit<ArticlesState> {
   }
 
   Future<void> toggleLike(ArticleEntity article) async {
-    await likeArticleUseCase(article.id);
-
-    final currentArticle = _findCurrentArticle(article.id) ?? article;
-    final updatedArticle = currentArticle.isLikedByUser
-        ? currentArticle.copyWith(
-            isLikedByUser: false,
-            likesCount: max(0, currentArticle.likesCount - 1),
-          )
-        : currentArticle.copyWith(
-            isLikedByUser: true,
-            isDislikedByUser: false,
-            likesCount: currentArticle.likesCount + 1,
-            dislikesCount: currentArticle.isDislikedByUser
-                ? max(0, currentArticle.dislikesCount - 1)
-                : currentArticle.dislikesCount,
-          );
-
-    _emitUpdatedArticle(updatedArticle);
+    // Perform the reaction on the server, then fetch authoritative state.
+    final reactResult = await reactToArticleUseCase(article.id, 'like');
+    reactResult.fold((failure) => emit(ArticlesError(failure.errorMessage)), (_) async {
+      final fetchResult = await getArticleByIdUseCase(article.id);
+      fetchResult.fold((failure) => emit(ArticlesError(failure.errorMessage)), (updated) {
+        _emitUpdatedArticle(updated);
+      });
+    });
   }
 
   Future<void> toggleDislike(ArticleEntity article) async {
-    await dislikeArticleUseCase(article.id);
-
-    final currentArticle = _findCurrentArticle(article.id) ?? article;
-    final updatedArticle = currentArticle.isDislikedByUser
-        ? currentArticle.copyWith(
-            isDislikedByUser: false,
-            dislikesCount: max(0, currentArticle.dislikesCount - 1),
-          )
-        : currentArticle.copyWith(
-            isDislikedByUser: true,
-            isLikedByUser: false,
-            dislikesCount: currentArticle.dislikesCount + 1,
-            likesCount: currentArticle.isLikedByUser
-                ? max(0, currentArticle.likesCount - 1)
-                : currentArticle.likesCount,
-          );
-
-    _emitUpdatedArticle(updatedArticle);
+    // Perform the reaction on the server, then fetch authoritative state.
+    final reactResult = await reactToArticleUseCase(article.id, 'dislike');
+    reactResult.fold((failure) => emit(ArticlesError(failure.errorMessage)), (_) async {
+      final fetchResult = await getArticleByIdUseCase(article.id);
+      fetchResult.fold((failure) => emit(ArticlesError(failure.errorMessage)), (updated) {
+        _emitUpdatedArticle(updated);
+      });
+    });
   }
 
-  ArticleEntity? _findCurrentArticle(String articleId) {
-    final currentArticles = _currentArticles;
-    if (currentArticles == null) {
-      return null;
-    }
-
-    for (final article in currentArticles) {
-      if (article.id == articleId) {
-        return article;
-      }
-    }
-
-    return null;
+  Future<void> reactToArticle(String articleId, String reaction) async {
+    final result = await reactToArticleUseCase(articleId, reaction);
+    result.fold((failure) => emit(ArticlesError(failure.errorMessage)), (_) async {
+      final fetchResult = await getArticleByIdUseCase(articleId);
+      fetchResult.fold((failure) => emit(ArticlesError(failure.errorMessage)), (updated) {
+        _emitUpdatedArticle(updated);
+      });
+    });
   }
+
+  // helper removed — no local optimistic updates allowed; authoritative state fetched from server
 
   void _emitUpdatedArticle(ArticleEntity updatedArticle) {
     final currentArticles = _currentArticles;

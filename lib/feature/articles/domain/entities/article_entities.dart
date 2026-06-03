@@ -7,6 +7,8 @@ class ArticleEntity extends Equatable {
   final String content;
   final String summary;
   final String imageUrl;
+  final String status;
+  final String reaction;
   final DoctorEntity doctor;
   final DateTime createdAt;
   final int likesCount;
@@ -21,6 +23,8 @@ class ArticleEntity extends Equatable {
     required this.content,
     required this.summary,
     this.imageUrl = '',
+    this.status = '',
+    this.reaction = '',
     required this.doctor,
     required this.createdAt,
     required this.likesCount,
@@ -37,6 +41,8 @@ class ArticleEntity extends Equatable {
     content,
     summary,
     imageUrl,
+    status,
+    reaction,
     doctor,
     createdAt,
     likesCount,
@@ -52,6 +58,8 @@ class ArticleEntity extends Equatable {
     String? content,
     String? summary,
     String? imageUrl,
+    String? status,
+    String? reaction,
     DoctorEntity? doctor,
     DateTime? createdAt,
     int? likesCount,
@@ -66,6 +74,8 @@ class ArticleEntity extends Equatable {
       content: content ?? this.content,
       summary: summary ?? this.summary,
       imageUrl: imageUrl ?? this.imageUrl,
+      status: status ?? this.status,
+      reaction: reaction ?? this.reaction,
       doctor: doctor ?? this.doctor,
       createdAt: createdAt ?? this.createdAt,
       likesCount: likesCount ?? this.likesCount,

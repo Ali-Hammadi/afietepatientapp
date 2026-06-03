@@ -19,6 +19,26 @@ class GetArticlesForHomeUseCase {
   }
 }
 
+class GetRecommendedArticlesUseCase {
+  final ArticlesRepository repository;
+
+  GetRecommendedArticlesUseCase(this.repository);
+
+  Future<Either<Failure, List<ArticleEntity>>> call() {
+    return repository.getRecommendedArticles();
+  }
+}
+
+class GetTrendingArticlesUseCase {
+  final ArticlesRepository repository;
+
+  GetTrendingArticlesUseCase(this.repository);
+
+  Future<Either<Failure, List<ArticleEntity>>> call() {
+    return repository.getTrendingArticles();
+  }
+}
+
 class GetArticlesByDoctorUseCase {
   final ArticlesRepository repository;
 
@@ -59,6 +79,16 @@ class LikeArticleUseCase {
 
   Future<Either<Failure, void>> call(String articleId) {
     return repository.likeArticle(articleId);
+  }
+}
+
+class ReactToArticleUseCase {
+  final ArticlesRepository repository;
+
+  ReactToArticleUseCase(this.repository);
+
+  Future<Either<Failure, void>> call(String articleId, String reaction) {
+    return repository.reactToArticle(articleId, reaction);
   }
 }
 

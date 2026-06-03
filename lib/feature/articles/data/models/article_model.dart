@@ -7,6 +7,8 @@ class ArticleModel {
   final String content;
   final String summary;
   final String imageUrl;
+  final String status;
+  final String reaction;
   final DoctorEntity doctor;
   final DateTime createdAt;
   final int likesCount;
@@ -21,6 +23,8 @@ class ArticleModel {
     required this.content,
     required this.summary,
     this.imageUrl = '',
+    this.status = '',
+    this.reaction = '',
     required this.doctor,
     required this.createdAt,
     required this.likesCount,
@@ -32,7 +36,7 @@ class ArticleModel {
 
   factory ArticleModel.fromJson(Map<String, dynamic> json) {
     return ArticleModel(
-      id: json['id'] ?? '',
+      id: _readString(json['id']) ?? '',
       title:
           _readString(json['title'] ?? json['headline'] ?? json['name']) ?? '',
       content:
@@ -69,6 +73,8 @@ class ArticleModel {
                 json['photo'],
           ) ??
           '',
+      status: _readString(json['status']) ?? '',
+      reaction: _readString(json['reaction']) ?? '',
       doctor: _doctorFromJson(
         _extractDoctorMap(json) ?? const <String, dynamic>{},
       ),
@@ -98,6 +104,8 @@ class ArticleModel {
     String? content,
     String? summary,
     String? imageUrl,
+    String? status,
+    String? reaction,
     DoctorEntity? doctor,
     DateTime? createdAt,
     int? likesCount,
@@ -112,6 +120,8 @@ class ArticleModel {
       content: content ?? this.content,
       summary: summary ?? this.summary,
       imageUrl: imageUrl ?? this.imageUrl,
+      status: status ?? this.status,
+      reaction: reaction ?? this.reaction,
       doctor: doctor ?? this.doctor,
       createdAt: createdAt ?? this.createdAt,
       likesCount: likesCount ?? this.likesCount,
@@ -129,6 +139,8 @@ class ArticleModel {
       'content': content,
       'summary': summary,
       'imageUrl': imageUrl,
+      'status': status,
+      'reaction': reaction,
       'doctor': {
         'id': doctor.id,
         'name': doctor.name,
@@ -151,6 +163,8 @@ class ArticleModel {
       content: content,
       summary: summary,
       imageUrl: imageUrl,
+      status: status,
+      reaction: reaction,
       doctor: doctor,
       createdAt: createdAt,
       likesCount: likesCount,
@@ -162,36 +176,47 @@ class ArticleModel {
   }
 
   static DoctorEntity _doctorFromJson(Map<String, dynamic> json) {
-    final user = json['user'] as Map<String, dynamic>? ?? const {};
+    final author = json['author'] as Map<String, dynamic>?;
+    final user = (json['user'] as Map<String, dynamic>?) ??
+        (author?['user'] as Map<String, dynamic>?) ??
+        const {};
     final jobTitle = _readString(
       _readNestedValue(json, ['job_title', 'title']) ??
+          _readNestedValue(author ?? const {}, ['job_title', 'title']) ??
           json['job_title'] ??
+          author?['job_title'] ??
           _readNestedValue(json, ['specialization', 'name']) ??
+          _readNestedValue(author ?? const {}, ['specialization', 'name']) ??
           json['specialization'] ??
+          author?['specialization'] ??
           json['specialty'] ??
           'General',
     );
     final specializationName =
         _readString(
           _readNestedValue(json, ['specialization', 'name']) ??
+              _readNestedValue(author ?? const {}, ['specialization', 'name']) ??
               json['specialization'] ??
+              author?['specialization'] ??
               json['specialty'] ??
               jobTitle,
         ) ??
         'General';
     return DoctorEntity(
-      id: (json['id'] ?? json['doctor_id'] ?? json['doctorId'] ?? '')
+      id: (json['id'] ?? author?['id'] ?? json['doctor_id'] ?? json['doctorId'] ?? '')
           .toString(),
       firstName:
           _readString(
             json['name'] ??
+                author?['name'] ??
                 json['full_name'] ??
                 json['first_name'] ??
+                author?['first_name'] ??
                 user['first_name'] ??
                 user['username'],
           ) ??
           'Unknown Doctor',
-      lastName: _readString(json['last_name'] ?? user['last_name']),
+      lastName: _readString(json['last_name'] ?? author?['last_name'] ?? user['last_name']),
       username: _readString(user['username']),
       jobTitle: jobTitle,
       specialties: [specializationName],
@@ -202,6 +227,7 @@ class ArticleModel {
             json['imageUrl'] ??
                 json['image_url'] ??
                 json['image'] ??
+                author?['photo'] ??
                 user['image_url'] ??
                 user['image'] ??
                 user['profile_image'] ??

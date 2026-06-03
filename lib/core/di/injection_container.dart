@@ -567,6 +567,12 @@ Future<void> init() async {
   sl.registerLazySingleton<GetArticlesForHomeUseCase>(
     () => GetArticlesForHomeUseCase(sl<ArticlesRepository>()),
   );
+  sl.registerLazySingleton<GetRecommendedArticlesUseCase>(
+    () => GetRecommendedArticlesUseCase(sl<ArticlesRepository>()),
+  );
+  sl.registerLazySingleton<GetTrendingArticlesUseCase>(
+    () => GetTrendingArticlesUseCase(sl<ArticlesRepository>()),
+  );
   sl.registerLazySingleton<GetArticlesByDoctorUseCase>(
     () => GetArticlesByDoctorUseCase(sl<ArticlesRepository>()),
   );
@@ -579,6 +585,9 @@ Future<void> init() async {
   sl.registerLazySingleton<LikeArticleUseCase>(
     () => LikeArticleUseCase(sl<ArticlesRepository>()),
   );
+  sl.registerLazySingleton<ReactToArticleUseCase>(
+    () => ReactToArticleUseCase(sl<ArticlesRepository>()),
+  );
   sl.registerLazySingleton<DislikeArticleUseCase>(
     () => DislikeArticleUseCase(sl<ArticlesRepository>()),
   );
@@ -587,10 +596,13 @@ Future<void> init() async {
   sl.registerFactory<ArticlesCubit>(
     () => ArticlesCubit(
       getArticlesForHomeUseCase: sl<GetArticlesForHomeUseCase>(),
+      getRecommendedArticlesUseCase: sl<GetRecommendedArticlesUseCase>(),
+      getTrendingArticlesUseCase: sl<GetTrendingArticlesUseCase>(),
       getArticlesByDoctorUseCase: sl<GetArticlesByDoctorUseCase>(),
       getAllArticlesUseCase: sl<GetAllArticlesUseCase>(),
       getArticleByIdUseCase: sl<GetArticleByIdUseCase>(),
       likeArticleUseCase: sl<LikeArticleUseCase>(),
+      reactToArticleUseCase: sl<ReactToArticleUseCase>(),
       dislikeArticleUseCase: sl<DislikeArticleUseCase>(),
     ),
   );

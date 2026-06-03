@@ -34,6 +34,9 @@ class _ArticlesListScreenState extends State<ArticlesListScreen> {
     final cubit = context.read<ArticlesCubit>();
     if (widget.doctorId != null) {
       cubit.loadArticlesByDoctor(widget.doctorId!);
+    } else if (widget.userDiagnosis != null &&
+        widget.userDiagnosis!.trim().isNotEmpty) {
+      cubit.loadArticlesForHome(userDiagnosis: widget.userDiagnosis);
     } else {
       cubit.loadAllArticles();
     }

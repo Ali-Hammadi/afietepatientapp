@@ -1,12 +1,13 @@
 import 'package:afietepatientapp/core/constants/styles.dart';
 import 'package:afietepatientapp/core/constants/settings_strings.dart';
+import 'package:afietepatientapp/core/routes/app_route.dart';
 import 'package:afietepatientapp/feature/articles/domain/entities/article_entities.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class ArticleCardWidget extends StatefulWidget {
   final ArticleEntity article;
-  final VoidCallback onReadMore;
+  final VoidCallback? onReadMore;
   final VoidCallback? onDoctorTap;
   final bool isExpanded;
   final bool compactMode;
@@ -15,7 +16,7 @@ class ArticleCardWidget extends StatefulWidget {
   const ArticleCardWidget({
     super.key,
     required this.article,
-    required this.onReadMore,
+    this.onReadMore,
     this.onDoctorTap,
     this.isExpanded = false,
     this.compactMode = false,
@@ -57,6 +58,28 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (widget.article.status.trim().isNotEmpty ||
+              widget.article.reaction.trim().isNotEmpty) ...[
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (widget.article.status.trim().isNotEmpty)
+                  _StatusChip(
+                    label: widget.article.status,
+                    backgroundColor: colorScheme.primaryContainer,
+                    foregroundColor: colorScheme.onPrimaryContainer,
+                  ),
+                if (widget.article.reaction.trim().isNotEmpty)
+                  _StatusChip(
+                    label: widget.article.reaction,
+                    backgroundColor: colorScheme.secondaryContainer,
+                    foregroundColor: colorScheme.onSecondaryContainer,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 10),
+          ],
           Text(
             widget.article.title,
             style:
@@ -83,6 +106,26 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
             ),
           ],
           const SizedBox(height: 12),
+          Row(
+            children: [
+              Icon(
+                Icons.thumb_up_outlined,
+                size: 18,
+                color: colorScheme.primary,
+              ),
+              const SizedBox(width: 4),
+              Text('${widget.article.likesCount}'),
+              const SizedBox(width: 12),
+              Icon(
+                Icons.thumb_down_outlined,
+                size: 18,
+                color: colorScheme.error,
+              ),
+              const SizedBox(width: 4),
+              Text('${widget.article.dislikesCount}'),
+            ],
+          ),
+          const SizedBox(height: 12),
 
           Text(
             widget.article.content,
@@ -104,7 +147,16 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
               setState(() {
                 _isExpanded = !_isExpanded;
               });
-              widget.onReadMore();
+              // navigate to details when user taps read more
+              if (widget.onReadMore == null) {
+                Navigator.pushNamed(
+                  context,
+                  MyRoutes.articleDetailsScreen,
+                  arguments: widget.article,
+                );
+              } else {
+                widget.onReadMore?.call();
+              }
             },
             child: Text(
               _isExpanded ? SettingsStrings.readLess : SettingsStrings.readMore,
@@ -285,6 +337,36 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
                         },
                       ))
               : Icon(Icons.image_outlined, color: colorScheme.primary),
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  final String label;
+  final Color backgroundColor;
+  final Color foregroundColor;
+
+  const _StatusChip({
+    required this.label,
+    required this.backgroundColor,
+    required this.foregroundColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: AppStyles.bodySmall.copyWith(
+          color: foregroundColor,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

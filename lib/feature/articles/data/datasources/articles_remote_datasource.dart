@@ -7,9 +7,12 @@ abstract class ArticlesRemoteDataSource {
     String? userDiagnosis,
     int limit = 5,
   });
+  Future<List<ArticleModel>> getRecommendedArticles();
+  Future<List<ArticleModel>> getTrendingArticles();
   Future<List<ArticleModel>> getArticlesByDoctor(String doctorId);
   Future<List<ArticleModel>> getAllArticles({int page = 1, int pageSize = 10});
   Future<ArticleModel> getArticleById(String articleId);
+  Future<void> reactToArticle(String articleId, String reaction);
   Future<void> likeArticle(String articleId);
   Future<void> dislikeArticle(String articleId);
 }
@@ -25,16 +28,8 @@ class ArticlesRemoteDataSourceImpl implements ArticlesRemoteDataSource {
     int limit = 5,
   }) async {
     try {
-      final recommended = await _loadArticles(ApiEndpoints.articlesRecommended);
-      List<ArticleModel> trending = const [];
-
-      try {
-        trending = await _loadArticles(ApiEndpoints.articlesTrending);
-      } on DioException catch (e) {
-        if (e.response?.statusCode != 404) {
-          rethrow;
-        }
-      }
+      final recommended = await getRecommendedArticles();
+      final trending = await getTrendingArticles();
 
       return _uniqueById([
         ...recommended.take(limit),
@@ -45,6 +40,38 @@ class ArticlesRemoteDataSourceImpl implements ArticlesRemoteDataSource {
     } catch (e) {
       throw DioException(
         requestOptions: RequestOptions(path: ApiEndpoints.articlesRecommended),
+        error: e,
+        type: DioExceptionType.unknown,
+      );
+    }
+  }
+
+  @override
+  Future<List<ArticleModel>> getRecommendedArticles() async {
+    try {
+      return _loadArticles(ApiEndpoints.articlesRecommended);
+    } on DioException {
+      rethrow;
+    } catch (e) {
+      throw DioException(
+        requestOptions: RequestOptions(
+          path: ApiEndpoints.articlesRecommended,
+        ),
+        error: e,
+        type: DioExceptionType.unknown,
+      );
+    }
+  }
+
+  @override
+  Future<List<ArticleModel>> getTrendingArticles() async {
+    try {
+      return _loadArticles(ApiEndpoints.articlesTrending);
+    } on DioException {
+      rethrow;
+    } catch (e) {
+      throw DioException(
+        requestOptions: RequestOptions(path: ApiEndpoints.articlesTrending),
         error: e,
         type: DioExceptionType.unknown,
       );
@@ -115,17 +142,19 @@ class ArticlesRemoteDataSourceImpl implements ArticlesRemoteDataSource {
 
   @override
   Future<void> likeArticle(String articleId) async {
-    await _dio.post(
-      ApiEndpoints.articleReact(articleId),
-      data: {'reaction': 'like'},
-    );
+    await reactToArticle(articleId, 'like');
   }
 
   @override
   Future<void> dislikeArticle(String articleId) async {
+    await reactToArticle(articleId, 'dislike');
+  }
+
+  @override
+  Future<void> reactToArticle(String articleId, String reaction) async {
     await _dio.post(
       ApiEndpoints.articleReact(articleId),
-      data: {'reaction': 'dislike'},
+      data: {'reaction': reaction},
     );
   }
 
