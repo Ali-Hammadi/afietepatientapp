@@ -38,12 +38,12 @@ class CustomLanguageOption extends StatelessWidget {
         ),
         child: Row(
           children: [
-            RadioGroup<String>(
+            Radio<String>(
+              value: value,
               groupValue: groupValue,
               onChanged: (selected) {
                 if (selected == value) onTap();
               },
-              child: Radio<String>(value: value),
             ),
             const SizedBox(width: 8),
             Expanded(

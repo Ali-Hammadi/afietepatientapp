@@ -398,7 +398,8 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
                 children: [
                   Row(
                     children: [
-                      RadioGroup<String>(
+                      Radio<String>(
+                        value: _genderMale,
                         groupValue: selectedGender,
                         onChanged: (value) {
                           if (value == null) return;
@@ -406,7 +407,6 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
                             selectedGender = value;
                           });
                         },
-                        child: const Radio<String>(value: _genderMale),
                       ),
                       const SizedBox(width: 8),
                       Expanded(child: Text(SettingsStrings.male)),
@@ -415,7 +415,8 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      RadioGroup<String>(
+                      Radio<String>(
+                        value: _genderFemale,
                         groupValue: selectedGender,
                         onChanged: (value) {
                           if (value == null) return;
@@ -423,7 +424,6 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
                             selectedGender = value;
                           });
                         },
-                        child: const Radio<String>(value: _genderFemale),
                       ),
                       const SizedBox(width: 8),
                       Expanded(child: Text(SettingsStrings.female)),

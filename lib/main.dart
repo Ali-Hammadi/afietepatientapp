@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'firebase_options.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/di/injection_container.dart';
@@ -25,7 +26,9 @@ void main() async {
   await init();
   final themeCubit = await ThemeCubit.create();
   final languageCubit = await LanguageCubit.create();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   NuclearResetHelper.configure(
     getIt: sl,

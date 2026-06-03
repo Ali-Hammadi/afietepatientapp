@@ -127,7 +127,7 @@ class _AuthInfoScreenState extends State<AuthInfoScreen> {
                       ),
                       const SizedBox(height: 20),
                       DropdownButtonFormField<String>(
-                        initialValue: dropdownGenderValue,
+                        value: dropdownGenderValue,
                         decoration: InputDecoration(
                           labelText: SettingsStrings.genderTitle,
                           labelStyle: AppStyles.bodyMedium,

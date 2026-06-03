@@ -284,7 +284,7 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
     return ListView.separated(
       key: const ValueKey('date-step'),
       itemCount: _availableDays.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 10),
+      separatorBuilder: (context, index) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
         final day = _availableDays[index];
         final isSelected =
@@ -339,7 +339,7 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
     return ListView.separated(
       key: const ValueKey('duration-step'),
       itemCount: _availableDurations.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 10),
+      separatorBuilder: (context, index) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
         final slots = _availableDurations[index];
         final minutes = slots * 30;
@@ -359,7 +359,7 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
     return ListView.separated(
       key: const ValueKey('type-step'),
       itemCount: _availableSessionTypes.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 10),
+      separatorBuilder: (context, index) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
         final type = _availableSessionTypes[index];
         final isSelected = _selectedSessionType == type;

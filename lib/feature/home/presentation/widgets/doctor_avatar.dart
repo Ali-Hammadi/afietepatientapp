@@ -20,7 +20,7 @@ class CustomDoctorAvatar extends StatelessWidget {
             ? Image.network(
                 imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, _, _) =>
+                errorBuilder: (context, error, stackTrace) =>
                     Image.asset(ImageLinks.man1, fit: BoxFit.cover),
               )
             : Image.asset(ImageLinks.man1, fit: BoxFit.cover),
