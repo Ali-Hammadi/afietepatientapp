@@ -136,8 +136,15 @@ class DoctorModel extends Equatable {
   });
 
   factory DoctorModel.fromJson(Map<String, dynamic> json) {
-    final user = json['user'] as Map<String, dynamic>? ?? const {};
-    final jobTitle = json['job_title'] as Map<String, dynamic>? ?? const {};
+    final user = json['user'] is Map<String, dynamic>
+        ? json['user'] as Map<String, dynamic>
+        : const <String, dynamic>{};
+    // job_title may be a plain String ("doctor") from the recommendations
+    // endpoint, or a Map ({title: "..."}) from the public profile endpoint.
+    final jobTitleRaw = json['job_title'];
+    final jobTitle = jobTitleRaw is Map<String, dynamic>
+        ? jobTitleRaw
+        : const <String, dynamic>{};
     final specialties = _parseSpecialties(json['specialties']);
     final sessionPrices = _parseSessionPrices(json['session_prices']);
     final schedules = _parseSchedules(
