@@ -72,7 +72,9 @@ abstract class ApiEndpoints {
   static const String keyToken = 'token';
   static const String keyIdToken = 'id_token';
 
-  static const String allDoctors = '$doctors/';
+  // /api/doctors/ list does not exist on the server; recommended doctors come
+  // from the assessments recommend endpoint.
+  static const String allDoctors = '$assessments/doctors/recommend/';
   static String doctorById(String id) => '$doctors/$id/';
   static String doctorPublicProfile(String username) =>
       '$doctors/$username/profile/public';

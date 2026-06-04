@@ -91,7 +91,13 @@ class FirstHomeScreen extends StatelessWidget {
                     SettingsStrings.topDoctorsTitle,
                     style: AppStyles.headingMedium,
                   ),
-                  const CustomTopDoctorsWidget(),
+                  BlocBuilder<AssismentsCubit, AssismentsState>(
+                    builder: (context, assignmentsState) {
+                      return CustomTopDoctorsWidget(
+                        specialty: _resolveClosestDiagnosis(assignmentsState),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 20),
                   BlocBuilder<AssismentsCubit, AssismentsState>(
                     builder: (context, assignmentsState) {

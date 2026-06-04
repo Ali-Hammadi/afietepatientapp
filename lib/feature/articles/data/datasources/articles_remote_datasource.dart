@@ -27,22 +27,33 @@ class ArticlesRemoteDataSourceImpl implements ArticlesRemoteDataSource {
     String? userDiagnosis,
     int limit = 5,
   }) async {
-    try {
-      final recommended = await getRecommendedArticles();
-      final trending = await getTrendingArticles();
+    List<ArticleModel> recommended = [];
+    List<ArticleModel> trending = [];
 
-      return _uniqueById([
-        ...recommended.take(limit),
-        ...trending.take(limit),
-      ]);
-    } on DioException {
-      rethrow;
-    } catch (e) {
-      throw DioException(
-        requestOptions: RequestOptions(path: ApiEndpoints.articlesRecommended),
-        error: e,
-        type: DioExceptionType.unknown,
-      );
+    try {
+      recommended = await getRecommendedArticles();
+    } catch (_) {
+      // Server may return 500 when patient has no assessment history — ignore
+    }
+
+    try {
+      trending = await getTrendingArticles();
+    } catch (_) {
+      // Trending may not exist yet — ignore
+    }
+
+    final combined = _uniqueById([
+      ...recommended.take(limit),
+      ...trending.take(limit),
+    ]);
+
+    if (combined.isNotEmpty) return combined;
+
+    // Both specialised feeds failed — fall back to the plain articles list
+    try {
+      return await getAllArticles(page: 1, pageSize: limit * 2);
+    } catch (_) {
+      return const [];
     }
   }
 

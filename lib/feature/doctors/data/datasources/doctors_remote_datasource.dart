@@ -162,9 +162,20 @@ class DoctorsRemoteDataSourceImpl implements DoctorsRemoteDataSource {
   }
 
   List<DoctorModel> _parseDoctorList(dynamic data) {
-    final rawList = data is Map<String, dynamic>
-        ? (data['doctors'] as List? ?? const [])
-        : (data as List? ?? const []);
+    List rawList = const [];
+
+    if (data is List) {
+      rawList = data;
+    } else if (data is Map<String, dynamic>) {
+      // Try common envelope keys in priority order
+      final raw = data['doctors'] ??
+          data['results'] ??
+          data['recommended_doctors'] ??
+          data['data'] ??
+          data['items'] ??
+          const [];
+      if (raw is List) rawList = raw;
+    }
 
     return rawList
         .whereType<Map<String, dynamic>>()

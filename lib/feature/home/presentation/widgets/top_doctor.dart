@@ -10,7 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CustomTopDoctorsWidget extends StatefulWidget {
-  const CustomTopDoctorsWidget({super.key});
+  final String? specialty;
+
+  const CustomTopDoctorsWidget({super.key, this.specialty});
 
   @override
   State<CustomTopDoctorsWidget> createState() => _CustomTopDoctorsWidgetState();
@@ -22,7 +24,24 @@ class _CustomTopDoctorsWidgetState extends State<CustomTopDoctorsWidget> {
   @override
   void initState() {
     super.initState();
-    _doctorsCubit = sl<DoctorsCubit>()..loadAllDoctors();
+    _doctorsCubit = sl<DoctorsCubit>();
+    _loadDoctors(widget.specialty);
+  }
+
+  @override
+  void didUpdateWidget(CustomTopDoctorsWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.specialty != widget.specialty) {
+      _loadDoctors(widget.specialty);
+    }
+  }
+
+  void _loadDoctors(String? specialty) {
+    if (specialty != null && specialty.isNotEmpty) {
+      _doctorsCubit.loadDoctorsBySpecialty(specialty);
+    } else {
+      _doctorsCubit.loadAllDoctors();
+    }
   }
 
   @override

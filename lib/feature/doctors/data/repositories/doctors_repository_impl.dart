@@ -16,7 +16,10 @@ class DoctorsRepositoryImpl implements DoctorsRepository {
       final doctors = await remoteDataSource.getAllDoctors();
       return Right(doctors.map((model) => model.toEntity()).toList());
     } on DioException catch (e) {
-      if (e.response?.statusCode == 404) {
+      // 404 = endpoint not found / no assessment yet; 500 = server error before
+      // assessment data is available — both map to an empty list, not an error.
+      final status = e.response?.statusCode;
+      if (status == 404 || status == 500) {
         return const Right(<DoctorEntity>[]);
       }
       return Left(ServerFailure.fromDioError(e));
@@ -33,7 +36,8 @@ class DoctorsRepositoryImpl implements DoctorsRepository {
       final doctors = await remoteDataSource.getDoctorsBySpecialty(specialty);
       return Right(doctors.map((model) => model.toEntity()).toList());
     } on DioException catch (e) {
-      if (e.response?.statusCode == 404) {
+      final status = e.response?.statusCode;
+      if (status == 404 || status == 500) {
         return const Right(<DoctorEntity>[]);
       }
       return Left(ServerFailure.fromDioError(e));
