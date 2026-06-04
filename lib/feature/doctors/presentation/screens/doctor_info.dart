@@ -9,7 +9,7 @@ import 'package:afietepatientapp/feature/articles/presentation/widgets/article_c
 import 'package:afietepatientapp/feature/auth/presentation/cubits/auth_cubit.dart';
 import 'package:afietepatientapp/feature/doctors/domain/entites/doctor_entity.dart';
 import 'package:afietepatientapp/feature/doctors/presentation/cubits/doctors_cubit.dart';
-import 'package:afietepatientapp/core/assets/icon_image_links.dart';
+
 import 'package:afietepatientapp/feature/home/presentation/widgets/custom_container.dart';
 import 'package:afietepatientapp/feature/report/domain/entities/report_entity.dart';
 import 'package:flutter/material.dart';
