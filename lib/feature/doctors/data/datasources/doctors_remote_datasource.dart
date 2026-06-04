@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:afietepatientapp/core/network/api_endpoints.dart';
 import 'package:afietepatientapp/feature/doctors/data/models/doctor_model.dart';
+import 'package:afietepatientapp/feature/doctors/domain/entites/doctor_entity.dart';
 
 abstract class DoctorsRemoteDataSource {
   Future<List<DoctorModel>> getAllDoctors();
@@ -9,7 +10,10 @@ abstract class DoctorsRemoteDataSource {
   Future<DoctorModel> getCurrentDoctorProfile();
   Future<DoctorScheduleModel> getDoctorScheduleById(String id);
   Future<DoctorModel> getDoctorPublicProfile(String username);
-  Future<List<DateTime>> getDoctorAvailableSlots(String username);
+  Future<List<DoctorTimeSlot>> getDoctorAvailableSlots(
+    String username,
+    String date,
+  );
 }
 
 class DoctorsRemoteDataSourceImpl implements DoctorsRemoteDataSource {
@@ -221,8 +225,11 @@ class DoctorsRemoteDataSourceImpl implements DoctorsRemoteDataSource {
   }
 
   @override
-  Future<List<DateTime>> getDoctorAvailableSlots(String username) async {
-    final path = ApiEndpoints.doctorAvailableSlots(username);
+  Future<List<DoctorTimeSlot>> getDoctorAvailableSlots(
+    String username,
+    String date,
+  ) async {
+    final path = ApiEndpoints.doctorAvailableSlots(username, date: date);
     try {
       final response = await _dio.get(path);
       if (response.statusCode == 200) {
@@ -244,29 +251,24 @@ class DoctorsRemoteDataSourceImpl implements DoctorsRemoteDataSource {
     }
   }
 
-  List<DateTime> _parseAvailableSlots(dynamic data) {
-    List<dynamic> rawList;
-    if (data is List) {
+  List<DoctorTimeSlot> _parseAvailableSlots(dynamic data) {
+    List<dynamic> rawList = const [];
+
+    if (data is Map<String, dynamic>) {
+      final raw =
+          data['available_slots'] ?? data['slots'] ?? data['times'] ?? const [];
+      if (raw is List) rawList = raw;
+    } else if (data is List) {
       rawList = data;
-    } else if (data is Map<String, dynamic>) {
-      rawList =
-          (data['slots'] ?? data['available_slots'] ?? data['times'] ?? [])
-              as List;
-    } else {
-      return const [];
     }
 
-    final result = <DateTime>[];
+    final result = <DoctorTimeSlot>[];
     for (final item in rawList) {
-      if (item is String) {
-        final dt = DateTime.tryParse(item);
-        if (dt != null) result.add(dt);
-      } else if (item is Map<String, dynamic>) {
-        final raw =
-            item['start_time'] ?? item['time'] ?? item['slot'] ?? item['date'];
-        if (raw != null) {
-          final dt = DateTime.tryParse(raw.toString());
-          if (dt != null) result.add(dt);
+      if (item is Map<String, dynamic>) {
+        final start = item['start']?.toString() ?? item['start_time']?.toString();
+        final end = item['end']?.toString() ?? item['end_time']?.toString();
+        if (start != null && end != null) {
+          result.add(DoctorTimeSlot(start: start, end: end));
         }
       }
     }

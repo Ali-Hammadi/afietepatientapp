@@ -95,15 +95,19 @@ class DoctorsRepositoryImpl implements DoctorsRepository {
   }
 
   @override
-  Future<Either<Failure, List<DateTime>>> getDoctorAvailableSlots(
+  Future<Either<Failure, List<DoctorTimeSlot>>> getDoctorAvailableSlots(
     String username,
+    String date,
   ) async {
     try {
-      final slots = await remoteDataSource.getDoctorAvailableSlots(username);
+      final slots = await remoteDataSource.getDoctorAvailableSlots(
+        username,
+        date,
+      );
       return Right(slots);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-        return const Right(<DateTime>[]);
+        return const Right(<DoctorTimeSlot>[]);
       }
       return Left(ServerFailure.fromDioError(e));
     } catch (e) {

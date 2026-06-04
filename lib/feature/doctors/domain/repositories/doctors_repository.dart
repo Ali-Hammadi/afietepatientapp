@@ -13,7 +13,8 @@ abstract class DoctorsRepository {
   Future<Either<Failure, DoctorEntity>> getDoctorPublicProfile(
     String username,
   );
-  Future<Either<Failure, List<DateTime>>> getDoctorAvailableSlots(
+  Future<Either<Failure, List<DoctorTimeSlot>>> getDoctorAvailableSlots(
     String username,
+    String date,
   );
 }

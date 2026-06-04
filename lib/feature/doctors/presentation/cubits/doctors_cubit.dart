@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afietepatientapp/core/usecases/usecase.dart';
 import 'package:afietepatientapp/feature/doctors/domain/entites/doctor_entity.dart';
 import 'package:afietepatientapp/feature/doctors/domain/usecase/get_doctors_usecase.dart';
+import 'package:intl/intl.dart';
 
 part 'doctors_state.dart';
 
@@ -44,16 +45,12 @@ class DoctorsCubit extends Cubit<DoctorsState> {
     emit(const DoctorLoading());
 
     final repository = getDoctorByIdUseCase.repository;
-
     final profileResult = await repository.getDoctorPublicProfile(id);
-    final slotsResult = await repository.getDoctorAvailableSlots(id);
 
     DoctorEntity baseDoctor;
 
     if (profileResult.isRight()) {
-      baseDoctor = profileResult.getOrElse(
-        () => DoctorEntity(id: id),
-      );
+      baseDoctor = profileResult.getOrElse(() => DoctorEntity(id: id));
     } else {
       final fallbackResult = await getDoctorByIdUseCase(
         GetDoctorByIdParams(id: id),
@@ -69,15 +66,22 @@ class DoctorsCubit extends Cubit<DoctorsState> {
       baseDoctor = await _mergeDoctorScheduleIfNeeded(baseDoctor);
     }
 
-    final slots = slotsResult.getOrElse(() => const <DateTime>[]);
-    final mergedDoctor = slots.isNotEmpty
-        ? baseDoctor.copyWith(externalAvailableSlots: slots)
-        : baseDoctor;
-
-    emit(DoctorLoaded(mergedDoctor));
+    emit(DoctorLoaded(baseDoctor));
   }
 
-  Future<DoctorEntity> _mergeDoctorScheduleIfNeeded(DoctorEntity doctor) async {
+  Future<List<DoctorTimeSlot>> fetchSlotsForDate(
+    String username,
+    DateTime date,
+  ) async {
+    final dateStr = DateFormat('yyyy-MM-dd').format(date);
+    final result = await getDoctorByIdUseCase.repository
+        .getDoctorAvailableSlots(username, dateStr);
+    return result.getOrElse(() => const <DoctorTimeSlot>[]);
+  }
+
+  Future<DoctorEntity> _mergeDoctorScheduleIfNeeded(
+    DoctorEntity doctor,
+  ) async {
     if (doctor.schedules.isNotEmpty || doctor.id.isEmpty) {
       return doctor;
     }

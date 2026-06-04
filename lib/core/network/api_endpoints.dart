@@ -76,8 +76,10 @@ abstract class ApiEndpoints {
   static String doctorById(String id) => '$doctors/$id/';
   static String doctorPublicProfile(String username) =>
       '$doctors/$username/profile/public';
-  static String doctorAvailableSlots(String username) =>
-      '$doctors/$username/available-slots/';
+  static String doctorAvailableSlots(String username, {String? date}) {
+    final base = '$doctors/$username/available-slots/';
+    return date != null ? '$base?date=$date' : base;
+  }
   static const String doctorRegister = '$doctors/register/';
   // Align with Swagger paths: profile update at /doctors/profile/
   static const String doctorProfileUpdate = '$doctors/profile/';
