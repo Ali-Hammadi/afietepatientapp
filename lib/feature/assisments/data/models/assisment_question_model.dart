@@ -1,6 +1,23 @@
 import 'package:afiete/feature/assisments/domain/entity/assisments_entity.dart';
 
 abstract class AssismentModel {
+  static List<AssessmentScoreEntry> fromScoresJson(Map<String, dynamic> json) {
+    return json.entries
+        .map((entry) {
+          final data = entry.value is Map<String, dynamic>
+              ? entry.value as Map<String, dynamic>
+              : <String, dynamic>{};
+          return AssessmentScoreEntry(
+            name: entry.key,
+            score: (data['score'] as num?)?.toInt() ?? 0,
+            raw: (data['raw'] as num?)?.toInt() ?? 0,
+            max: (data['max'] as num?)?.toInt() ?? 0,
+            severity: (data['severity'] ?? '').toString(),
+          );
+        })
+        .toList();
+  }
+
   static List<AssismentOptionEntity> _parseOptions(dynamic value) {
     final rawOptions = value is List ? value : const <dynamic>[];
 

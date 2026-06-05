@@ -4,6 +4,7 @@ import 'package:afiete/core/usecases/usecase.dart';
 import 'package:afiete/feature/assisments/data/assisment_visibility_store.dart';
 import 'package:afiete/feature/assisments/domain/entity/assisments_entity.dart';
 import 'package:afiete/feature/assisments/domain/usecase/get_assisment_questions_usecase.dart';
+import 'package:afiete/feature/assisments/domain/usecase/get_assessment_scores_usecase.dart';
 import 'package:afiete/feature/assisments/domain/usecase/submit_assisment_usecase.dart';
 import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
 import 'package:afiete/feature/doctors/domain/usecase/get_doctors_usecase.dart';
@@ -17,12 +18,14 @@ class AssismentsCubit extends Cubit<AssismentsState> {
   final SubmitAssismentUseCase submitAssismentUseCase;
   final GetAllDoctorsUseCase getAllDoctorsUseCase;
   final GetDoctorsBySpecialtyUseCase getDoctorsBySpecialtyUseCase;
+  final GetAssessmentScoresUseCase getAssessmentScoresUseCase;
 
   AssismentsCubit(
     this.getAssismentQuestionsUseCase,
     this.submitAssismentUseCase,
     this.getAllDoctorsUseCase,
     this.getDoctorsBySpecialtyUseCase,
+    this.getAssessmentScoresUseCase,
   ) : super(const AssismentsInitial());
 
   Future<void> loadQuestions() async {
@@ -211,6 +214,15 @@ class AssismentsCubit extends Cubit<AssismentsState> {
     }
 
     return PsychologySpecialties.counselor;
+  }
+
+  Future<void> loadLastScores() async {
+    emit(const AssismentsLoading());
+    final result = await getAssessmentScoresUseCase(NoParams());
+    result.fold(
+      (failure) => emit(AssismentsError(failure.errorMessage)),
+      (scores) => emit(AssismentsLastScoresLoaded(scores: scores)),
+    );
   }
 
   Future<void> retakeAssisment() async {

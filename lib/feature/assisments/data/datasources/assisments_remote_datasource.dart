@@ -9,6 +9,8 @@ abstract class AssismentsRemoteDataSource {
   Future<AssismentEntity> submitAssisment({
     required List<AssismentEntity> answers,
   });
+
+  Future<List<AssessmentScoreEntry>> getAssessmentScores();
 }
 
 class AssismentsRemoteDataSourceImpl implements AssismentsRemoteDataSource {
@@ -45,6 +47,27 @@ class AssismentsRemoteDataSourceImpl implements AssismentsRemoteDataSource {
     }
 
     return questions;
+  }
+
+  @override
+  Future<List<AssessmentScoreEntry>> getAssessmentScores() async {
+    try {
+      final response = await _dio.get(ApiEndpoints.assessmentsScores);
+      if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
+        return AssismentModel.fromScoresJson(
+          response.data as Map<String, dynamic>,
+        );
+      }
+      return const [];
+    } on DioException {
+      rethrow;
+    } catch (error) {
+      throw DioException(
+        requestOptions: RequestOptions(path: ApiEndpoints.assessmentsScores),
+        error: error,
+        type: DioExceptionType.unknown,
+      );
+    }
   }
 
   @override

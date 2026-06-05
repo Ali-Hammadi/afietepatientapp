@@ -35,4 +35,16 @@ class AssismentsRepositoryImpl implements AssismentsRepository {
       return Left(ServerFailure(error.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, List<AssessmentScoreEntry>>> getAssessmentScores() async {
+    try {
+      final scores = await remoteDataSource.getAssessmentScores();
+      return Right(scores);
+    } on DioException catch (error) {
+      return Left(ServerFailure.fromDioError(error));
+    } catch (error) {
+      return Left(ServerFailure(error.toString()));
+    }
+  }
 }

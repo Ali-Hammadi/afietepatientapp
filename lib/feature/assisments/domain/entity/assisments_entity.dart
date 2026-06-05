@@ -2,6 +2,25 @@ import 'package:equatable/equatable.dart';
 
 enum AssismentEntityType { question, answer, result }
 
+class AssessmentScoreEntry extends Equatable {
+  final String name;
+  final int score;
+  final int raw;
+  final int max;
+  final String severity;
+
+  const AssessmentScoreEntry({
+    required this.name,
+    required this.score,
+    required this.raw,
+    required this.max,
+    required this.severity,
+  });
+
+  @override
+  List<Object?> get props => [name, score, raw, max, severity];
+}
+
 class AssismentOptionEntity extends Equatable {
   final int id;
   final String text;

@@ -70,6 +70,15 @@ class AssismentsResultLoaded extends AssismentsState {
   List<Object?> get props => [result, doctors];
 }
 
+class AssismentsLastScoresLoaded extends AssismentsState {
+  final List<AssessmentScoreEntry> scores;
+
+  const AssismentsLastScoresLoaded({required this.scores});
+
+  @override
+  List<Object?> get props => [scores];
+}
+
 class AssismentsError extends AssismentsState {
   final String message;
 

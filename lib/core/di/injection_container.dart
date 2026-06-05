@@ -4,6 +4,7 @@ import 'package:afiete/feature/assisments/data/datasources/assisments_remote_dat
 import 'package:afiete/feature/assisments/data/repositories/assisments_repository_impl.dart';
 import 'package:afiete/feature/assisments/domain/repositories/assisments_repository.dart';
 import 'package:afiete/feature/assisments/domain/usecase/get_assisment_questions_usecase.dart';
+import 'package:afiete/feature/assisments/domain/usecase/get_assessment_scores_usecase.dart';
 import 'package:afiete/feature/assisments/domain/usecase/submit_assisment_usecase.dart';
 import 'package:afiete/feature/assisments/presentation/cubits/assisments_cubit.dart';
 import 'package:afiete/feature/auth/domain/usecase/delete_account_usecase.dart';
@@ -462,6 +463,9 @@ Future<void> init() async {
   sl.registerLazySingleton<SubmitAssismentUseCase>(
     () => SubmitAssismentUseCase(sl<AssismentsRepository>()),
   );
+  sl.registerLazySingleton<GetAssessmentScoresUseCase>(
+    () => GetAssessmentScoresUseCase(sl<AssismentsRepository>()),
+  );
 
   // Assisment cubit
   sl.registerFactory<AssismentsCubit>(
@@ -470,6 +474,7 @@ Future<void> init() async {
       sl<SubmitAssismentUseCase>(),
       sl<GetAllDoctorsUseCase>(),
       sl<GetDoctorsBySpecialtyUseCase>(),
+      sl<GetAssessmentScoresUseCase>(),
     ),
   );
 
