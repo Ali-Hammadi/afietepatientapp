@@ -140,7 +140,7 @@ class CustomTopDoctorCard extends StatelessWidget {
           ),
           child: Column(
             children: [
-              CustomDoctorAvatar(imageUrl: doctor.imageUrl!),
+              CustomDoctorAvatar(imageUrl: doctor.imageUrl),
               const SizedBox(height: 12),
               Text(
                 doctor.name,

@@ -84,9 +84,8 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
     });
 
     final username = widget.doctor.username ?? widget.doctor.id;
-    final slots = await context
-        .read<DoctorsCubit>()
-        .fetchSlotsForDate(username, day);
+    final slots =
+        await context.read<DoctorsCubit>().fetchSlotsForDate(username, day);
 
     if (!mounted) return;
 
@@ -278,8 +277,8 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
                   : Text(
                       _step == _BookingStep.type
                           ? (widget.rescheduleMode
-                                ? SettingsStrings.reschedule
-                                : SettingsStrings.continueToPayment)
+                              ? SettingsStrings.reschedule
+                              : SettingsStrings.continueToPayment)
                           : SettingsStrings.continueTextShort,
                       style: AppStyles.headingSmall.copyWith(
                         color: colorScheme.onPrimary,

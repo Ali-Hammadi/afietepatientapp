@@ -3,13 +3,13 @@ import 'package:afietepatientapp/core/constants/styles.dart';
 import 'package:flutter/material.dart';
 
 class CustomDoctorAvatar extends StatelessWidget {
-  final String imageUrl;
+  final String? imageUrl;
 
-  const CustomDoctorAvatar({super.key, required this.imageUrl});
+  const CustomDoctorAvatar({super.key, this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
-    final hasNetworkImage = imageUrl.trim().startsWith('http');
+    final hasNetworkImage = imageUrl?.trim().startsWith('http') ?? false;
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppStyles.borderRadius),
@@ -18,7 +18,7 @@ class CustomDoctorAvatar extends StatelessWidget {
         width: 90,
         child: hasNetworkImage
             ? Image.network(
-                imageUrl,
+                imageUrl!,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) =>
                     Image.asset(ImageLinks.man1, fit: BoxFit.cover),
