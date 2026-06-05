@@ -2,6 +2,7 @@ import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/feature/assisments/domain/entity/assisments_entity.dart';
 import 'package:afiete/feature/assisments/presentation/cubits/assisments_cubit.dart';
+import 'package:afiete/feature/assisments/presentation/screens/assisment_last_scores_screen.dart';
 import 'package:afiete/feature/assisments/presentation/screens/assisment_result_screen.dart';
 import 'package:afiete/feature/assisments/presentation/widgets/assisment_bottom_actions.dart';
 import 'package:afiete/feature/assisments/presentation/widgets/assisment_error_view.dart';
@@ -48,6 +49,10 @@ class AssismentTestScreen extends StatelessWidget {
 
           if (state is AssismentsResultLoaded) {
             return AssismentResultScreen(state: state);
+          }
+
+          if (state is AssismentsLastScoresLoaded) {
+            return AssismentLastScoresScreen(scores: state.scores);
           }
 
           if (state is! AssismentsLoaded) {

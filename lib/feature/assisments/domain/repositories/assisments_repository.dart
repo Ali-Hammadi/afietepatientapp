@@ -8,4 +8,6 @@ abstract class AssismentsRepository {
   Future<Either<Failure, AssismentEntity>> submitAssisment({
     required List<AssismentEntity> answers,
   });
+
+  Future<Either<Failure, List<AssessmentScoreEntry>>> getAssessmentScores();
 }

@@ -509,6 +509,16 @@ abstract class SettingsStrings {
   static String get specialistsLabel => _t('Specialists', 'المتخصصون');
   static String get retakeAssessment =>
       _t('Retake Assessment', 'إعادة التقييم');
+  static String get lastAssessmentResultTitle =>
+      _t('Last Assessment Result', 'نتيجة آخر اختبار');
+  static String get lastAssessmentResultSubtitle => _t(
+    'Here are your scores from your most recent assessment.',
+    'هذه هي نتائجك من آخر تقييم أجريته.',
+  );
+  static String get severitySevere => _t('Severe', 'شديد');
+  static String get severityModerate => _t('Moderate', 'معتدل');
+  static String get severityMild => _t('Mild', 'خفيف');
+  static String get severityMinimal => _t('Minimal', 'طفيف');
   static String get bookYourSessionTitle =>
       _t('Book Your Session', 'احجز جلستك');
   static String get chooseDayTitle => _t('Choose day', 'اختر اليوم');
