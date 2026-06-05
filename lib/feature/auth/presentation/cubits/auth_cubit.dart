@@ -16,13 +16,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afiete/core/network/token_storage.dart';
 import 'package:afiete/core/reset/nuclear_reset_helper.dart';
 import 'package:equatable/equatable.dart';
-import '../../domain/usecase/login_usecase.dart';
-import '../../domain/usecase/signup_usecase.dart';
-import '../../domain/usecase/google_signin_usecase.dart';
-import '../../domain/usecase/reactivate_account_usecase.dart';
-import '../../domain/usecase/update_profile_info_usecase.dart';
-import '../../domain/repositories/auth_repository.dart';
-import '../../domain/entities/auth_user_entity.dart';
+import 'package:afiete/feature/auth/domain/usecase/login_usecase.dart';
+import 'package:afiete/feature/auth/domain/usecase/signup_usecase.dart';
+import 'package:afiete/feature/auth/domain/usecase/google_signin_usecase.dart';
+import 'package:afiete/feature/auth/domain/usecase/reactivate_account_usecase.dart';
+import 'package:afiete/feature/auth/domain/usecase/update_profile_info_usecase.dart';
+import 'package:afiete/feature/auth/domain/repositories/auth_repository.dart';
+import 'package:afiete/feature/auth/domain/entities/auth_user_entity.dart';
 
 part 'auth_state.dart';
 

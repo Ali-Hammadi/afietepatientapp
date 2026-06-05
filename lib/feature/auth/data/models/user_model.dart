@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/auth_user_entity.dart';
+import 'package:afiete/feature/auth/domain/entities/auth_user_entity.dart';
 
 /// Data model for User, obtained from backend API responses.
 /// Handles JSON deserialization with proper null/field handling.

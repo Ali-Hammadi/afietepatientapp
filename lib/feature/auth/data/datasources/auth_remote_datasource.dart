@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:afiete/core/network/api_endpoints.dart';
-import '../models/models.dart';
+import 'package:afiete/feature/auth/data/models/models.dart';
 import 'package:afiete/core/utils/logger.dart';
 
 /// Abstract interface for remote authentication data source.

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/otp_entity.dart';
+import 'package:afiete/feature/auth/domain/entities/otp_entity.dart';
 
 /// Data model for OTP response from backend.
 /// Indicates OTP has been sent and provides expiration information.

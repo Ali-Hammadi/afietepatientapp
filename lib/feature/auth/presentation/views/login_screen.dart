@@ -8,7 +8,7 @@ import 'package:afiete/feature/auth/presentation/widgets/auth_switch_prompt.dart
 import 'package:afiete/feature/auth/presentation/widgets/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../cubits/auth_cubit.dart';
+import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

@@ -9,7 +9,7 @@ import 'package:afiete/feature/auth/presentation/widgets/custom_text_form_field.
 import 'package:afiete/feature/auth/presentation/widgets/password_strength_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../cubits/auth_cubit.dart';
+import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
