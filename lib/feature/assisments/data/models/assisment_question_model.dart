@@ -31,34 +31,27 @@ abstract class AssismentModel {
     final recommendation = json['recommendation'] is Map<String, dynamic>
         ? json['recommendation'] as Map<String, dynamic>
         : json['recommendations'] is Map<String, dynamic>
-        ? json['recommendations'] as Map<String, dynamic>
-        : const <String, dynamic>{};
+            ? json['recommendations'] as Map<String, dynamic>
+            : const <String, dynamic>{};
 
-    final doctorIdsRaw =
-        (recommendation['doctorIds'] ??
-                json['recommendedDoctorIds'] ??
-                const [])
-            as List<dynamic>;
-    final specialtiesRaw =
-        (recommendation['specialties'] ??
-                json['recommendedSpecialties'] ??
-                const [])
-            as List<dynamic>;
+    final doctorIdsRaw = (recommendation['doctorIds'] ??
+        json['recommendedDoctorIds'] ??
+        const []) as List<dynamic>;
+    final specialtiesRaw = (recommendation['specialties'] ??
+        json['recommendedSpecialties'] ??
+        const []) as List<dynamic>;
 
     return AssismentEntity.result(
-      resultId:
-          (json['resultId'] as num?)?.toInt() ??
+      resultId: (json['resultId'] as num?)?.toInt() ??
           (json['id'] as num?)?.toInt() ??
           0,
       score: (json['score'] as num?)?.toInt() ?? 0,
       severity: (json['severity'] ?? json['level'] ?? 'unknown').toString(),
       summary: (json['summary'] ?? json['message'] ?? '').toString(),
-      recommendedDoctorIds: doctorIdsRaw
-          .map((doctorId) => doctorId.toString())
-          .toList(),
-      recommendedSpecialties: specialtiesRaw
-          .map((specialty) => specialty.toString())
-          .toList(),
+      recommendedDoctorIds:
+          doctorIdsRaw.map((doctorId) => doctorId.toString()).toList(),
+      recommendedSpecialties:
+          specialtiesRaw.map((specialty) => specialty.toString()).toList(),
     );
   }
 }

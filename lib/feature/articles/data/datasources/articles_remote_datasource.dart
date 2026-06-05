@@ -3,18 +3,13 @@ import 'package:afiete/feature/articles/data/models/article_model.dart';
 import 'package:dio/dio.dart';
 
 abstract class ArticlesRemoteDataSource {
-  Future<List<ArticleModel>> getArticlesForHome({
-    String? userDiagnosis,
-    int limit = 5,
-  });
   Future<List<ArticleModel>> getRecommendedArticles();
   Future<List<ArticleModel>> getTrendingArticles();
   Future<List<ArticleModel>> getArticlesByDoctor(String doctorId);
-  Future<List<ArticleModel>> getAllArticles({int page = 1, int pageSize = 10});
+  Future<List<ArticleModel>> getAllArticles(
+      {required int page, int pageSize = 10});
   Future<ArticleModel> getArticleById(String articleId);
   Future<void> reactToArticle(String articleId, String reaction);
-  Future<void> likeArticle(String articleId);
-  Future<void> dislikeArticle(String articleId);
 }
 
 class ArticlesRemoteDataSourceImpl implements ArticlesRemoteDataSource {
@@ -23,179 +18,52 @@ class ArticlesRemoteDataSourceImpl implements ArticlesRemoteDataSource {
   ArticlesRemoteDataSourceImpl({required Dio dio}) : _dio = dio;
 
   @override
-  Future<List<ArticleModel>> getArticlesForHome({
-    String? userDiagnosis,
-    int limit = 5,
-  }) async {
-    List<ArticleModel> recommended = [];
-    List<ArticleModel> trending = [];
-
-    try {
-      recommended = await getRecommendedArticles();
-    } catch (_) {
-      // Server may return 500 when patient has no assessment history — ignore
-    }
-
-    try {
-      trending = await getTrendingArticles();
-    } catch (_) {
-      // Trending may not exist yet — ignore
-    }
-
-    final combined = _uniqueById([
-      ...recommended.take(limit),
-      ...trending.take(limit),
-    ]);
-
-    if (combined.isNotEmpty) return combined;
-
-    // Both specialised feeds failed — fall back to the plain articles list
-    try {
-      return await getAllArticles(page: 1, pageSize: limit * 2);
-    } catch (_) {
-      return const [];
-    }
-  }
-
-  @override
   Future<List<ArticleModel>> getRecommendedArticles() async {
-    try {
-      return _loadArticles(ApiEndpoints.articlesRecommended);
-    } on DioException {
-      rethrow;
-    } catch (e) {
-      throw DioException(
-        requestOptions: RequestOptions(
-          path: ApiEndpoints.articlesRecommended,
-        ),
-        error: e,
-        type: DioExceptionType.unknown,
-      );
-    }
+    final response = await _dio.get('${ApiEndpoints.articles}/recommended/');
+    return _parseArticleList(response.data);
   }
 
   @override
   Future<List<ArticleModel>> getTrendingArticles() async {
-    try {
-      return _loadArticles(ApiEndpoints.articlesTrending);
-    } on DioException {
-      rethrow;
-    } catch (e) {
-      throw DioException(
-        requestOptions: RequestOptions(path: ApiEndpoints.articlesTrending),
-        error: e,
-        type: DioExceptionType.unknown,
-      );
-    }
+    final response = await _dio.get('${ApiEndpoints.articles}/trending/');
+    return _parseArticleList(response.data);
   }
 
   @override
   Future<List<ArticleModel>> getArticlesByDoctor(String doctorId) async {
-    try {
-      final response = await _dio.get(ApiEndpoints.articlesByDoctor(doctorId));
-      return _parseArticleList(response.data);
-    } on DioException {
-      rethrow;
-    } catch (e) {
-      throw DioException(
-        requestOptions: RequestOptions(
-          path: ApiEndpoints.articlesByDoctor(doctorId),
-        ),
-        error: e,
-        type: DioExceptionType.unknown,
-      );
-    }
+    // جلب مقالات طبيب معين (تصفية عبر Query parameters أو endpoint مخصصة)
+    final response = await _dio
+        .get(ApiEndpoints.articles, queryParameters: {'author': doctorId});
+    return _parseArticleList(response.data);
   }
 
   @override
-  Future<List<ArticleModel>> getAllArticles({
-    int page = 1,
-    int pageSize = 10,
-  }) async {
-    try {
-      final response = await _dio.get(
-        ApiEndpoints.allArticles,
-        queryParameters: {
-          ApiEndpoints.keyPage: page,
-          ApiEndpoints.keyPageSize: pageSize,
-        },
-      );
-      return _parseArticleList(response.data);
-    } on DioException {
-      rethrow;
-    } catch (e) {
-      throw DioException(
-        requestOptions: RequestOptions(path: ApiEndpoints.allArticles),
-        error: e,
-        type: DioExceptionType.unknown,
-      );
-    }
+  Future<List<ArticleModel>> getAllArticles(
+      {required int page, int pageSize = 10}) async {
+    final response = await _dio.get(
+      '${ApiEndpoints.articles}/',
+      queryParameters: {'page': page, 'page_size': pageSize},
+    );
+    return _parseArticleList(response.data);
   }
 
   @override
   Future<ArticleModel> getArticleById(String articleId) async {
-    try {
-      final response = await _dio.get(ApiEndpoints.articleById(articleId));
-      final article = _parseArticleMap(response.data);
-      return ArticleModel.fromJson(article);
-    } on DioException {
-      rethrow;
-    } catch (e) {
-      throw DioException(
-        requestOptions: RequestOptions(
-          path: ApiEndpoints.articleById(articleId),
-        ),
-        error: e,
-        type: DioExceptionType.unknown,
-      );
-    }
-  }
-
-  @override
-  Future<void> likeArticle(String articleId) async {
-    await reactToArticle(articleId, 'like');
-  }
-
-  @override
-  Future<void> dislikeArticle(String articleId) async {
-    await reactToArticle(articleId, 'dislike');
+    final response = await _dio.get('${ApiEndpoints.articles}/$articleId/');
+    return ArticleModel.fromJson(_parseArticleMap(response.data));
   }
 
   @override
   Future<void> reactToArticle(String articleId, String reaction) async {
     await _dio.post(
-      ApiEndpoints.articleReact(articleId),
+      '${ApiEndpoints.articles}/$articleId/react/',
       data: {'reaction': reaction},
     );
   }
 
-  Future<List<ArticleModel>> _loadArticles(String endpoint) async {
-    final response = await _dio.get(endpoint);
-    return _parseArticleList(response.data);
-  }
-
-  List<ArticleModel> _uniqueById(Iterable<ArticleModel> articles) {
-    final seenIds = <String>{};
-    final uniqueArticles = <ArticleModel>[];
-
-    for (final article in articles) {
-      if (article.id.isEmpty || seenIds.contains(article.id)) {
-        continue;
-      }
-      seenIds.add(article.id);
-      uniqueArticles.add(article);
-    }
-
-    return uniqueArticles;
-  }
-
   List<ArticleModel> _parseArticleList(dynamic data) {
     final rawList = data is Map<String, dynamic>
-        ? (data['results'] ??
-              data['articles'] ??
-              data['data'] ??
-              data['items'] ??
-              const [])
+        ? (data['results'] ?? data['articles'] ?? data['data'] ?? const [])
         : (data as List? ?? const []);
 
     return rawList
@@ -208,24 +76,15 @@ class ArticlesRemoteDataSourceImpl implements ArticlesRemoteDataSource {
   Map<String, dynamic> _parseArticleMap(dynamic data) {
     if (data is Map<String, dynamic>) {
       final nested = data['data'] ?? data['article'] ?? data['result'];
-      if (nested is Map<String, dynamic>) {
-        return nested;
-      }
+      if (nested is Map<String, dynamic>) return nested;
       return data;
     }
-
     if (data is List && data.isNotEmpty && data.first is Map<String, dynamic>) {
       return data.first as Map<String, dynamic>;
     }
-
     throw DioException(
-      requestOptions: RequestOptions(path: ApiEndpoints.articleById('')),
-      response: Response(
-        requestOptions: RequestOptions(path: ApiEndpoints.articleById('')),
-        statusCode: 404,
-        data: const {'detail': 'Article not found.'},
-      ),
-      type: DioExceptionType.badResponse,
+      requestOptions: RequestOptions(path: 'article_parsing'),
+      error: 'Invalid response layout structure',
     );
   }
 }

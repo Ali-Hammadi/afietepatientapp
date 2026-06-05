@@ -44,6 +44,11 @@ abstract class DioFactory {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           final token = await TokenStorage.getAccessToken();
+
+          //  أضف هذا السطر مؤقتاً للـ Debugging:
+          print(
+              "[DioFactory Debug] Path: ${options.path} | Token found: ${token != null && token.isNotEmpty}");
+
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
@@ -60,9 +65,9 @@ abstract class DioFactory {
             await TokenStorage.clearTokens();
             NuclearResetHelper.navigatorKey.currentState
                 ?.pushNamedAndRemoveUntil(
-                  MyRoutes.splashScreen,
-                  (route) => false,
-                );
+              MyRoutes.splashScreen,
+              (route) => false,
+            );
           }
 
           final unauthorized = err.response?.statusCode == 401;
@@ -101,9 +106,9 @@ abstract class DioFactory {
             await TokenStorage.clearTokens();
             NuclearResetHelper.navigatorKey.currentState
                 ?.pushNamedAndRemoveUntil(
-                  MyRoutes.splashScreen,
-                  (route) => false,
-                );
+              MyRoutes.splashScreen,
+              (route) => false,
+            );
           }
 
           final cleanMessage = _mapDioErrorToMessage(err);
@@ -152,8 +157,7 @@ abstract class DioFactory {
         data: {ApiEndpoints.keyRefresh: refreshToken},
       );
 
-      final refreshedAccessToken =
-          _extractAccessToken(response.data) ??
+      final refreshedAccessToken = _extractAccessToken(response.data) ??
           _extractAccessToken(response.data?['data']) ??
           '';
       if (refreshedAccessToken.isEmpty) {
@@ -161,8 +165,7 @@ abstract class DioFactory {
         return false;
       }
 
-      final refreshedRefreshToken =
-          _extractRefreshToken(response.data) ??
+      final refreshedRefreshToken = _extractRefreshToken(response.data) ??
           _extractRefreshToken(response.data?['data']) ??
           refreshToken;
 
@@ -391,8 +394,7 @@ abstract class DioFactory {
       if (messages is List) {
         for (final item in messages) {
           final text = item is Map
-              ? '${item['message'] ?? ''} ${item['detail'] ?? ''}'
-                  .toLowerCase()
+              ? '${item['message'] ?? ''} ${item['detail'] ?? ''}'.toLowerCase()
               : item.toString().toLowerCase();
           if (text.contains('token') && text.contains('expired')) {
             return true;
@@ -470,8 +472,7 @@ abstract class DioFactory {
 
         final tokens = nested['tokens'];
         if (tokens is Map<String, dynamic>) {
-          final v =
-              tokens['access'] ??
+          final v = tokens['access'] ??
               tokens['access_token'] ??
               tokens['accessToken'];
           if (v != null && v.toString().isNotEmpty) return v.toString();
@@ -508,8 +509,7 @@ abstract class DioFactory {
 
         final tokens = nested['tokens'];
         if (tokens is Map<String, dynamic>) {
-          final v =
-              tokens['refresh'] ??
+          final v = tokens['refresh'] ??
               tokens['refresh_token'] ??
               tokens['refreshToken'];
           if (v != null && v.toString().isNotEmpty) return v.toString();
@@ -518,8 +518,7 @@ abstract class DioFactory {
 
       final tokens = data['tokens'];
       if (tokens is Map<String, dynamic>) {
-        final v =
-            tokens['refresh'] ??
+        final v = tokens['refresh'] ??
             tokens['refresh_token'] ??
             tokens['refreshToken'];
         if (v != null && v.toString().isNotEmpty) return v.toString();

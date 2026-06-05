@@ -24,22 +24,37 @@ class ArticlesListScreen extends StatefulWidget {
 }
 
 class _ArticlesListScreenState extends State<ArticlesListScreen> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
     _loadArticles();
+
+    // الاستماع لـ Scroll لتفعيل جلب المجموعة الثالثة من المقالات عند الوصول للنهاية
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200) {
+        if (widget.doctorId == null) {
+          context.read<ArticlesCubit>().loadMoreArticles();
+        }
+      }
+    });
   }
 
   void _loadArticles() {
     final cubit = context.read<ArticlesCubit>();
     if (widget.doctorId != null) {
       cubit.loadArticlesByDoctor(widget.doctorId!);
-    } else if (widget.userDiagnosis != null &&
-        widget.userDiagnosis!.trim().isNotEmpty) {
-      cubit.loadArticlesForHome(userDiagnosis: widget.userDiagnosis);
     } else {
-      cubit.loadAllArticles();
+      cubit.loadArticlesForHome();
     }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -61,9 +76,13 @@ class _ArticlesListScreenState extends State<ArticlesListScreen> {
       ),
       body: BlocBuilder<ArticlesCubit, ArticlesState>(
         builder: (context, state) {
-          if (state is ArticlesLoading) {
+          if (state is ArticlesLoading &&
+              (_scrollController.hasClients == false ||
+                  _scrollController.position.pixels == 0)) {
             return const Center(child: CircularProgressIndicator());
-          } else if (state is ArticlesLoaded) {
+          }
+
+          if (state is ArticlesLoaded) {
             if (state.articles.isEmpty) {
               return Center(
                 child: Column(
@@ -85,7 +104,8 @@ class _ArticlesListScreenState extends State<ArticlesListScreen> {
             }
 
             return ListView.builder(
-              padding: EdgeInsets.all(AppStyles.padding),
+              controller: _scrollController,
+              padding: const EdgeInsets.all(AppStyles.padding),
               itemCount: state.articles.length,
               itemBuilder: (context, index) {
                 final article = state.articles[index];
@@ -100,11 +120,19 @@ class _ArticlesListScreenState extends State<ArticlesListScreen> {
                           );
                         }
                       : null,
-                  onReadMore: () {},
+                  onReadMore: () {
+                    Navigator.pushNamed(
+                      context,
+                      MyRoutes.articleDetailsScreen,
+                      arguments: article,
+                    );
+                  },
                 );
               },
             );
-          } else if (state is ArticlesError) {
+          }
+
+          if (state is ArticlesError) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
