@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:afietepatientapp/core/network/api_endpoints.dart';
-import 'package:afietepatientapp/core/routes/app_route.dart';
-import 'package:afietepatientapp/core/network/token_storage.dart';
-import 'package:afietepatientapp/core/utils/logger.dart';
-import 'package:afietepatientapp/core/reset/nuclear_reset_helper.dart';
+import 'package:afiete/core/network/api_endpoints.dart';
+import 'package:afiete/core/routes/app_route.dart';
+import 'package:afiete/core/network/token_storage.dart';
+import 'package:afiete/core/utils/logger.dart';
+import 'package:afiete/core/reset/nuclear_reset_helper.dart';
 
 abstract class DioFactory {
   static const String baseUrl = 'https://workserveys.pythonanywhere.com';

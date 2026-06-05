@@ -1,6 +1,6 @@
-import 'package:afietepatientapp/feature/voice/data/datasources/voice_remote_datasource.dart';
-import 'package:afietepatientapp/feature/voice/data/models/voice_call_model.dart';
-import 'package:afietepatientapp/feature/voice/domain/entities/voice_call_entity.dart';
+import 'package:afiete/feature/voice/data/datasources/voice_remote_datasource.dart';
+import 'package:afiete/feature/voice/data/models/voice_call_model.dart';
+import 'package:afiete/feature/voice/domain/entities/voice_call_entity.dart';
 
 class VoiceMockDataSourceImpl implements VoiceRemoteDataSource {
   final List<VoiceCallModel> _calls = [

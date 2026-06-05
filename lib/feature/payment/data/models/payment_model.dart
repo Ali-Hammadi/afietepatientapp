@@ -1,4 +1,4 @@
-import 'package:afietepatientapp/feature/payment/domain/entities/payment_entity.dart';
+import 'package:afiete/feature/payment/domain/entities/payment_entity.dart';
 
 class PaymentModel extends PaymentEntity {
   const PaymentModel({

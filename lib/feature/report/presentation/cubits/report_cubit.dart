@@ -1,9 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:afietepatientapp/feature/report/domain/entities/report_entity.dart';
-import 'package:afietepatientapp/feature/report/domain/usecases/submit_report_usecase.dart';
-import 'package:afietepatientapp/feature/report/domain/usecases/get_report_history_usecase.dart';
-import 'package:afietepatientapp/feature/report/domain/usecases/get_reports_by_type_usecase.dart';
+import 'package:afiete/feature/report/domain/entities/report_entity.dart';
+import 'package:afiete/feature/report/domain/usecases/submit_report_usecase.dart';
+import 'package:afiete/feature/report/domain/usecases/get_report_history_usecase.dart';
+import 'package:afiete/feature/report/domain/usecases/get_reports_by_type_usecase.dart';
 
 part 'report_state.dart';
 

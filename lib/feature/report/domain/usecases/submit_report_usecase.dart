@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/core/usecases/usecase.dart';
-import 'package:afietepatientapp/feature/report/domain/entities/report_entity.dart';
-import 'package:afietepatientapp/feature/report/domain/repositories/report_repository.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/core/usecases/usecase.dart';
+import 'package:afiete/feature/report/domain/entities/report_entity.dart';
+import 'package:afiete/feature/report/domain/repositories/report_repository.dart';
 
 class SubmitReportParams {
   final String userId;

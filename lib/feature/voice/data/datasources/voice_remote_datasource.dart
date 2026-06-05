@@ -1,5 +1,5 @@
-import 'package:afietepatientapp/core/network/api_endpoints.dart';
-import 'package:afietepatientapp/feature/voice/data/models/voice_call_model.dart';
+import 'package:afiete/core/network/api_endpoints.dart';
+import 'package:afiete/feature/voice/data/models/voice_call_model.dart';
 import 'package:dio/dio.dart';
 
 abstract class VoiceRemoteDataSource {

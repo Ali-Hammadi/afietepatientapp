@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:afietepatientapp/core/constants/styles.dart';
+import 'package:afiete/core/constants/styles.dart';
 
 class CustomReportReasonCard extends StatelessWidget {
   final String label;

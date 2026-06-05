@@ -1,4 +1,4 @@
-import 'package:afietepatientapp/feature/appoinments/domain/values/consultation_fee.dart';
+import 'package:afiete/feature/appoinments/domain/values/consultation_fee.dart';
 import 'package:equatable/equatable.dart';
 
 class DoctorTimeSlot extends Equatable {

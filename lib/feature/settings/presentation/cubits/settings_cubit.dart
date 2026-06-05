@@ -1,9 +1,9 @@
-import 'package:afietepatientapp/feature/settings/domin/entities/medical_profile_entity.dart';
-import 'package:afietepatientapp/feature/settings/domin/usecase/get_medical_profile_usecase.dart';
-import 'package:afietepatientapp/feature/settings/domin/usecase/share_medical_note_with_doctor_usecase.dart';
-import 'package:afietepatientapp/feature/settings/domin/usecase/submit_report_issue_usecase.dart';
-import 'package:afietepatientapp/feature/settings/domin/usecase/update_medical_note_usecase.dart';
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
+import 'package:afiete/feature/settings/domin/entities/medical_profile_entity.dart';
+import 'package:afiete/feature/settings/domin/usecase/get_medical_profile_usecase.dart';
+import 'package:afiete/feature/settings/domin/usecase/share_medical_note_with_doctor_usecase.dart';
+import 'package:afiete/feature/settings/domin/usecase/submit_report_issue_usecase.dart';
+import 'package:afiete/feature/settings/domin/usecase/update_medical_note_usecase.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

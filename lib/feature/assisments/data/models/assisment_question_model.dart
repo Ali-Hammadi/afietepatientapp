@@ -1,4 +1,4 @@
-import 'package:afietepatientapp/feature/assisments/domain/entity/assisments_entity.dart';
+import 'package:afiete/feature/assisments/domain/entity/assisments_entity.dart';
 
 abstract class AssismentModel {
   static List<AssismentOptionEntity> _parseOptions(dynamic value) {

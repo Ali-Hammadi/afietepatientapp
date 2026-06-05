@@ -1,4 +1,4 @@
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:equatable/equatable.dart';
 
 enum BreathingExerciseType {

@@ -1,7 +1,7 @@
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/feature/chat/data/datasources/chat_remote_datasource.dart';
-import 'package:afietepatientapp/feature/chat/domain/entities/chat_entity.dart';
-import 'package:afietepatientapp/feature/chat/domain/repositories/chat_repository.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/feature/chat/data/datasources/chat_remote_datasource.dart';
+import 'package:afiete/feature/chat/domain/entities/chat_entity.dart';
+import 'package:afiete/feature/chat/domain/repositories/chat_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 

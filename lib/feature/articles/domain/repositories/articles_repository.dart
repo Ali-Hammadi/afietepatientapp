@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/feature/articles/domain/entities/article_entities.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/feature/articles/domain/entities/article_entities.dart';
 
 abstract class ArticlesRepository {
   Future<Either<Failure, List<ArticleEntity>>> getArticlesForHome({

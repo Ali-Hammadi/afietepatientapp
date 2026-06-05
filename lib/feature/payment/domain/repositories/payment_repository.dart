@@ -1,5 +1,5 @@
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/feature/payment/domain/entities/payment_entity.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/feature/payment/domain/entities/payment_entity.dart';
 import 'package:dartz/dartz.dart';
 
 abstract class PaymentRepository {

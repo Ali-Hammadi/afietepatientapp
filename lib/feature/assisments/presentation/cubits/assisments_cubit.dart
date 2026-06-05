@@ -1,12 +1,12 @@
-import 'package:afietepatientapp/core/constants/psychology_specialties.dart';
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/core/usecases/usecase.dart';
-import 'package:afietepatientapp/feature/assisments/data/assisment_visibility_store.dart';
-import 'package:afietepatientapp/feature/assisments/domain/entity/assisments_entity.dart';
-import 'package:afietepatientapp/feature/assisments/domain/usecase/get_assisment_questions_usecase.dart';
-import 'package:afietepatientapp/feature/assisments/domain/usecase/submit_assisment_usecase.dart';
-import 'package:afietepatientapp/feature/doctors/domain/entites/doctor_entity.dart';
-import 'package:afietepatientapp/feature/doctors/domain/usecase/get_doctors_usecase.dart';
+import 'package:afiete/core/constants/psychology_specialties.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/usecases/usecase.dart';
+import 'package:afiete/feature/assisments/data/assisment_visibility_store.dart';
+import 'package:afiete/feature/assisments/domain/entity/assisments_entity.dart';
+import 'package:afiete/feature/assisments/domain/usecase/get_assisment_questions_usecase.dart';
+import 'package:afiete/feature/assisments/domain/usecase/submit_assisment_usecase.dart';
+import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/usecase/get_doctors_usecase.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

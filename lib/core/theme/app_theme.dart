@@ -1,4 +1,4 @@
-import 'package:afietepatientapp/core/constants/app_colors.dart';
+import 'package:afiete/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
 abstract class AppTheme {

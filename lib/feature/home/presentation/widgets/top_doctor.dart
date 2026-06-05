@@ -1,11 +1,11 @@
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/core/di/injection_container.dart';
-import 'package:afietepatientapp/core/routes/app_route.dart';
-import 'package:afietepatientapp/feature/doctors/domain/entites/doctor_entity.dart';
-import 'package:afietepatientapp/feature/doctors/presentation/cubits/doctors_cubit.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/di/injection_container.dart';
+import 'package:afiete/core/routes/app_route.dart';
+import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/doctors/presentation/cubits/doctors_cubit.dart';
 
-import 'package:afietepatientapp/feature/home/presentation/widgets/doctor_avatar.dart';
+import 'package:afiete/feature/home/presentation/widgets/doctor_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

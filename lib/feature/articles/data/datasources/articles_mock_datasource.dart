@@ -1,9 +1,9 @@
 import 'dart:math';
 
-import 'package:afietepatientapp/core/network/api_endpoints.dart';
-import 'package:afietepatientapp/feature/articles/data/models/article_model.dart';
-import 'package:afietepatientapp/feature/doctors/domain/entites/doctor_entity.dart';
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
+import 'package:afiete/core/network/api_endpoints.dart';
+import 'package:afiete/feature/articles/data/models/article_model.dart';
+import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:dio/dio.dart';
 
 abstract class ArticlesRemoteDataSource {

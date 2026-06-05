@@ -1,12 +1,12 @@
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/core/routes/app_route.dart';
-import 'package:afietepatientapp/core/widget/custom_button.dart';
-import 'package:afietepatientapp/feature/payment/domain/entities/payment_entity.dart';
-import 'package:afietepatientapp/feature/payment/presentation/cubit/payment_cubit.dart';
-import 'package:afietepatientapp/feature/payment/presentation/widgets/payment_input_field.dart';
-import 'package:afietepatientapp/feature/payment/presentation/widgets/payment_method_tile.dart';
-import 'package:afietepatientapp/feature/payment/presentation/widgets/payment_summary_card.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/routes/app_route.dart';
+import 'package:afiete/core/widget/custom_button.dart';
+import 'package:afiete/feature/payment/domain/entities/payment_entity.dart';
+import 'package:afiete/feature/payment/presentation/cubit/payment_cubit.dart';
+import 'package:afiete/feature/payment/presentation/widgets/payment_input_field.dart';
+import 'package:afiete/feature/payment/presentation/widgets/payment_method_tile.dart';
+import 'package:afiete/feature/payment/presentation/widgets/payment_summary_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

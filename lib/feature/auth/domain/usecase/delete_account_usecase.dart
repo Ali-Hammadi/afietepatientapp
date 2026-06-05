@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/core/usecases/usecase.dart';
-import 'package:afietepatientapp/core/utils/logger.dart';
-import 'package:afietepatientapp/feature/auth/domain/repositories/auth_repository.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/core/usecases/usecase.dart';
+import 'package:afiete/core/utils/logger.dart';
+import 'package:afiete/feature/auth/domain/repositories/auth_repository.dart';
 
 class DeleteAccountParams {
   final String password;

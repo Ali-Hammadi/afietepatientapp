@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'package:afietepatientapp/core/assets/icon_image_links.dart';
-import 'package:afietepatientapp/core/network/token_storage.dart';
-import 'package:afietepatientapp/core/routes/app_route.dart';
-import 'package:afietepatientapp/feature/auth/presentation/cubits/auth_cubit.dart';
+import 'package:afiete/core/assets/icon_image_links.dart';
+import 'package:afiete/core/network/token_storage.dart';
+import 'package:afiete/core/routes/app_route.dart';
+import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

@@ -1,7 +1,7 @@
-import 'package:afietepatientapp/core/constants/feeling_type.dart';
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/feature/feeling/presentation/cubit/feeling_cubit.dart';
+import 'package:afiete/core/constants/feeling_type.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/feature/feeling/presentation/cubit/feeling_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

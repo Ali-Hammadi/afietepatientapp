@@ -1,6 +1,6 @@
-import 'package:afietepatientapp/feature/sessions/data/models/review_model.dart';
-import 'package:afietepatientapp/feature/sessions/data/models/session_model.dart';
-import 'package:afietepatientapp/core/network/api_endpoints.dart';
+import 'package:afiete/feature/sessions/data/models/review_model.dart';
+import 'package:afiete/feature/sessions/data/models/session_model.dart';
+import 'package:afiete/core/network/api_endpoints.dart';
 import 'package:dio/dio.dart';
 
 abstract class SessionsRemoteDataSource {

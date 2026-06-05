@@ -1,4 +1,4 @@
-import 'package:afietepatientapp/core/constants/feeling_type.dart';
+import 'package:afiete/core/constants/feeling_type.dart';
 import 'package:equatable/equatable.dart';
 
 enum MusicTherapeuticGoal { calmDown, uplift, stabilize, focus, sleep }

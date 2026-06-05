@@ -1,6 +1,6 @@
-import 'package:afietepatientapp/core/network/api_endpoints.dart';
-import 'package:afietepatientapp/feature/assisments/data/models/assisment_question_model.dart';
-import 'package:afietepatientapp/feature/assisments/domain/entity/assisments_entity.dart';
+import 'package:afiete/core/network/api_endpoints.dart';
+import 'package:afiete/feature/assisments/data/models/assisment_question_model.dart';
+import 'package:afiete/feature/assisments/domain/entity/assisments_entity.dart';
 import 'package:dio/dio.dart';
 
 abstract class AssismentsRemoteDataSource {

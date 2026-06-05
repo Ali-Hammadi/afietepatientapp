@@ -1,10 +1,10 @@
-import 'package:afietepatientapp/core/usecases/usecase.dart';
-import 'package:afietepatientapp/feature/sessions/domain/entities/session_entity.dart';
-import 'package:afietepatientapp/feature/sessions/domain/usecase/add_review_usecase.dart';
-import 'package:afietepatientapp/feature/sessions/domain/usecase/cancel_session_usecase.dart';
-import 'package:afietepatientapp/feature/sessions/domain/usecase/get_past_sessions_usecase.dart';
-import 'package:afietepatientapp/feature/sessions/domain/usecase/get_upcoming_sessions_usecase.dart';
-import 'package:afietepatientapp/feature/sessions/domain/usecase/reschedule_session_usecase.dart';
+import 'package:afiete/core/usecases/usecase.dart';
+import 'package:afiete/feature/sessions/domain/entities/session_entity.dart';
+import 'package:afiete/feature/sessions/domain/usecase/add_review_usecase.dart';
+import 'package:afiete/feature/sessions/domain/usecase/cancel_session_usecase.dart';
+import 'package:afiete/feature/sessions/domain/usecase/get_past_sessions_usecase.dart';
+import 'package:afiete/feature/sessions/domain/usecase/get_upcoming_sessions_usecase.dart';
+import 'package:afiete/feature/sessions/domain/usecase/reschedule_session_usecase.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

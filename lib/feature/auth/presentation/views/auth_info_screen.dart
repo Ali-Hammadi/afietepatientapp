@@ -1,9 +1,9 @@
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/core/routes/app_route.dart';
-import 'package:afietepatientapp/core/utils/logger.dart';
-import 'package:afietepatientapp/feature/auth/presentation/widgets/custom_text_form_field.dart';
-import 'package:afietepatientapp/core/widget/custom_button.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/core/routes/app_route.dart';
+import 'package:afiete/core/utils/logger.dart';
+import 'package:afiete/feature/auth/presentation/widgets/custom_text_form_field.dart';
+import 'package:afiete/core/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';

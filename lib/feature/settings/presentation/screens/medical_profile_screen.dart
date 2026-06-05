@@ -1,13 +1,13 @@
 import 'dart:io';
 
-import 'package:afietepatientapp/core/constants/app_colors.dart';
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/core/di/injection_container.dart';
-import 'package:afietepatientapp/feature/auth/presentation/cubits/auth_cubit.dart';
-import 'package:afietepatientapp/feature/settings/domin/entities/medical_profile_entity.dart';
-import 'package:afietepatientapp/feature/settings/presentation/cubits/settings_cubit.dart';
-import 'package:afietepatientapp/feature/settings/presentation/screens/note_details_screen.dart';
+import 'package:afiete/core/constants/app_colors.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/di/injection_container.dart';
+import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
+import 'package:afiete/feature/settings/domin/entities/medical_profile_entity.dart';
+import 'package:afiete/feature/settings/presentation/cubits/settings_cubit.dart';
+import 'package:afiete/feature/settings/presentation/screens/note_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

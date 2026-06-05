@@ -1,7 +1,7 @@
-import 'package:afietepatientapp/core/assets/icon_image_links.dart';
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/feature/settings/data/data_source/settings_remote_data_source.dart';
-import 'package:afietepatientapp/feature/settings/data/models/medical_profile_model.dart';
+import 'package:afiete/core/assets/icon_image_links.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/feature/settings/data/data_source/settings_remote_data_source.dart';
+import 'package:afiete/feature/settings/data/models/medical_profile_model.dart';
 
 class SettingsMockDataSourceImpl implements SettingsRemoteDataSource {
   final List<MedicalPrescriptionModel> _prescriptions = const [

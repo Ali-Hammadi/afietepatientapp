@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:afietepatientapp/core/network/api_endpoints.dart';
-import 'package:afietepatientapp/feature/doctors/data/models/doctor_model.dart';
-import 'package:afietepatientapp/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/core/network/api_endpoints.dart';
+import 'package:afiete/feature/doctors/data/models/doctor_model.dart';
+import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
 
 abstract class DoctorsRemoteDataSource {
   Future<List<DoctorModel>> getAllDoctors();

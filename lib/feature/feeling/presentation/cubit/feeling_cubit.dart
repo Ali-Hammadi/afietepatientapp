@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
-import 'package:afietepatientapp/core/constants/feeling_type.dart';
-import 'package:afietepatientapp/core/usecases/usecase.dart';
-import 'package:afietepatientapp/feature/feeling/domain/entities/feeling_entry_entity.dart';
-import 'package:afietepatientapp/feature/feeling/domain/usecase/feeling_usecases.dart';
+import 'package:afiete/core/constants/feeling_type.dart';
+import 'package:afiete/core/usecases/usecase.dart';
+import 'package:afiete/feature/feeling/domain/entities/feeling_entry_entity.dart';
+import 'package:afiete/feature/feeling/domain/usecase/feeling_usecases.dart';
 import 'package:equatable/equatable.dart';
 
 part 'feeling_state.dart';

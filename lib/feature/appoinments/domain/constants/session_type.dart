@@ -1,5 +1,5 @@
-import 'package:afietepatientapp/core/constants/app_colors.dart';
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
+import 'package:afiete/core/constants/app_colors.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:flutter/material.dart';
 
 abstract class SessionType {

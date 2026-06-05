@@ -1,5 +1,5 @@
-import 'package:afietepatientapp/feature/settings/data/models/medical_profile_model.dart';
-import 'package:afietepatientapp/core/network/api_endpoints.dart';
+import 'package:afiete/feature/settings/data/models/medical_profile_model.dart';
+import 'package:afiete/core/network/api_endpoints.dart';
 import 'package:dio/dio.dart';
 
 abstract class SettingsRemoteDataSource {

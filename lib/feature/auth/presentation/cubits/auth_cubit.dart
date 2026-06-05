@@ -1,20 +1,20 @@
 import 'package:flutter/foundation.dart';
-import 'package:afietepatientapp/core/utils/age_utils.dart';
-import 'package:afietepatientapp/core/utils/logger.dart';
-import 'package:afietepatientapp/core/storage/nickname_override_storage.dart';
-import 'package:afietepatientapp/feature/auth/domain/usecase/delete_account_usecase.dart';
+import 'package:afiete/core/utils/age_utils.dart';
+import 'package:afiete/core/utils/logger.dart';
+import 'package:afiete/core/storage/nickname_override_storage.dart';
+import 'package:afiete/feature/auth/domain/usecase/delete_account_usecase.dart';
 
-import 'package:afietepatientapp/feature/auth/domain/usecase/fetch_profile_usecase.dart';
-import 'package:afietepatientapp/feature/auth/domain/usecase/logout_usecase.dart';
+import 'package:afiete/feature/auth/domain/usecase/fetch_profile_usecase.dart';
+import 'package:afiete/feature/auth/domain/usecase/logout_usecase.dart';
 
-import 'package:afietepatientapp/feature/auth/domain/usecase/request_forgot_password_otp_usecase.dart';
-import 'package:afietepatientapp/feature/auth/domain/usecase/verify_forgot_password_otp_usecase.dart';
-import 'package:afietepatientapp/feature/auth/domain/usecase/verify_otp_usecase.dart';
+import 'package:afiete/feature/auth/domain/usecase/request_forgot_password_otp_usecase.dart';
+import 'package:afiete/feature/auth/domain/usecase/verify_forgot_password_otp_usecase.dart';
+import 'package:afiete/feature/auth/domain/usecase/verify_otp_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 // BuildContext is not used inside the cubit methods to avoid passing
 // contexts across async gaps. The reset helper uses navigatorKey instead.
-import 'package:afietepatientapp/core/network/token_storage.dart';
-import 'package:afietepatientapp/core/reset/nuclear_reset_helper.dart';
+import 'package:afiete/core/network/token_storage.dart';
+import 'package:afiete/core/reset/nuclear_reset_helper.dart';
 import 'package:equatable/equatable.dart';
 import '../../domain/usecase/login_usecase.dart';
 import '../../domain/usecase/signup_usecase.dart';

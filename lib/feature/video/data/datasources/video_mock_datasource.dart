@@ -1,6 +1,6 @@
-import 'package:afietepatientapp/feature/video/data/datasources/video_remote_datasource.dart';
-import 'package:afietepatientapp/feature/video/data/models/video_call_model.dart';
-import 'package:afietepatientapp/feature/video/domain/entities/video_call_entity.dart';
+import 'package:afiete/feature/video/data/datasources/video_remote_datasource.dart';
+import 'package:afiete/feature/video/data/models/video_call_model.dart';
+import 'package:afiete/feature/video/domain/entities/video_call_entity.dart';
 
 class VideoMockDataSourceImpl implements VideoRemoteDataSource {
   final List<VideoCallModel> _calls = [

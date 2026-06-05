@@ -1,4 +1,4 @@
-import 'package:afietepatientapp/feature/sessions/domain/entities/session_entity.dart';
+import 'package:afiete/feature/sessions/domain/entities/session_entity.dart';
 
 class SessionModel extends SessionEntity {
   const SessionModel({

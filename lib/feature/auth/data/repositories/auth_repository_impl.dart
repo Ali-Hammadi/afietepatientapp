@@ -1,14 +1,14 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/core/network/token_storage.dart';
-import 'package:afietepatientapp/feature/auth/data/datasources/auth_remote_datasource.dart';
-import 'package:afietepatientapp/feature/auth/domain/entities/auth_user_entity.dart';
-import 'package:afietepatientapp/feature/auth/domain/entities/otp_entity.dart';
-import 'package:afietepatientapp/feature/auth/domain/repositories/auth_repository.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/core/network/token_storage.dart';
+import 'package:afiete/feature/auth/data/datasources/auth_remote_datasource.dart';
+import 'package:afiete/feature/auth/domain/entities/auth_user_entity.dart';
+import 'package:afiete/feature/auth/domain/entities/otp_entity.dart';
+import 'package:afiete/feature/auth/domain/repositories/auth_repository.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:afietepatientapp/core/utils/logger.dart';
+import 'package:afiete/core/utils/logger.dart';
 
 /// Implementation of [AuthRepository] that wraps [AuthRemoteDataSource] with error handling.
 /// All DioException are caught and converted to ServerFailure.

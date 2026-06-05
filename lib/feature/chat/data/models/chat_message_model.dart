@@ -1,4 +1,4 @@
-import 'package:afietepatientapp/feature/chat/domain/entities/chat_entity.dart';
+import 'package:afiete/feature/chat/domain/entities/chat_entity.dart';
 
 class ChatMessageModel extends ChatMessageEntity {
   const ChatMessageModel({

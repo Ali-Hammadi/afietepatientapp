@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/feature/report/domain/entities/report_entity.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/feature/report/domain/entities/report_entity.dart';
 
 abstract class ReportRepository {
   Future<Either<Failure, ReportEntity>> submitReport({

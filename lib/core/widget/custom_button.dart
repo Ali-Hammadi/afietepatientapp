@@ -1,7 +1,7 @@
-import 'package:afietepatientapp/core/constants/app_colors.dart';
+import 'package:afiete/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
-import 'package:afietepatientapp/core/constants/styles.dart';
+import 'package:afiete/core/constants/styles.dart';
 
 class CustomButton extends StatelessWidget {
   const CustomButton({

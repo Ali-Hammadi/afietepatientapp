@@ -1,4 +1,4 @@
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';

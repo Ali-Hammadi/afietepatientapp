@@ -1,10 +1,10 @@
 import 'dart:core';
 
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/feature/sessions/data/datasources/sessions_remote_datasource.dart';
-import 'package:afietepatientapp/feature/sessions/domain/entities/review_entity.dart';
-import 'package:afietepatientapp/feature/sessions/domain/entities/session_entity.dart';
-import 'package:afietepatientapp/feature/sessions/domain/repositories/sessions_repository.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/feature/sessions/data/datasources/sessions_remote_datasource.dart';
+import 'package:afiete/feature/sessions/domain/entities/review_entity.dart';
+import 'package:afiete/feature/sessions/domain/entities/session_entity.dart';
+import 'package:afiete/feature/sessions/domain/repositories/sessions_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 

@@ -1,4 +1,4 @@
-import 'package:afietepatientapp/feature/chat/data/models/chat_message_model.dart';
+import 'package:afiete/feature/chat/data/models/chat_message_model.dart';
 import 'package:dio/dio.dart';
 
 abstract class ChatRemoteDataSource {

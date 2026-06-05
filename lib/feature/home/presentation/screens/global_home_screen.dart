@@ -1,13 +1,13 @@
-import 'package:afietepatientapp/core/di/injection_container.dart';
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/feature/appoinments/presentation/cubits/appointments_cubit.dart';
-import 'package:afietepatientapp/feature/appoinments/presentation/screens/appointments_screen.dart';
-import 'package:afietepatientapp/feature/doctors/presentation/cubits/doctors_cubit.dart';
-import 'package:afietepatientapp/feature/doctors/presentation/screens/doctors_home_screen.dart';
-import 'package:afietepatientapp/feature/home/presentation/screens/first_home_screen.dart';
-import 'package:afietepatientapp/feature/home/presentation/widgets/custom_app_bar.dart';
-import 'package:afietepatientapp/feature/settings/presentation/screens/settings_screen.dart';
-import 'package:afietepatientapp/feature/doctors/presentation/widgets/custom_find_doctors_app_bar.dart';
+import 'package:afiete/core/di/injection_container.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/feature/appoinments/presentation/cubits/appointments_cubit.dart';
+import 'package:afiete/feature/appoinments/presentation/screens/appointments_screen.dart';
+import 'package:afiete/feature/doctors/presentation/cubits/doctors_cubit.dart';
+import 'package:afiete/feature/doctors/presentation/screens/doctors_home_screen.dart';
+import 'package:afiete/feature/home/presentation/screens/first_home_screen.dart';
+import 'package:afiete/feature/home/presentation/widgets/custom_app_bar.dart';
+import 'package:afiete/feature/settings/presentation/screens/settings_screen.dart';
+import 'package:afiete/feature/doctors/presentation/widgets/custom_find_doctors_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

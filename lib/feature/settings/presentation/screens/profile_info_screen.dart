@@ -1,12 +1,12 @@
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/core/routes/app_route.dart';
-import 'package:afietepatientapp/core/widget/custom_button.dart';
-import 'package:afietepatientapp/core/widget/error_custom_button.dart';
-import 'package:afietepatientapp/core/widget/profile_initial_avatar.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/core/routes/app_route.dart';
+import 'package:afiete/core/widget/custom_button.dart';
+import 'package:afiete/core/widget/error_custom_button.dart';
+import 'package:afiete/core/widget/profile_initial_avatar.dart';
 
-import 'package:afietepatientapp/feature/auth/domain/entities/auth_user_entity.dart';
-import 'package:afietepatientapp/feature/auth/presentation/cubits/auth_cubit.dart';
+import 'package:afiete/feature/auth/domain/entities/auth_user_entity.dart';
+import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

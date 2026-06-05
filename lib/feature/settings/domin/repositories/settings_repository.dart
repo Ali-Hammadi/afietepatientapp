@@ -1,5 +1,5 @@
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/feature/settings/domin/entities/medical_profile_entity.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/feature/settings/domin/entities/medical_profile_entity.dart';
 import 'package:dartz/dartz.dart';
 
 abstract class SettingsRepository {

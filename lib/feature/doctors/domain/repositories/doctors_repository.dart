@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
 
 abstract class DoctorsRepository {
   Future<Either<Failure, List<DoctorEntity>>> getAllDoctors();

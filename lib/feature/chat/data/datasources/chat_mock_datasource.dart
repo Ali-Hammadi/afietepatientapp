@@ -1,5 +1,5 @@
-import 'package:afietepatientapp/feature/chat/data/datasources/chat_remote_datasource.dart';
-import 'package:afietepatientapp/feature/chat/data/models/chat_message_model.dart';
+import 'package:afiete/feature/chat/data/datasources/chat_remote_datasource.dart';
+import 'package:afiete/feature/chat/data/models/chat_message_model.dart';
 
 class ChatMockDataSourceImpl implements ChatRemoteDataSource {
   final List<ChatMessageModel> _messages = [

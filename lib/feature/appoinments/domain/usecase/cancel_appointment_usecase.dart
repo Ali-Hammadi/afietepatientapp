@@ -1,6 +1,6 @@
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/core/usecases/usecase.dart';
-import 'package:afietepatientapp/feature/appoinments/domain/repositories/appointments_repository.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/core/usecases/usecase.dart';
+import 'package:afiete/feature/appoinments/domain/repositories/appointments_repository.dart';
 import 'package:dartz/dartz.dart';
 
 class CancelAppointmentParams {

@@ -1,7 +1,7 @@
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/feature/payment/data/datasources/payment_remote_datasource.dart';
-import 'package:afietepatientapp/feature/payment/domain/entities/payment_entity.dart';
-import 'package:afietepatientapp/feature/payment/domain/repositories/payment_repository.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/feature/payment/data/datasources/payment_remote_datasource.dart';
+import 'package:afiete/feature/payment/domain/entities/payment_entity.dart';
+import 'package:afiete/feature/payment/domain/repositories/payment_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 

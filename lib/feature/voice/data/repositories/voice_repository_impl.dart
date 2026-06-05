@@ -1,7 +1,7 @@
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/feature/voice/data/datasources/voice_remote_datasource.dart';
-import 'package:afietepatientapp/feature/voice/domain/entities/voice_call_entity.dart';
-import 'package:afietepatientapp/feature/voice/domain/repositories/voice_repository.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/feature/voice/data/datasources/voice_remote_datasource.dart';
+import 'package:afiete/feature/voice/domain/entities/voice_call_entity.dart';
+import 'package:afiete/feature/voice/domain/repositories/voice_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 

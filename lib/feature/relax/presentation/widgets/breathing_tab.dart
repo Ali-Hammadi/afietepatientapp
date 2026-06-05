@@ -1,8 +1,8 @@
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/feature/relax/domain/entities/breathing_exercise_entity.dart';
-import 'package:afietepatientapp/feature/relax/presentation/cubit/music_cubit.dart';
-import 'package:afietepatientapp/feature/relax/presentation/widgets/breathing_exercise_card.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/feature/relax/domain/entities/breathing_exercise_entity.dart';
+import 'package:afiete/feature/relax/presentation/cubit/music_cubit.dart';
+import 'package:afiete/feature/relax/presentation/widgets/breathing_exercise_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

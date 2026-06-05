@@ -1,7 +1,7 @@
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/feature/sessions/data/models/review_model.dart';
-import 'package:afietepatientapp/feature/sessions/data/datasources/sessions_remote_datasource.dart';
-import 'package:afietepatientapp/feature/sessions/data/models/session_model.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/feature/sessions/data/models/review_model.dart';
+import 'package:afiete/feature/sessions/data/datasources/sessions_remote_datasource.dart';
+import 'package:afiete/feature/sessions/data/models/session_model.dart';
 
 class SessionsMockDataSourceImpl implements SessionsRemoteDataSource {
   final List<Map<String, dynamic>> _doctorNotifications = [];

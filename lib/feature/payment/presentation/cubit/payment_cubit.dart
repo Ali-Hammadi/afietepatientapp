@@ -1,5 +1,5 @@
-import 'package:afietepatientapp/feature/payment/domain/entities/payment_entity.dart';
-import 'package:afietepatientapp/feature/payment/domain/usecases/process_payment_usecase.dart';
+import 'package:afiete/feature/payment/domain/entities/payment_entity.dart';
+import 'package:afiete/feature/payment/domain/usecases/process_payment_usecase.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 

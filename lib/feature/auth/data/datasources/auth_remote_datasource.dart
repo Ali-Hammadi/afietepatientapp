@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:afietepatientapp/core/network/api_endpoints.dart';
+import 'package:afiete/core/network/api_endpoints.dart';
 import '../models/models.dart';
-import 'package:afietepatientapp/core/utils/logger.dart';
+import 'package:afiete/core/utils/logger.dart';
 
 /// Abstract interface for remote authentication data source.
 /// All methods return models (not entities).

@@ -1,5 +1,5 @@
-import 'package:afietepatientapp/feature/appoinments/domain/entities/appointment_entity.dart';
-import 'package:afietepatientapp/feature/appoinments/domain/values/consultation_fee.dart';
+import 'package:afiete/feature/appoinments/domain/entities/appointment_entity.dart';
+import 'package:afiete/feature/appoinments/domain/values/consultation_fee.dart';
 
 class AppointmentModel extends AppointmentEntity {
   const AppointmentModel({

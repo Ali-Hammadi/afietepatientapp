@@ -1,4 +1,4 @@
-import 'package:afietepatientapp/feature/sessions/domain/entities/review_entity.dart';
+import 'package:afiete/feature/sessions/domain/entities/review_entity.dart';
 
 class ReviewModel extends ReviewEntity {
   const ReviewModel({

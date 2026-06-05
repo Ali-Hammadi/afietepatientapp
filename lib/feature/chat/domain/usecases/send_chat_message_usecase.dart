@@ -1,7 +1,7 @@
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/core/usecases/usecase.dart';
-import 'package:afietepatientapp/feature/chat/domain/entities/chat_entity.dart';
-import 'package:afietepatientapp/feature/chat/domain/repositories/chat_repository.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/core/usecases/usecase.dart';
+import 'package:afiete/feature/chat/domain/entities/chat_entity.dart';
+import 'package:afiete/feature/chat/domain/repositories/chat_repository.dart';
 import 'package:dartz/dartz.dart';
 
 class SendChatMessageUseCase

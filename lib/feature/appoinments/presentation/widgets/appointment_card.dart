@@ -1,11 +1,11 @@
-import 'package:afietepatientapp/core/assets/icon_image_links.dart';
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/core/widget/custom_button.dart';
-import 'package:afietepatientapp/feature/appoinments/domain/constants/session_type.dart';
-import 'package:afietepatientapp/feature/appoinments/domain/entities/appointment_entity.dart';
-import 'package:afietepatientapp/feature/chat/presentation/helpers/chat_session_navigator.dart';
-import 'package:afietepatientapp/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/core/assets/icon_image_links.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/core/widget/custom_button.dart';
+import 'package:afiete/feature/appoinments/domain/constants/session_type.dart';
+import 'package:afiete/feature/appoinments/domain/entities/appointment_entity.dart';
+import 'package:afiete/feature/chat/presentation/helpers/chat_session_navigator.dart';
+import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 

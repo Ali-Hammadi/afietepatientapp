@@ -1,4 +1,4 @@
-import 'package:afietepatientapp/feature/voice/domain/entities/voice_call_entity.dart';
+import 'package:afiete/feature/voice/domain/entities/voice_call_entity.dart';
 
 class VoiceCallModel extends VoiceCallEntity {
   const VoiceCallModel({

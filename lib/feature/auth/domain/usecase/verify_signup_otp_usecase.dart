@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/core/usecases/usecase.dart';
-import 'package:afietepatientapp/feature/auth/domain/entities/auth_user_entity.dart';
-import 'package:afietepatientapp/feature/auth/domain/repositories/auth_repository.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/core/usecases/usecase.dart';
+import 'package:afiete/feature/auth/domain/entities/auth_user_entity.dart';
+import 'package:afiete/feature/auth/domain/repositories/auth_repository.dart';
 
 class VerifySignupOtpParams {
   final String email;

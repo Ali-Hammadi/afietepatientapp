@@ -1,12 +1,12 @@
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/feature/assisments/domain/entity/assisments_entity.dart';
-import 'package:afietepatientapp/feature/assisments/presentation/cubits/assisments_cubit.dart';
-import 'package:afietepatientapp/feature/assisments/presentation/screens/assisment_result_screen.dart';
-import 'package:afietepatientapp/feature/assisments/presentation/widgets/assisment_bottom_actions.dart';
-import 'package:afietepatientapp/feature/assisments/presentation/widgets/assisment_error_view.dart';
-import 'package:afietepatientapp/feature/assisments/presentation/widgets/assisment_option_tile.dart';
-import 'package:afietepatientapp/feature/assisments/presentation/widgets/assisment_progress_header.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/feature/assisments/domain/entity/assisments_entity.dart';
+import 'package:afiete/feature/assisments/presentation/cubits/assisments_cubit.dart';
+import 'package:afiete/feature/assisments/presentation/screens/assisment_result_screen.dart';
+import 'package:afiete/feature/assisments/presentation/widgets/assisment_bottom_actions.dart';
+import 'package:afiete/feature/assisments/presentation/widgets/assisment_error_view.dart';
+import 'package:afiete/feature/assisments/presentation/widgets/assisment_option_tile.dart';
+import 'package:afiete/feature/assisments/presentation/widgets/assisment_progress_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

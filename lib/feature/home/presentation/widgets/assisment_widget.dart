@@ -1,7 +1,7 @@
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/core/routes/app_route.dart';
-import 'package:afietepatientapp/feature/assisments/data/assisment_visibility_store.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/routes/app_route.dart';
+import 'package:afiete/feature/assisments/data/assisment_visibility_store.dart';
 import 'package:flutter/material.dart';
 
 class CustomAssignmentWidget extends StatelessWidget {

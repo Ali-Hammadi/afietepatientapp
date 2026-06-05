@@ -2,8 +2,8 @@
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:afietepatientapp/feature/articles/domain/entities/article_entities.dart';
-import 'package:afietepatientapp/feature/articles/domain/usecases/articles_usecases.dart';
+import 'package:afiete/feature/articles/domain/entities/article_entities.dart';
+import 'package:afiete/feature/articles/domain/usecases/articles_usecases.dart';
 
 part 'articles_state.dart';
 

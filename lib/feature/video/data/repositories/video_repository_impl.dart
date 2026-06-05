@@ -1,7 +1,7 @@
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/feature/video/data/datasources/video_remote_datasource.dart';
-import 'package:afietepatientapp/feature/video/domain/entities/video_call_entity.dart';
-import 'package:afietepatientapp/feature/video/domain/repositories/video_repository.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/feature/video/data/datasources/video_remote_datasource.dart';
+import 'package:afiete/feature/video/domain/entities/video_call_entity.dart';
+import 'package:afiete/feature/video/domain/repositories/video_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 

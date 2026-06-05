@@ -1,5 +1,5 @@
-import 'package:afietepatientapp/feature/articles/domain/entities/article_entities.dart';
-import 'package:afietepatientapp/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/articles/domain/entities/article_entities.dart';
+import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
 
 class ArticleModel {
   final String id;

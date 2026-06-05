@@ -1,7 +1,7 @@
-import 'package:afietepatientapp/core/assets/icon_image_links.dart';
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/core/routes/app_route.dart';
-import 'package:afietepatientapp/core/widget/custom_button.dart';
+import 'package:afiete/core/assets/icon_image_links.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/core/routes/app_route.dart';
+import 'package:afiete/core/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 

@@ -1,5 +1,5 @@
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/feature/chat/presentation/widgets/chat_message_item.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/feature/chat/presentation/widgets/chat_message_item.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 

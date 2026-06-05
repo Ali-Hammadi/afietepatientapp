@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:afietepatientapp/core/usecases/usecase.dart';
-import 'package:afietepatientapp/feature/doctors/domain/entites/doctor_entity.dart';
-import 'package:afietepatientapp/feature/doctors/domain/usecase/get_doctors_usecase.dart';
+import 'package:afiete/core/usecases/usecase.dart';
+import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/usecase/get_doctors_usecase.dart';
 import 'package:intl/intl.dart';
 
 part 'doctors_state.dart';

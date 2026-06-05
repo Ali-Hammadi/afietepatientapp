@@ -1,7 +1,7 @@
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/core/usecases/usecase.dart';
-import 'package:afietepatientapp/feature/settings/domin/entities/medical_profile_entity.dart';
-import 'package:afietepatientapp/feature/settings/domin/repositories/settings_repository.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/core/usecases/usecase.dart';
+import 'package:afiete/feature/settings/domin/entities/medical_profile_entity.dart';
+import 'package:afiete/feature/settings/domin/repositories/settings_repository.dart';
 import 'package:dartz/dartz.dart';
 
 class UpdateMedicalNoteParams {

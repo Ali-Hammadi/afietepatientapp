@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:afietepatientapp/core/routes/app_route.dart';
+import 'package:afiete/core/routes/app_route.dart';
 
 typedef AppDependenciesSetup = Future<void> Function();
 typedef SecureStorageClear = Future<void> Function();

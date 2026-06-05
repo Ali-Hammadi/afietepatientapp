@@ -1,6 +1,6 @@
-import 'package:afietepatientapp/feature/appoinments/data/models/appointment_model.dart';
-import 'package:afietepatientapp/feature/appoinments/domain/values/consultation_fee.dart';
-import 'package:afietepatientapp/core/network/api_endpoints.dart';
+import 'package:afiete/feature/appoinments/data/models/appointment_model.dart';
+import 'package:afiete/feature/appoinments/domain/values/consultation_fee.dart';
+import 'package:afiete/core/network/api_endpoints.dart';
 import 'package:dio/dio.dart';
 
 abstract class AppointmentsRemoteDataSource {

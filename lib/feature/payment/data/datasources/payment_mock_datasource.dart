@@ -1,6 +1,6 @@
-import 'package:afietepatientapp/feature/payment/data/datasources/payment_remote_datasource.dart';
-import 'package:afietepatientapp/feature/payment/data/models/payment_model.dart';
-import 'package:afietepatientapp/feature/payment/domain/entities/payment_entity.dart';
+import 'package:afiete/feature/payment/data/datasources/payment_remote_datasource.dart';
+import 'package:afiete/feature/payment/data/models/payment_model.dart';
+import 'package:afiete/feature/payment/domain/entities/payment_entity.dart';
 
 class PaymentMockDataSourceImpl implements PaymentRemoteDataSource {
   @override

@@ -1,6 +1,6 @@
-import 'package:afietepatientapp/core/network/api_endpoints.dart';
-import 'package:afietepatientapp/feature/payment/data/models/payment_model.dart';
-import 'package:afietepatientapp/feature/payment/domain/entities/payment_entity.dart';
+import 'package:afiete/core/network/api_endpoints.dart';
+import 'package:afiete/feature/payment/data/models/payment_model.dart';
+import 'package:afiete/feature/payment/domain/entities/payment_entity.dart';
 import 'package:dio/dio.dart';
 
 abstract class PaymentRemoteDataSource {

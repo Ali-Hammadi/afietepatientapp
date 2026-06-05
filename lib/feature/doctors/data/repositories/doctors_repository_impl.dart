@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/feature/doctors/data/datasources/doctors_remote_datasource.dart';
-import 'package:afietepatientapp/feature/doctors/domain/entites/doctor_entity.dart';
-import 'package:afietepatientapp/feature/doctors/domain/repositories/doctors_repository.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/feature/doctors/data/datasources/doctors_remote_datasource.dart';
+import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/repositories/doctors_repository.dart';
 
 class DoctorsRepositoryImpl implements DoctorsRepository {
   final DoctorsRemoteDataSource remoteDataSource;

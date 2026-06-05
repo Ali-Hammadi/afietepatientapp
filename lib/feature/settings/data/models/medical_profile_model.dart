@@ -1,4 +1,4 @@
-import 'package:afietepatientapp/feature/settings/domin/entities/medical_profile_entity.dart';
+import 'package:afiete/feature/settings/domin/entities/medical_profile_entity.dart';
 import 'package:equatable/equatable.dart';
 
 class MedicalPrescriptionModel extends Equatable {

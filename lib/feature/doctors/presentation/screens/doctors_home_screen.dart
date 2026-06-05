@@ -1,8 +1,8 @@
-import 'package:afietepatientapp/core/constants/psychology_specialties.dart';
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/feature/doctors/presentation/cubits/doctors_cubit.dart';
-import 'package:afietepatientapp/feature/doctors/presentation/widgets/doctor_card.dart';
+import 'package:afiete/core/constants/psychology_specialties.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/feature/doctors/presentation/cubits/doctors_cubit.dart';
+import 'package:afiete/feature/doctors/presentation/widgets/doctor_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

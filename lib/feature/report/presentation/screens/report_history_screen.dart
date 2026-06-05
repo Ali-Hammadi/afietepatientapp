@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/feature/report/domain/entities/report_entity.dart';
-import 'package:afietepatientapp/feature/report/presentation/cubits/report_cubit.dart';
-import 'package:afietepatientapp/feature/report/presentation/widgets/report_card.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/feature/report/domain/entities/report_entity.dart';
+import 'package:afiete/feature/report/presentation/cubits/report_cubit.dart';
+import 'package:afiete/feature/report/presentation/widgets/report_card.dart';
 
 class ReportHistoryScreen extends StatefulWidget {
   final String userId;

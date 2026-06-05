@@ -1,14 +1,14 @@
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/core/routes/app_route.dart';
-import 'package:afietepatientapp/core/theme/language_cubit.dart';
-import 'package:afietepatientapp/core/theme/theme_cubit.dart';
-import 'package:afietepatientapp/core/utils/age_utils.dart';
-import 'package:afietepatientapp/core/widget/profile_initial_avatar.dart';
-import 'package:afietepatientapp/feature/auth/domain/entities/auth_user_entity.dart';
-import 'package:afietepatientapp/feature/auth/presentation/cubits/auth_cubit.dart';
-import 'package:afietepatientapp/feature/settings/presentation/widgets/language_option.dart';
-import 'package:afietepatientapp/feature/settings/presentation/widgets/setting_tile.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/routes/app_route.dart';
+import 'package:afiete/core/theme/language_cubit.dart';
+import 'package:afiete/core/theme/theme_cubit.dart';
+import 'package:afiete/core/utils/age_utils.dart';
+import 'package:afiete/core/widget/profile_initial_avatar.dart';
+import 'package:afiete/feature/auth/domain/entities/auth_user_entity.dart';
+import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
+import 'package:afiete/feature/settings/presentation/widgets/language_option.dart';
+import 'package:afiete/feature/settings/presentation/widgets/setting_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

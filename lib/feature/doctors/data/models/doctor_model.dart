@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:afietepatientapp/feature/appoinments/domain/values/consultation_fee.dart';
-import 'package:afietepatientapp/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/appoinments/domain/values/consultation_fee.dart';
+import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
 
 class DoctorSessionPriceModel extends Equatable {
   final int duration;

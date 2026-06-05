@@ -1,4 +1,4 @@
-import 'package:afietepatientapp/feature/video/domain/entities/video_call_entity.dart';
+import 'package:afiete/feature/video/domain/entities/video_call_entity.dart';
 
 class VideoCallModel extends VideoCallEntity {
   const VideoCallModel({

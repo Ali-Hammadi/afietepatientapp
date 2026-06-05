@@ -1,7 +1,7 @@
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/feature/settings/domin/entities/medical_profile_entity.dart';
-import 'package:afietepatientapp/feature/settings/presentation/cubits/settings_cubit.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/feature/settings/domin/entities/medical_profile_entity.dart';
+import 'package:afiete/feature/settings/presentation/cubits/settings_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

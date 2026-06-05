@@ -1,6 +1,6 @@
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/feature/relax/domain/entities/breathing_exercise_entity.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/feature/relax/domain/entities/breathing_exercise_entity.dart';
 import 'package:flutter/material.dart';
 
 class BreathingExerciseScreen extends StatefulWidget {

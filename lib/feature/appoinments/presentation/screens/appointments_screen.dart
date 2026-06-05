@@ -1,14 +1,14 @@
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/core/di/injection_container.dart';
-import 'package:afietepatientapp/core/routes/app_route.dart';
-import 'package:afietepatientapp/feature/appoinments/presentation/cubits/appointments_cubit.dart';
-import 'package:afietepatientapp/feature/appoinments/presentation/widgets/appointment_card.dart';
-import 'package:afietepatientapp/feature/chat/presentation/helpers/chat_session_navigator.dart';
-import 'package:afietepatientapp/feature/appoinments/domain/entities/appointment_entity.dart';
-import 'package:afietepatientapp/feature/doctors/domain/entites/doctor_entity.dart';
-import 'package:afietepatientapp/feature/sessions/presentation/cubits/sessions_cubit.dart';
-import 'package:afietepatientapp/feature/sessions/presentation/widgets/review_bottom_sheet.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/di/injection_container.dart';
+import 'package:afiete/core/routes/app_route.dart';
+import 'package:afiete/feature/appoinments/presentation/cubits/appointments_cubit.dart';
+import 'package:afiete/feature/appoinments/presentation/widgets/appointment_card.dart';
+import 'package:afiete/feature/chat/presentation/helpers/chat_session_navigator.dart';
+import 'package:afiete/feature/appoinments/domain/entities/appointment_entity.dart';
+import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/sessions/presentation/cubits/sessions_cubit.dart';
+import 'package:afiete/feature/sessions/presentation/widgets/review_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

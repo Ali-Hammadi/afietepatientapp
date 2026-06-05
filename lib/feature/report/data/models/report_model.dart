@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:afietepatientapp/feature/report/domain/entities/report_entity.dart';
+import 'package:afiete/feature/report/domain/entities/report_entity.dart';
 
 class ReportModel extends Equatable {
   final String id;

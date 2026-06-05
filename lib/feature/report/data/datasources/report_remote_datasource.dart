@@ -1,5 +1,5 @@
-import 'package:afietepatientapp/core/network/api_endpoints.dart';
-import 'package:afietepatientapp/feature/report/data/models/report_model.dart';
+import 'package:afiete/core/network/api_endpoints.dart';
+import 'package:afiete/feature/report/data/models/report_model.dart';
 import 'package:dio/dio.dart';
 
 abstract class ReportRemoteDataSource {

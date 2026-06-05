@@ -1,13 +1,13 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:afietepatientapp/core/assets/icon_image_links.dart';
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/core/routes/app_route.dart';
-import 'package:afietepatientapp/core/widget/custom_button.dart';
-import 'package:afietepatientapp/feature/auth/presentation/cubits/auth_cubit.dart';
-import 'package:afietepatientapp/feature/auth/presentation/widgets/auth_verification_pin_input.dart';
-import 'package:afietepatientapp/feature/auth/presentation/widgets/countdown_timer.dart';
+import 'package:afiete/core/assets/icon_image_links.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/core/routes/app_route.dart';
+import 'package:afiete/core/widget/custom_button.dart';
+import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
+import 'package:afiete/feature/auth/presentation/widgets/auth_verification_pin_input.dart';
+import 'package:afiete/feature/auth/presentation/widgets/countdown_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';

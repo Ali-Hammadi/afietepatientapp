@@ -1,5 +1,5 @@
-import 'package:afietepatientapp/core/constants/styles.dart';
-import 'package:afietepatientapp/feature/relax/domain/entities/music_entity.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/feature/relax/domain/entities/music_entity.dart';
 import 'package:flutter/material.dart';
 
 class MusicTrackCard extends StatelessWidget {

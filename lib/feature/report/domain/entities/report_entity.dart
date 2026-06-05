@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:afietepatientapp/core/constants/settings_strings.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
 
 enum ReportType { doctor, session, app }
 

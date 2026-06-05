@@ -1,5 +1,5 @@
-import 'package:afietepatientapp/core/network/api_endpoints.dart';
-import 'package:afietepatientapp/feature/video/data/models/video_call_model.dart';
+import 'package:afiete/core/network/api_endpoints.dart';
+import 'package:afiete/feature/video/data/models/video_call_model.dart';
 import 'package:dio/dio.dart';
 
 abstract class VideoRemoteDataSource {

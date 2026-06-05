@@ -1,7 +1,7 @@
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/feature/settings/data/data_source/settings_remote_data_source.dart';
-import 'package:afietepatientapp/feature/settings/domin/entities/medical_profile_entity.dart';
-import 'package:afietepatientapp/feature/settings/domin/repositories/settings_repository.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/feature/settings/data/data_source/settings_remote_data_source.dart';
+import 'package:afiete/feature/settings/domin/entities/medical_profile_entity.dart';
+import 'package:afiete/feature/settings/domin/repositories/settings_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 

@@ -1,6 +1,6 @@
-import 'package:afietepatientapp/core/constants/feeling_type.dart';
-import 'package:afietepatientapp/core/error/failure.dart';
-import 'package:afietepatientapp/feature/feeling/domain/entities/feeling_entry_entity.dart';
+import 'package:afiete/core/constants/feeling_type.dart';
+import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/feature/feeling/domain/entities/feeling_entry_entity.dart';
 import 'package:dartz/dartz.dart';
 
 abstract class FeelingRepository {

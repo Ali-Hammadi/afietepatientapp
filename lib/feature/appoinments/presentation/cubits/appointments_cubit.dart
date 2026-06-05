@@ -1,13 +1,13 @@
-import 'package:afietepatientapp/core/usecases/usecase.dart';
-import 'package:afietepatientapp/feature/assisments/data/assisment_visibility_store.dart';
-import 'package:afietepatientapp/feature/appoinments/domain/entities/appointment_entity.dart';
-import 'package:afietepatientapp/feature/appoinments/domain/usecase/cancel_appointment_usecase.dart';
-import 'package:afietepatientapp/feature/appoinments/domain/usecase/create_appointment_usecase.dart';
-import 'package:afietepatientapp/feature/appoinments/domain/usecase/get_appointments_usecase.dart';
-import 'package:afietepatientapp/feature/appoinments/domain/usecase/reschedule_appointment_usecase.dart';
-import 'package:afietepatientapp/feature/appoinments/domain/values/consultation_fee.dart';
-import 'package:afietepatientapp/feature/doctors/domain/entites/doctor_entity.dart';
-import 'package:afietepatientapp/feature/doctors/domain/usecase/get_doctors_usecase.dart';
+import 'package:afiete/core/usecases/usecase.dart';
+import 'package:afiete/feature/assisments/data/assisment_visibility_store.dart';
+import 'package:afiete/feature/appoinments/domain/entities/appointment_entity.dart';
+import 'package:afiete/feature/appoinments/domain/usecase/cancel_appointment_usecase.dart';
+import 'package:afiete/feature/appoinments/domain/usecase/create_appointment_usecase.dart';
+import 'package:afiete/feature/appoinments/domain/usecase/get_appointments_usecase.dart';
+import 'package:afiete/feature/appoinments/domain/usecase/reschedule_appointment_usecase.dart';
+import 'package:afiete/feature/appoinments/domain/values/consultation_fee.dart';
+import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/usecase/get_doctors_usecase.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

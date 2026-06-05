@@ -1,5 +1,5 @@
-import 'package:afietepatientapp/core/assets/icon_image_links.dart';
-import 'package:afietepatientapp/core/constants/styles.dart';
+import 'package:afiete/core/assets/icon_image_links.dart';
+import 'package:afiete/core/constants/styles.dart';
 import 'package:flutter/material.dart';
 
 class CustomDoctorAvatar extends StatelessWidget {

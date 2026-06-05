@@ -1,5 +1,5 @@
-import 'package:afietepatientapp/core/network/api_endpoints.dart';
-import 'package:afietepatientapp/feature/articles/data/models/article_model.dart';
+import 'package:afiete/core/network/api_endpoints.dart';
+import 'package:afiete/feature/articles/data/models/article_model.dart';
 import 'package:dio/dio.dart';
 
 abstract class ArticlesRemoteDataSource {
