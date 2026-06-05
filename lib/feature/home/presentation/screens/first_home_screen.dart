@@ -126,7 +126,10 @@ class FirstHomeScreen extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 20),
-
+                  Text(
+                    SettingsStrings.bestArticlesForYou,
+                    style: AppStyles.headingMedium,
+                  ),
                   // سيكشن المقالات مستقر ومحمي تماماً الآن لأن البيانات تُطلب عبر الـ Listener في الأعلى
                   BlocBuilder<AssismentsCubit, AssismentsState>(
                     builder: (context, assignmentsState) {
