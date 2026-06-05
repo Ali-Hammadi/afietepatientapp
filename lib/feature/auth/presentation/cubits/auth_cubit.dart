@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:afiete/core/utils/age_utils.dart';
 import 'package:afiete/core/utils/logger.dart';
@@ -15,7 +16,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 // contexts across async gaps. The reset helper uses navigatorKey instead.
 import 'package:afiete/core/network/token_storage.dart';
 import 'package:afiete/core/reset/nuclear_reset_helper.dart';
-import 'package:equatable/equatable.dart';
 import 'package:afiete/feature/auth/domain/usecase/login_usecase.dart';
 import 'package:afiete/feature/auth/domain/usecase/signup_usecase.dart';
 import 'package:afiete/feature/auth/domain/usecase/google_signin_usecase.dart';
@@ -61,11 +61,9 @@ class AuthCubit extends Cubit<AuthState> {
     this.googleSignInUseCase,
     this.fetchProfileUseCase,
     this.updateProfileInfoUseCase,
-
     this.requestForgotPasswordOtpUseCase,
     this.verifyForgotPasswordOtpUseCase,
     this.verifyOtpUseCase,
-
     this.authRepository,
   ) : super(AuthInitial());
 
@@ -674,9 +672,8 @@ class AuthCubit extends Cubit<AuthState> {
         'gender': sanitizedGender,
         'phoneLength': payloadPhone.length,
         'nickname': payloadNickname,
-        'hasPsychologicalHistory': payloadPsychologicalHistory
-            .trim()
-            .isNotEmpty,
+        'hasPsychologicalHistory':
+            payloadPsychologicalHistory.trim().isNotEmpty,
       },
     );
 
@@ -705,9 +702,8 @@ class AuthCubit extends Cubit<AuthState> {
             'gender': sanitizedGender,
             'phoneLength': payloadPhone.length,
             'nickname': payloadNickname,
-            'hasPsychologicalHistory': payloadPsychologicalHistory
-                .trim()
-                .isNotEmpty,
+            'hasPsychologicalHistory':
+                payloadPsychologicalHistory.trim().isNotEmpty,
           },
         );
         emit(AuthError(normalizedMessage));
@@ -1097,16 +1093,20 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<UserAuthEntity?> restorePendingSignupSession() async {
-    final cachedSignup =
-        _pendingSignupUser ??
+    final cachedSignup = _pendingSignupUser ??
         await authRepository.getCachedPendingSignupSession();
     if (cachedSignup == null) {
       return null;
     }
 
+    // نقوم بعمل كاستينج صريح كونه قادم من الـ Repository كـ Equatable أو Object
     _pendingSignupUser = cachedSignup;
-    emit(OtpSent(email: cachedSignup.email, expiresInSeconds: 60));
-    return cachedSignup;
+
+    // الآن نستخرج البريد الإلكتروني بشكل مباشر وآمن تماماً بدون فحص النوع مجدداً
+    final emailAddress = _pendingSignupUser?.email ?? '';
+
+    emit(OtpSent(email: emailAddress, expiresInSeconds: 60));
+    return _pendingSignupUser;
   }
 
   Future<bool> refreshProfileFromBackend({String? correlationId}) async {
@@ -1130,13 +1130,16 @@ class AuthCubit extends Cubit<AuthState> {
     _isRefreshingProfile = true;
     _lastProfileRefreshAt = now;
     final currentState = state;
-    final currentUser = currentState is AuthLoaded
+
+    // تم إصلاح التضارب هنا: استخراج الـ UserAuthEntity المناسب من الحالات المتعددة
+    final UserAuthEntity? currentUser = currentState is AuthLoaded
         ? currentState.user
         : currentState is AuthProfileUpdated
-        ? currentState.user
-        : await authRepository.getCachedSession();
+            ? currentState.user
+            : await authRepository.getCachedSession();
 
     if (currentUser == null) {
+      _isRefreshingProfile = false;
       return false;
     }
 
@@ -1145,6 +1148,7 @@ class AuthCubit extends Cubit<AuthState> {
         'refresh_profile:missing_access_token_skip',
         data: {'cid': cid, 'email': currentUser.email},
       );
+      _isRefreshingProfile = false;
       return false;
     }
 
@@ -1480,21 +1484,21 @@ class AuthCubit extends Cubit<AuthState> {
     );
   }
 
-    Future<void> _resetAuthStateAfterExpiredSession({
-      required String correlationId,
-    }) async {
-      _log.warn('auth:expired_session_reset', data: {'cid': correlationId});
-      await authRepository.clearCachedSession();
-      await authRepository.clearPendingSignupSession();
-      await TokenStorage.clearTokens();
-      _pendingSignupUser = null;
-      _activeAuthFlowCorrelationId = null;
-      emit(
-        const AuthReset(
-          'Your session has expired. Please sign in again.',
-        ),
-      );
-    }
+  Future<void> _resetAuthStateAfterExpiredSession({
+    required String correlationId,
+  }) async {
+    _log.warn('auth:expired_session_reset', data: {'cid': correlationId});
+    await authRepository.clearCachedSession();
+    await authRepository.clearPendingSignupSession();
+    await TokenStorage.clearTokens();
+    _pendingSignupUser = null;
+    _activeAuthFlowCorrelationId = null;
+    emit(
+      const AuthReset(
+        'Your session has expired. Please sign in again.',
+      ),
+    );
+  }
 
   Future<bool> _cacheAndEmitUser(
     UserAuthEntity user, {
@@ -1552,10 +1556,10 @@ class AuthCubit extends Cubit<AuthState> {
 
     final cachedSignup = await authRepository.getCachedPendingSignupSession();
     if (cachedSignup != null) {
-      _pendingSignupUser = cachedSignup;
+      _pendingSignupUser = cachedSignup as UserAuthEntity?;
       _log.info(
         'signup_session:restored_from_cache',
-        data: {'email': cachedSignup.email},
+        data: {'email': _pendingSignupUser?.email},
       );
     }
 
@@ -1598,11 +1602,11 @@ class AuthCubit extends Cubit<AuthState> {
     AuthState currentState,
     UserAuthEntity updatedUser,
   ) {
-    final currentUser = currentState is AuthLoaded
+    final UserAuthEntity currentUser = currentState is AuthLoaded
         ? currentState.user
         : currentState is AuthProfileUpdated
-        ? currentState.user
-        : updatedUser;
+            ? currentState.user
+            : updatedUser;
 
     return updatedUser.copyWith(
       username: (updatedUser.username.isNotEmpty)
@@ -1617,10 +1621,8 @@ class AuthCubit extends Cubit<AuthState> {
       password: (updatedUser.password?.isNotEmpty ?? false)
           ? updatedUser.password
           : currentUser.password,
-
       birthDate: updatedUser.birthDate ?? currentUser.birthDate,
-      age:
-          updatedUser.age ??
+      age: updatedUser.age ??
           currentUser.age ??
           calculateAge(updatedUser.birthDate ?? currentUser.birthDate),
       gender: updatedUser.gender ?? currentUser.gender,

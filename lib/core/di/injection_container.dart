@@ -176,11 +176,9 @@ Future<void> init() async {
       sl<GoogleSignInUseCase>(),
       sl<FetchProfileUseCase>(),
       sl<UpdateProfileInfoUseCase>(),
-
       sl<RequestForgotPasswordOtpUseCase>(),
       sl<VerifyForgotPasswordOtpUseCase>(),
       sl<VerifyOtpUseCase>(),
-
       sl<AuthRepository>(),
     ),
   );
@@ -596,7 +594,6 @@ Future<void> init() async {
   sl.registerFactory<ArticlesCubit>(
     () => ArticlesCubit(
       getArticlesForHomeUseCase: sl<GetArticlesForHomeUseCase>(),
-      getRecommendedArticlesUseCase: sl<GetRecommendedArticlesUseCase>(),
       getTrendingArticlesUseCase: sl<GetTrendingArticlesUseCase>(),
       getArticlesByDoctorUseCase: sl<GetArticlesByDoctorUseCase>(),
       getAllArticlesUseCase: sl<GetAllArticlesUseCase>(),
@@ -604,6 +601,7 @@ Future<void> init() async {
       likeArticleUseCase: sl<LikeArticleUseCase>(),
       reactToArticleUseCase: sl<ReactToArticleUseCase>(),
       dislikeArticleUseCase: sl<DislikeArticleUseCase>(),
+      getRecommendedArticlesUseCase: sl<GetRecommendedArticlesUseCase>(),
     ),
   );
 }

@@ -34,7 +34,6 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
   DoctorTimeSlot? _selectedSlot;
   List<DoctorTimeSlot> _daySlots = const [];
   bool _isLoadingSlots = false;
-  String? _slotsError;
   int? _selectedDurationSlots;
   String? _selectedSessionType;
   bool _isSubmitting = false;
@@ -80,7 +79,6 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
       _selectedSlot = null;
       _daySlots = const [];
       _isLoadingSlots = true;
-      _slotsError = null;
     });
 
     final username = widget.doctor.username ?? widget.doctor.id;

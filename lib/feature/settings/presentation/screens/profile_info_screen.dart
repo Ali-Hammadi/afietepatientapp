@@ -184,9 +184,8 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
                         label: SettingsStrings.birthDateTitle,
                         value: displayBirthDate,
                         icon: Icons.cake_outlined,
-                        onEdit: user == null
-                            ? null
-                            : () => _editBirthDate(user),
+                        onEdit:
+                            user == null ? null : () => _editBirthDate(user),
                       ),
                       const SizedBox(height: 12),
                       _buildInfoRow(
@@ -207,11 +206,9 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
                       const SizedBox(height: 16),
                       CustomButton(
                         widget: Text(SettingsStrings.saveChanges),
-                        onPressed: user == null
-                            ? null
-                            : () => _saveProfileInfo(user),
+                        onPressed:
+                            user == null ? null : () => _saveProfileInfo(user),
                       ),
-
                       const SizedBox(height: 16),
                       ErrorCustomButton(
                         widget: Text(SettingsStrings.deleteAccountTitle),
@@ -303,7 +300,6 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
             ),
           ),
           const SizedBox(width: 8),
-
           TextButton(
             onPressed: onEdit,
             style: TextButton.styleFrom(
@@ -449,7 +445,7 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
   }
 
   Future<({String currentPassword, String newPassword})?>
-  _showPasswordEditor() async {
+      _showPasswordEditor() async {
     final formKey = GlobalKey<FormState>();
     final currentPasswordController = TextEditingController();
     final newPasswordController = TextEditingController();
@@ -460,139 +456,139 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
 
     final result =
         await showDialog<({String currentPassword, String newPassword})>(
-          context: context,
-          builder: (dialogContext) {
-            return StatefulBuilder(
-              builder: (context, setDialogState) {
-                return AlertDialog(
-                  scrollable: true,
-                  title: Text(SettingsStrings.passwordTitle),
-                  content: Form(
-                    key: formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextFormField(
-                          controller: currentPasswordController,
-                          obscureText: !showCurrentPassword,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return SettingsStrings.currentPasswordRequired;
-                            }
-                            return null;
-                          },
-                          decoration: InputDecoration(
-                            labelText: SettingsStrings.oldPasswordLabel,
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                showCurrentPassword
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility_off_outlined,
-                              ),
-                              onPressed: () {
-                                setDialogState(() {
-                                  showCurrentPassword = !showCurrentPassword;
-                                });
-                              },
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: newPasswordController,
-                          obscureText: !showNewPassword,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return SettingsStrings.newPasswordRequired;
-                            }
-                            if (value.length < 6) {
-                              return SettingsStrings.passwordAtLeastSixChars;
-                            }
-                            return null;
-                          },
-                          decoration: InputDecoration(
-                            labelText: SettingsStrings.newPasswordLabel,
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                showNewPassword
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility_off_outlined,
-                              ),
-                              onPressed: () {
-                                setDialogState(() {
-                                  showNewPassword = !showNewPassword;
-                                });
-                              },
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: confirmPasswordController,
-                          obscureText: !showConfirmPassword,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return SettingsStrings.confirmPasswordRequired;
-                            }
-                            if (value != newPasswordController.text) {
-                              return SettingsStrings.passwordMismatch;
-                            }
-                            return null;
-                          },
-                          decoration: InputDecoration(
-                            labelText: SettingsStrings.confirmPasswordLabel,
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                showConfirmPassword
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility_off_outlined,
-                              ),
-                              onPressed: () {
-                                setDialogState(() {
-                                  showConfirmPassword = !showConfirmPassword;
-                                });
-                              },
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(dialogContext),
-                      child: Text(SettingsStrings.cancel),
-                    ),
-                    FilledButton(
-                      onPressed: () {
-                        if (!(formKey.currentState?.validate() ?? false)) {
-                          return;
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              scrollable: true,
+              title: Text(SettingsStrings.passwordTitle),
+              content: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: currentPasswordController,
+                      obscureText: !showCurrentPassword,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return SettingsStrings.currentPasswordRequired;
                         }
-                        Navigator.pop(dialogContext, (
-                          currentPassword: currentPasswordController.text,
-                          newPassword: newPasswordController.text,
-                        ));
+                        return null;
                       },
-                      child: Text(SettingsStrings.saveChanges),
+                      decoration: InputDecoration(
+                        labelText: SettingsStrings.oldPasswordLabel,
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            showCurrentPassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
+                          onPressed: () {
+                            setDialogState(() {
+                              showCurrentPassword = !showCurrentPassword;
+                            });
+                          },
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: newPasswordController,
+                      obscureText: !showNewPassword,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return SettingsStrings.newPasswordRequired;
+                        }
+                        if (value.length < 6) {
+                          return SettingsStrings.passwordAtLeastSixChars;
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        labelText: SettingsStrings.newPasswordLabel,
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            showNewPassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
+                          onPressed: () {
+                            setDialogState(() {
+                              showNewPassword = !showNewPassword;
+                            });
+                          },
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: confirmPasswordController,
+                      obscureText: !showConfirmPassword,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return SettingsStrings.confirmPasswordRequired;
+                        }
+                        if (value != newPasswordController.text) {
+                          return SettingsStrings.passwordMismatch;
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        labelText: SettingsStrings.confirmPasswordLabel,
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            showConfirmPassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
+                          onPressed: () {
+                            setDialogState(() {
+                              showConfirmPassword = !showConfirmPassword;
+                            });
+                          },
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
                     ),
                   ],
-                );
-              },
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: Text(SettingsStrings.cancel),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    if (!(formKey.currentState?.validate() ?? false)) {
+                      return;
+                    }
+                    Navigator.pop(dialogContext, (
+                      currentPassword: currentPasswordController.text,
+                      newPassword: newPasswordController.text,
+                    ));
+                  },
+                  child: Text(SettingsStrings.saveChanges),
+                ),
+              ],
             );
           },
         );
+      },
+    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       try {
@@ -711,11 +707,11 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
     String? phoneNumber,
   }) async {
     final saved = await context.read<AuthCubit>().updateProfileInfo(
-      nickname: nickname ?? user.nickname,
-      birthDate: birthDate ?? user.birthDate ?? DateTime.now(),
-      gender: gender ?? _normalizeGenderValue(user.gender),
-      phoneNumber: phoneNumber ?? user.phoneNumber ?? '',
-    );
+          nickname: nickname ?? user.nickname,
+          birthDate: birthDate ?? user.birthDate ?? DateTime.now(),
+          gender: gender ?? _normalizeGenderValue(user.gender),
+          phoneNumber: phoneNumber ?? user.phoneNumber ?? '',
+        );
 
     if (!mounted) return;
 
