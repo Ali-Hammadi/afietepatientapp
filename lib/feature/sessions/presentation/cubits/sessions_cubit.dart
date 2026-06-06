@@ -45,10 +45,10 @@ class SessionsCubit extends Cubit<SessionsState> {
 
   Future<bool> cancelSession({
     required String sessionId,
-    required String doctorId,
+    required String username,
   }) async {
     final result = await cancelSessionUseCase(
-      CancelSessionParams(sessionId: sessionId, doctorId: doctorId),
+      CancelSessionParams(sessionId: sessionId, username: username),
     );
     return result.fold<Future<bool>>(
       (failure) {

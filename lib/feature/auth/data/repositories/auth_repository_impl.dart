@@ -17,7 +17,7 @@ class AuthRepositoryImpl implements AuthRepository {
   final _log = loggerFor('AuthRepository');
 
   AuthRepositoryImpl({required AuthRemoteDataSource remoteDataSource})
-    : _remoteDataSource = remoteDataSource;
+      : _remoteDataSource = remoteDataSource;
 
   // ==================== SIGNUP FLOW ====================
 
@@ -702,7 +702,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   Map<String, dynamic> _encodeUser(UserAuthEntity user) {
     return {
-      'username': user.username,
+      'patientUsername': user.patientUsername,
       'nickname': user.nickname,
       'email': user.email,
       'birthDate': user.birthDate?.toIso8601String(),
@@ -717,7 +717,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   UserAuthEntity _decodeUser(Map<String, dynamic> json) {
     return UserAuthEntity(
-      username: json['username']?.toString() ?? '',
+      patientUsername: json['patientUsername']?.toString() ?? '',
       nickname: json['nickname']?.toString(),
       email: json['email']?.toString() ?? '',
       birthDate: json['birthDate'] != null

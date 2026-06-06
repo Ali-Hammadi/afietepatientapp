@@ -3,7 +3,7 @@ import 'package:afiete/feature/sessions/domain/entities/session_entity.dart';
 class SessionModel extends SessionEntity {
   const SessionModel({
     required super.id,
-    required super.doctorId,
+    required super.username,
     required super.doctorName,
     required super.doctorSpecialization,
     super.doctorImageUrl,
@@ -18,7 +18,7 @@ class SessionModel extends SessionEntity {
     final scheduledAt = DateTime.parse(json['scheduledAt'] as String);
     return SessionModel(
       id: json['id'] as String,
-      doctorId: json['doctorId'] as String,
+      username: json['doctorId'] as String,
       doctorName: json['doctorName'] as String,
       doctorSpecialization: json['doctorSpecialization'] as String,
       doctorImageUrl: json['doctorImageUrl'] as String?,
@@ -33,7 +33,7 @@ class SessionModel extends SessionEntity {
   factory SessionModel.fromEntity(SessionEntity entity) {
     return SessionModel(
       id: entity.id,
-      doctorId: entity.doctorId,
+      username: entity.username,
       doctorName: entity.doctorName,
       doctorSpecialization: entity.doctorSpecialization,
       doctorImageUrl: entity.doctorImageUrl,
@@ -48,7 +48,7 @@ class SessionModel extends SessionEntity {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'doctorId': doctorId,
+      'doctorId': username,
       'doctorName': doctorName,
       'doctorSpecialization': doctorSpecialization,
       'doctorImageUrl': doctorImageUrl,

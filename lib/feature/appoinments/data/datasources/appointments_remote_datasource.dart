@@ -7,8 +7,8 @@ abstract class AppointmentsRemoteDataSource {
   Future<List<AppointmentModel>> getAppointments();
 
   Future<AppointmentModel> createAppointment({
-    required String doctorId,
-    required String patientId,
+    required String doctorUsername,
+    required String patientUsername,
     required String doctorName,
     required DateTime scheduledAt,
     required int durationSlots,
@@ -32,11 +32,14 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
   @override
   Future<List<AppointmentModel>> getAppointments() async {
     try {
-      final response = await _dio.get(ApiEndpoints.appointmentsList);
+      // استخدام الاندبوينت الجديد الخاص بـ Django
+      final response = await _dio.get(ApiEndpoints.myAppointments);
+
       if (response.statusCode == 200) {
         final body = response.data;
         List<dynamic> data = const [];
 
+        // الـ Django يرجع الـ List مباشرة [ {} , {} ]
         if (body is List) {
           data = body;
         } else if (body is Map<String, dynamic>) {
@@ -52,8 +55,7 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
 
         return data
             .map(
-              (apt) => AppointmentModel.fromJson(apt as Map<String, dynamic>),
-            )
+                (apt) => AppointmentModel.fromJson(apt as Map<String, dynamic>))
             .toList();
       }
       throw DioException(
@@ -65,7 +67,7 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
       rethrow;
     } catch (e) {
       throw DioException(
-        requestOptions: RequestOptions(path: ApiEndpoints.appointmentsList),
+        requestOptions: RequestOptions(path: ApiEndpoints.myAppointments),
         error: e,
         type: DioExceptionType.unknown,
       );
@@ -74,8 +76,8 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
 
   @override
   Future<AppointmentModel> createAppointment({
-    required String doctorId,
-    required String patientId,
+    required String doctorUsername,
+    required String patientUsername,
     required String doctorName,
     required DateTime scheduledAt,
     required int durationSlots,
@@ -83,24 +85,28 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
     required String sessionType,
   }) async {
     try {
+      // حساب وقت النهاية بناءً على السلوتات (كل سلوت 30 دقيقة كما في الـ Entity)
+      final endAt = scheduledAt.add(Duration(minutes: durationSlots * 30));
+
+      // تشكيل الـ Payload المطلوب تماماً من الـ Django
+      final Map<String, dynamic> djangoPayload = {
+        "doctor_username":
+            doctorUsername, // الـ Django يتوقع الـ doctorUsername هنا
+        "type": sessionType, // مثل 'video'
+        "day_date":
+            "${scheduledAt.year}-${scheduledAt.month.toString().padLeft(2, '0')}-${scheduledAt.day.toString().padLeft(2, '0')}",
+        "slot": {
+          "start": scheduledAt.toIso8601String(),
+          "end": endAt.toIso8601String()
+        }
+      };
+
       final response = await _dio.post(
-        ApiEndpoints.appointmentsCreate,
-        data: {
-          'doctorId': doctorId,
-          'patientId': patientId,
-          'doctorName': doctorName,
-          'scheduledAt': scheduledAt.toIso8601String(),
-          'durationSlots': durationSlots,
-          'consultationFee': {
-            'textChat': consultationFee.textChat,
-            'videoCall': consultationFee.videoCall,
-            'voiceCall': consultationFee.voiceCall,
-          },
-          'sessionType': sessionType,
-        },
+        ApiEndpoints.createAppointment,
+        data: djangoPayload,
       );
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
         final body = response.data;
         if (body is Map<String, dynamic>) {
           final nested = body['appointment'];
@@ -119,7 +125,7 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
       rethrow;
     } catch (e) {
       throw DioException(
-        requestOptions: RequestOptions(path: ApiEndpoints.appointmentsCreate),
+        requestOptions: RequestOptions(path: ApiEndpoints.createAppointment),
         error: e,
         type: DioExceptionType.unknown,
       );
@@ -129,11 +135,12 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
   @override
   Future<void> cancelAppointment(String appointmentId) async {
     try {
+      // إرسال طلب الـ POST للرابط الديناميكي المضاف في الـ Endpoints
       final response = await _dio.post(
-        ApiEndpoints.appointmentsCancel,
-        data: {'appointmentId': appointmentId},
+        ApiEndpoints.cancelAppointment(appointmentId),
       );
-      if (response.statusCode != 200) {
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
         throw DioException(
           requestOptions: response.requestOptions,
           response: response,
@@ -144,7 +151,9 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
       rethrow;
     } catch (e) {
       throw DioException(
-        requestOptions: RequestOptions(path: ApiEndpoints.appointmentsCancel),
+        requestOptions: RequestOptions(
+          path: ApiEndpoints.cancelAppointment(appointmentId),
+        ),
         error: e,
         type: DioExceptionType.unknown,
       );
@@ -156,6 +165,8 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
     required String appointmentId,
     required DateTime newScheduledAt,
   }) async {
+    // إذا كان الـ Django يدعم الـ Reschedule فقم بتركيب الاندبوينت الخاص به هنا بنفس الطريقة،
+    // أو اتركه كما هو حالياً مستهدفاً الـ Legacy لحين توفير الاندبوينت من الباك-إند.
     try {
       final response = await _dio.post(
         ApiEndpoints.appointmentsReschedule,
@@ -183,9 +194,8 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
       rethrow;
     } catch (e) {
       throw DioException(
-        requestOptions: RequestOptions(
-          path: ApiEndpoints.appointmentsReschedule,
-        ),
+        requestOptions:
+            RequestOptions(path: ApiEndpoints.appointmentsReschedule),
         error: e,
         type: DioExceptionType.unknown,
       );

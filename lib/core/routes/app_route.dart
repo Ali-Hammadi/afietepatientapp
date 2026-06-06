@@ -64,9 +64,8 @@ class AppRouter {
       case MyRoutes.firstHomeScreen:
         return MaterialPageRoute(builder: (_) => const FirstHomeScreen());
       case MyRoutes.verifyAccountScreen:
-        final email = settings.arguments is String
-            ? settings.arguments as String
-            : '';
+        final email =
+            settings.arguments is String ? settings.arguments as String : '';
         return MaterialPageRoute(
           builder: (_) => VerifyAccountScreen(email: email),
         );
@@ -93,9 +92,8 @@ class AppRouter {
           ),
         );
       case MyRoutes.forgotPasswordScreen:
-        final initialEmail = settings.arguments is String
-            ? settings.arguments as String
-            : '';
+        final initialEmail =
+            settings.arguments is String ? settings.arguments as String : '';
         return MaterialPageRoute(
           builder: (_) => ForgotPasswordScreen(initialEmail: initialEmail),
         );
@@ -110,8 +108,8 @@ class AppRouter {
         final doctor = args is DoctorEntity
             ? args
             : args is Map<String, dynamic>
-            ? args['doctor'] as DoctorEntity?
-            : null;
+                ? args['doctor'] as DoctorEntity?
+                : null;
         final isReschedule = args is Map<String, dynamic>
             ? args['rescheduleMode'] == true
             : false;
@@ -220,14 +218,14 @@ class AppRouter {
         final reportArgs = args is ReportScreenArgs
             ? args
             : args is Map<String, dynamic>
-            ? ReportScreenArgs(
-                reportType: args['reportType'] as ReportType,
-                userId: args['userId'] as String,
-                doctorId: args['doctorId'] as String?,
-                doctorName: args['doctorName'] as String?,
-                sessionId: args['sessionId'] as String?,
-              )
-            : null;
+                ? ReportScreenArgs(
+                    reportType: args['reportType'] as ReportType,
+                    patientUsername: args['patientUsername'] as String,
+                    doctorUsername: args['doctorUsername'] as String?,
+                    doctorName: args['doctorName'] as String?,
+                    sessionId: args['sessionId'] as String?,
+                  )
+                : null;
 
         if (reportArgs == null) {
           return MaterialPageRoute(
@@ -247,8 +245,8 @@ class AppRouter {
             create: (_) => sl<ReportCubit>(),
             child: ReportScreen(
               reportType: reportArgs.reportType,
-              userId: reportArgs.userId,
-              doctorId: reportArgs.doctorId,
+              patientUsername: reportArgs.patientUsername,
+              doctorUsername: reportArgs.doctorUsername,
               doctorName: reportArgs.doctorName,
               sessionId: reportArgs.sessionId,
             ),
@@ -302,15 +300,15 @@ class AppRouter {
 
 class ReportScreenArgs {
   final ReportType reportType;
-  final String userId;
-  final String? doctorId;
+  final String patientUsername;
+  final String? doctorUsername;
   final String? doctorName;
   final String? sessionId;
 
   ReportScreenArgs({
     required this.reportType,
-    required this.userId,
-    this.doctorId,
+    required this.patientUsername,
+    this.doctorUsername,
     this.doctorName,
     this.sessionId,
   });

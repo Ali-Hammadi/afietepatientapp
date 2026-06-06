@@ -34,13 +34,13 @@ class AppointmentsRepositoryImpl implements AppointmentsRepository {
     required int durationSlots,
     required ConsultationFee consultationFee,
     required String sessionType,
-    required String doctorId,
-    required String patientId,
+    required String doctorUsername,
+    required String patientUsername,
   }) async {
     try {
       final result = await dataSource.createAppointment(
-        doctorId: doctorId,
-        patientId: patientId,
+        doctorUsername: doctorUsername,
+        patientUsername: patientUsername,
         doctorName: doctorName,
         scheduledAt: scheduledAt,
         durationSlots: durationSlots,

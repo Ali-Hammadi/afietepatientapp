@@ -94,7 +94,7 @@ class PaymentScreen extends StatelessWidget {
                             onTap: isProcessing
                                 ? null
                                 : () =>
-                                      cubit.selectMethod(PaymentMethod.wallet),
+                                    cubit.selectMethod(PaymentMethod.wallet),
                           ),
                           const SizedBox(height: 18),
                           Text(
@@ -159,7 +159,7 @@ class PaymentScreen extends StatelessWidget {
                             ? null
                             : () {
                                 final finalRequest = PaymentRequestEntity(
-                                  doctorId: request.doctorId,
+                                  doctorUsername: request.doctorUsername,
                                   patientId: request.patientId,
                                   doctorName: request.doctorName,
                                   scheduledAt: request.scheduledAt,

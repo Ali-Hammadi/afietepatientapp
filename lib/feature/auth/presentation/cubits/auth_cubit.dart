@@ -172,7 +172,7 @@ class AuthCubit extends Cubit<AuthState> {
             data: {'cid': correlationId, 'email': email},
           );
           _pendingSignupUser = UserAuthEntity(
-            username: nickname,
+            patientUsername: nickname,
             nickname: nickname,
             email: email,
             password: password,
@@ -199,7 +199,7 @@ class AuthCubit extends Cubit<AuthState> {
         );
         // OTP was sent; store signup data and wait for verification
         _pendingSignupUser = UserAuthEntity(
-          username: nickname,
+          patientUsername: nickname,
           nickname: nickname,
           email: email,
           password: password,
@@ -538,7 +538,7 @@ class AuthCubit extends Cubit<AuthState> {
           'google_sign_in:success',
           data: {
             'cid': correlationId,
-            'username': user.username,
+            'username': user.nickname,
             'email': user.email,
           },
         );
@@ -1016,9 +1016,9 @@ class AuthCubit extends Cubit<AuthState> {
       },
       (loggedInUser) {
         final merged = loggedInUser.copyWith(
-          username: verifiedUser.username.isNotEmpty
-              ? verifiedUser.username
-              : loggedInUser.username,
+          patientUsername: verifiedUser.patientUsername.isNotEmpty
+              ? verifiedUser.patientUsername
+              : loggedInUser.patientUsername,
           nickname: verifiedUser.nickname ?? loggedInUser.nickname,
           birthDate: verifiedUser.birthDate ?? loggedInUser.birthDate,
           age: verifiedUser.age ?? loggedInUser.age,
@@ -1048,9 +1048,9 @@ class AuthCubit extends Cubit<AuthState> {
     // If from signup flow, merge with stored signup data
     if (_pendingSignupUser != null) {
       return backendUser.copyWith(
-        username: (_pendingSignupUser!.username.isNotEmpty)
-            ? _pendingSignupUser!.username
-            : backendUser.username,
+        patientUsername: (_pendingSignupUser!.patientUsername.isNotEmpty)
+            ? _pendingSignupUser!.patientUsername
+            : backendUser.patientUsername,
         nickname: (_pendingSignupUser!.nickname?.isNotEmpty ?? false)
             ? _pendingSignupUser!.nickname
             : backendUser.nickname,
@@ -1609,9 +1609,9 @@ class AuthCubit extends Cubit<AuthState> {
             : updatedUser;
 
     return updatedUser.copyWith(
-      username: (updatedUser.username.isNotEmpty)
-          ? updatedUser.username
-          : currentUser.username,
+      patientUsername: (updatedUser.patientUsername.isNotEmpty)
+          ? updatedUser.patientUsername
+          : currentUser.patientUsername,
       nickname: (updatedUser.nickname?.isNotEmpty ?? false)
           ? updatedUser.nickname
           : currentUser.nickname,

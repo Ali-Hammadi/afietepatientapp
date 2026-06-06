@@ -143,7 +143,7 @@ class CustomTopDoctorCard extends StatelessWidget {
               CustomDoctorAvatar(imageUrl: doctor.imageUrl),
               const SizedBox(height: 12),
               Text(
-                doctor.name,
+                doctor.name!,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,

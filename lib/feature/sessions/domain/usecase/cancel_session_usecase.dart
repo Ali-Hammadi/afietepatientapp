@@ -5,9 +5,9 @@ import 'package:dartz/dartz.dart';
 
 class CancelSessionParams {
   final String sessionId;
-  final String doctorId;
+  final String username;
 
-  const CancelSessionParams({required this.sessionId, required this.doctorId});
+  const CancelSessionParams({required this.sessionId, required this.username});
 }
 
 class CancelSessionUseCase implements UseCase<void, CancelSessionParams> {
@@ -19,7 +19,7 @@ class CancelSessionUseCase implements UseCase<void, CancelSessionParams> {
   Future<Either<Failure, void>> call(CancelSessionParams params) {
     return repository.cancelSession(
       sessionId: params.sessionId,
-      doctorId: params.doctorId,
+      username: params.username,
     );
   }
 }

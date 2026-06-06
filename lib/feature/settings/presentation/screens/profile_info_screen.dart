@@ -65,8 +65,8 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
         final nickname = (user?.nickname?.trim().isNotEmpty ?? false)
             ? user!.nickname!.trim()
             : '—';
-        final username = (user?.username.trim().isNotEmpty ?? false)
-            ? user!.username.trim()
+        final username = (user?.patientUsername.trim().isNotEmpty ?? false)
+            ? user!.patientUsername.trim()
             : '—';
 
         final displayGender = _displayGender(user?.gender);
@@ -212,7 +212,7 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
                       const SizedBox(height: 16),
                       ErrorCustomButton(
                         widget: Text(SettingsStrings.deleteAccountTitle),
-                        onPressed: () => _handleDeleteAccount,
+                        onPressed: _handleDeleteAccount,
                       ),
                     ],
                   ),
@@ -389,43 +389,34 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
           builder: (context, setDialogState) {
             return AlertDialog(
               title: Text(SettingsStrings.genderTitle),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      Radio<String>(
-                        value: _genderMale,
-                        groupValue: selectedGender,
-                        onChanged: (value) {
-                          if (value == null) return;
-                          setDialogState(() {
-                            selectedGender = value;
-                          });
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(SettingsStrings.male)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Radio<String>(
-                        value: _genderFemale,
-                        groupValue: selectedGender,
-                        onChanged: (value) {
-                          if (value == null) return;
-                          setDialogState(() {
-                            selectedGender = value;
-                          });
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(SettingsStrings.female)),
-                    ],
-                  ),
-                ],
+              content: RadioGroup<String>(
+                groupValue: selectedGender,
+                onChanged: (value) {
+                  if (value == null) return;
+                  setDialogState(() {
+                    selectedGender = value;
+                  });
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        const Radio<String>(value: _genderMale),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(SettingsStrings.male)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Radio<String>(value: _genderFemale),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(SettingsStrings.female)),
+                      ],
+                    ),
+                  ],
+                ),
               ),
               actions: [
                 TextButton(

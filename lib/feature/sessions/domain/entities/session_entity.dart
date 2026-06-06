@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 class SessionEntity extends Equatable {
   final String id;
-  final String doctorId;
+  final String username;
   final String doctorName;
   final String doctorSpecialization;
   final String? doctorImageUrl;
@@ -14,7 +14,7 @@ class SessionEntity extends Equatable {
 
   const SessionEntity({
     required this.id,
-    required this.doctorId,
+    required this.username,
     required this.doctorName,
     required this.doctorSpecialization,
     this.doctorImageUrl,
@@ -36,15 +36,15 @@ class SessionEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    doctorId,
-    doctorName,
-    doctorSpecialization,
-    doctorImageUrl,
-    scheduledAt,
-    durationMinutes,
-    sessionType,
-    status,
-    isUpcoming,
-  ];
+        id,
+        username,
+        doctorName,
+        doctorSpecialization,
+        doctorImageUrl,
+        scheduledAt,
+        durationMinutes,
+        sessionType,
+        status,
+        isUpcoming,
+      ];
 }

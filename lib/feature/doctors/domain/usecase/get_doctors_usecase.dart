@@ -35,20 +35,20 @@ class GetDoctorsBySpecialtyUseCase
   }
 }
 
-class GetDoctorByIdParams {
-  final String id;
+class GetDoctorByUsernameParams {
+  final String username;
 
-  const GetDoctorByIdParams({required this.id});
+  const GetDoctorByUsernameParams({required this.username});
 }
 
-class GetDoctorByIdUseCase
-    implements UseCase<DoctorEntity, GetDoctorByIdParams> {
+class GetDoctorByUsernameUseCase
+    implements UseCase<DoctorEntity, GetDoctorByUsernameParams> {
   final DoctorsRepository repository;
 
-  const GetDoctorByIdUseCase(this.repository);
+  const GetDoctorByUsernameUseCase(this.repository);
 
   @override
-  Future<Either<Failure, DoctorEntity>> call(GetDoctorByIdParams params) {
-    return repository.getDoctorById(params.id);
+  Future<Either<Failure, DoctorEntity>> call(GetDoctorByUsernameParams params) {
+    return repository.getDoctorByUsername(params.username);
   }
 }

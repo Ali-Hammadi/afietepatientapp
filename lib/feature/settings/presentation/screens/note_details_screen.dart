@@ -19,13 +19,13 @@ class ShareDoctorOption {
 
 class NoteDetailsScreen extends StatefulWidget {
   final MedicalNoteEntity note;
-  final String userId;
+  final String username;
   final List<ShareDoctorOption> doctors;
 
   const NoteDetailsScreen({
     super.key,
     required this.note,
-    required this.userId,
+    required this.username,
     required this.doctors,
   });
 
@@ -124,26 +124,31 @@ class _NoteDetailsScreenState extends State<NoteDetailsScreen> {
               style: AppStyles.headingSmall,
             ),
             const SizedBox(height: 10),
-            Column(
-              children: [
-                ...widget.doctors.map(
-                  (doctor) => RadioListTile<ShareDoctorOption>(
-                    contentPadding: EdgeInsets.zero,
-                    value: doctor,
-                    groupValue: _selectedDoctor,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedDoctor = value;
-                      });
-                    },
-                    title: Text(doctor.name),
-                    subtitle: Text(
-                      SettingsStrings.specialtyLabel(doctor.specialization),
+
+            // FIX: Wrapped the list elements inside a RadioGroup widget
+            RadioGroup<ShareDoctorOption>(
+              groupValue: _selectedDoctor,
+              onChanged: (value) {
+                setState(() {
+                  _selectedDoctor = value;
+                });
+              },
+              child: Column(
+                children: [
+                  ...widget.doctors.map(
+                    (doctor) => RadioListTile<ShareDoctorOption>(
+                      contentPadding: EdgeInsets.zero,
+                      value: doctor,
+                      title: Text(doctor.name),
+                      subtitle: Text(
+                        SettingsStrings.specialtyLabel(doctor.specialization),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
+
             const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
@@ -180,12 +185,12 @@ class _NoteDetailsScreenState extends State<NoteDetailsScreen> {
     });
 
     final message = await context.read<SettingsCubit>().updateMedicalNote(
-      userId: widget.userId,
-      noteTitle: widget.note.title,
-      previousUpdatedAt: widget.note.updatedAt,
-      newTitle: _titleController.text.trim(),
-      newContent: _contentController.text.trim(),
-    );
+          userId: widget.username,
+          noteTitle: widget.note.title,
+          previousUpdatedAt: widget.note.updatedAt,
+          newTitle: _titleController.text.trim(),
+          newContent: _contentController.text.trim(),
+        );
 
     if (!mounted) return;
 
@@ -213,14 +218,13 @@ class _NoteDetailsScreenState extends State<NoteDetailsScreen> {
       _isSharing = true;
     });
 
-    final message = await context
-        .read<SettingsCubit>()
-        .shareMedicalNoteWithDoctor(
-          userId: widget.userId,
-          noteTitle: _titleController.text.trim(),
-          noteContent: _contentController.text.trim(),
-          doctorId: _selectedDoctor!.id,
-        );
+    final message =
+        await context.read<SettingsCubit>().shareMedicalNoteWithDoctor(
+              userId: widget.username,
+              noteTitle: _titleController.text.trim(),
+              noteContent: _contentController.text.trim(),
+              username: _selectedDoctor!.id,
+            );
 
     if (!mounted) return;
 

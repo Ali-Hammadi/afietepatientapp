@@ -52,16 +52,14 @@ class ArticleModel {
 
     // 3. بناء كائن الـ DoctorEntity الكامل المتوافق مع تطبيق المواعيد الآخر
     final doctorEntity = DoctorEntity(
-      id: authorJson['id']?.toString() ?? '',
+      doctorUsername: userJson['username']?.toString() ?? "",
       email: userJson['email']?.toString(),
-      username: userJson['username']?.toString(),
       gender: userJson['gender']?.toString(),
       imageUrl: authorJson['photo']?.toString() ??
           json['doctor_image']?.toString() ??
           '',
       phone: userJson['phone']?.toString(),
-      firstName: userJson['first_name']?.toString(),
-      lastName: userJson['last_name']?.toString(),
+      name: userJson['first_name']?.toString(),
       age: userJson['age']?.toString(),
       jobTitle: authorJson['job_title']?['title']?.toString() ??
           authorJson['job_title']?.toString(),

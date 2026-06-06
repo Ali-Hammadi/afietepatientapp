@@ -81,9 +81,10 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
       _isLoadingSlots = true;
     });
 
-    final username = widget.doctor.username ?? widget.doctor.id;
-    final slots =
-        await context.read<DoctorsCubit>().fetchSlotsForDate(username, day);
+    final doctorUsername = widget.doctor.doctorUsername;
+    final slots = await context
+        .read<DoctorsCubit>()
+        .fetchSlotsForDate(doctorUsername, day);
 
     if (!mounted) return;
 
@@ -143,18 +144,18 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
     }
 
     final authState = context.read<AuthCubit>().state;
-    String patientId = 'unknown-patient';
+    String patientUsername = 'unknown-patient';
     if (authState is AuthLoaded) {
-      patientId = authState.user.username;
+      patientUsername = authState.user.patientUsername;
     } else if (authState is AuthProfileUpdated) {
-      patientId = authState.user.username;
+      patientUsername = authState.user.patientUsername;
     }
 
     final cubit = context.read<AppointmentsCubit>();
     await cubit.createBookingDraft(
-      doctorId: widget.doctor.id,
-      patientId: patientId,
-      doctorName: widget.doctor.name,
+      doctorUsername: widget.doctor.doctorUsername,
+      patientUsername: patientUsername,
+      doctorName: widget.doctor.name!,
       scheduledAt: scheduledAt,
       durationSlots: _selectedDurationSlots!,
       consultationFee: widget.doctor.consultationFee,
@@ -184,9 +185,9 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
       context,
       MyRoutes.paymentScreen,
       arguments: PaymentRequestEntity(
-        doctorId: widget.doctor.id,
-        patientId: patientId,
-        doctorName: widget.doctor.name,
+        doctorUsername: widget.doctor.doctorUsername,
+        patientId: patientUsername,
+        doctorName: widget.doctor.name!,
         scheduledAt: scheduledAt,
         durationSlots: _selectedDurationSlots!,
         sessionType: _selectedSessionType!,

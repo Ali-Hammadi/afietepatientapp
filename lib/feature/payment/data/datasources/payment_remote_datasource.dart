@@ -18,7 +18,7 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
       final response = await _dio.post(
         ApiEndpoints.appointmentsCreate,
         data: {
-          'doctorId': request.doctorId,
+          'doctorUsername': request.doctorUsername,
           'patientId': request.patientId,
           'doctorName': request.doctorName,
           'scheduledAt': request.scheduledAt.toIso8601String(),

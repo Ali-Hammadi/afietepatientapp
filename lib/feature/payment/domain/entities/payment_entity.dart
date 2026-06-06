@@ -5,7 +5,7 @@ enum PaymentMethod { card, wallet, cash }
 enum PaymentStatus { pending, success, failed }
 
 class PaymentRequestEntity extends Equatable {
-  final String doctorId;
+  final String doctorUsername;
   final String patientId;
   final String doctorName;
   final DateTime scheduledAt;
@@ -16,7 +16,7 @@ class PaymentRequestEntity extends Equatable {
   final PaymentMethod method;
 
   const PaymentRequestEntity({
-    required this.doctorId,
+    required this.doctorUsername,
     required this.patientId,
     required this.doctorName,
     required this.scheduledAt,
@@ -29,16 +29,16 @@ class PaymentRequestEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    doctorId,
-    patientId,
-    doctorName,
-    scheduledAt,
-    durationSlots,
-    sessionType,
-    amount,
-    currency,
-    method,
-  ];
+        doctorUsername,
+        patientId,
+        doctorName,
+        scheduledAt,
+        durationSlots,
+        sessionType,
+        amount,
+        currency,
+        method,
+      ];
 }
 
 class PaymentEntity extends Equatable {
@@ -64,12 +64,12 @@ class PaymentEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    transactionRef,
-    amount,
-    currency,
-    method,
-    status,
-    createdAt,
-  ];
+        id,
+        transactionRef,
+        amount,
+        currency,
+        method,
+        status,
+        createdAt,
+      ];
 }

@@ -9,7 +9,7 @@ class ChatSessionNavigator {
   static void openIfChatSession({
     required BuildContext context,
     required String sessionId,
-    required String doctorId,
+    required String username,
     required String patientId,
     required String doctorName,
     required String sessionType,
@@ -42,7 +42,7 @@ class ChatSessionNavigator {
       MyRoutes.chatConversationScreen,
       arguments: ChatConversationArgs(
         sessionId: sessionId,
-        doctorId: doctorId,
+        doctorId: username,
         patientId: patientId,
         doctorName: doctorName,
       ),
@@ -57,7 +57,7 @@ class ChatSessionNavigator {
     openIfChatSession(
       context: context,
       sessionId: session.id,
-      doctorId: session.doctorId,
+      username: session.username,
       patientId: patientId,
       doctorName: session.doctorName,
       sessionType: session.sessionType,
@@ -73,7 +73,7 @@ class ChatSessionNavigator {
     openIfChatSession(
       context: context,
       sessionId: appointment.id,
-      doctorId: appointment.doctorId,
+      username: appointment.doctorUsername,
       patientId: appointment.patientId,
       doctorName: doctorName,
       sessionType: appointment.sessionType,

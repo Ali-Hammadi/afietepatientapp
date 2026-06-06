@@ -57,8 +57,8 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
   }
 
   Future<void> createBookingDraft({
-    required String doctorId,
-    required String patientId,
+    required String doctorUsername,
+    required String patientUsername,
     required String doctorName,
     required DateTime scheduledAt,
     required int durationSlots,
@@ -67,8 +67,8 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
   }) async {
     final result = await createAppointmentDraftUseCase(
       CreateAppointmentParams(
-        doctorId: doctorId,
-        patientId: patientId,
+        doctorUsername: doctorUsername,
+        patientUsername: patientUsername,
         doctorName: doctorName,
         scheduledAt: scheduledAt,
         durationSlots: durationSlots,

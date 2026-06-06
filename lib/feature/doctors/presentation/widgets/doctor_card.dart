@@ -35,10 +35,11 @@ class CustomDoctorCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                CustomDoctorProfileImage(height: 100, imageUrl: doctor.imageUrl),
+                CustomDoctorProfileImage(
+                    height: 100, imageUrl: doctor.imageUrl),
                 Expanded(
                   child: ListTile(
-                    title: Text(doctor.name),
+                    title: Text(doctor.name!, style: AppStyles.bodyMedium),
                     subtitle: Text(
                       SettingsStrings.specialtyLabel(doctor.specialization),
                     ),

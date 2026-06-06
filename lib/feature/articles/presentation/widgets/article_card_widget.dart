@@ -45,9 +45,8 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
     ).format(widget.article.createdAt);
     final doctorImage = widget.article.doctor.imageUrl ?? '';
     final isNetworkImage = doctorImage.startsWith('http');
-    final cardPadding = widget.compactMode
-        ? AppStyles.padding * 0.8
-        : AppStyles.padding;
+    final cardPadding =
+        widget.compactMode ? AppStyles.padding * 0.8 : AppStyles.padding;
     final avatarSize = widget.compactMode ? 44.0 : 50.0;
 
     final content = Padding(
@@ -82,11 +81,10 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
           ],
           Text(
             widget.article.title,
-            style:
-                (widget.compactMode
-                        ? AppStyles.bodyLarge
-                        : AppStyles.headingSmall)
-                    .copyWith(fontWeight: FontWeight.w700),
+            style: (widget.compactMode
+                    ? AppStyles.bodyLarge
+                    : AppStyles.headingSmall)
+                .copyWith(fontWeight: FontWeight.w700),
             maxLines: widget.compactMode ? 2 : 3,
             overflow: TextOverflow.ellipsis,
           ),
@@ -126,20 +124,17 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
             ],
           ),
           const SizedBox(height: 12),
-
           Text(
             widget.article.content,
-            style: widget.compactMode
-                ? AppStyles.bodySmall
-                : AppStyles.bodyMedium,
+            style:
+                widget.compactMode ? AppStyles.bodySmall : AppStyles.bodyMedium,
             maxLines: widget.compactMode
                 ? 4
                 : _isExpanded
-                ? null
-                : 4,
-            overflow: _isExpanded
-                ? TextOverflow.visible
-                : TextOverflow.ellipsis,
+                    ? null
+                    : 4,
+            overflow:
+                _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
           ),
           const SizedBox(height: 12),
           GestureDetector(
@@ -229,25 +224,27 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
         child: doctorImage.isEmpty
             ? Icon(Icons.person_outline, color: colorScheme.primary)
             : isNetworkImage
-            ? Image.network(
-                doctorImage,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Icon(Icons.person_outline, color: colorScheme.primary);
-                },
-              )
-            : Image.asset(
-                doctorImage,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Icon(Icons.person_outline, color: colorScheme.primary);
-                },
-              ),
+                ? Image.network(
+                    doctorImage,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(Icons.person_outline,
+                          color: colorScheme.primary);
+                    },
+                  )
+                : Image.asset(
+                    doctorImage,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(Icons.person_outline,
+                          color: colorScheme.primary);
+                    },
+                  ),
       ),
     );
 
     final nameWidget = Text(
-      widget.article.doctor.name,
+      widget.article.doctor.name!,
       style: AppStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
     );
 
@@ -316,26 +313,26 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
           color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
           child: imageUrl.isNotEmpty
               ? (isNetworkImage
-                    ? Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.image_outlined,
-                            color: colorScheme.primary,
-                          );
-                        },
-                      )
-                    : Image.asset(
-                        imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.image_outlined,
-                            color: colorScheme.primary,
-                          );
-                        },
-                      ))
+                  ? Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(
+                          Icons.image_outlined,
+                          color: colorScheme.primary,
+                        );
+                      },
+                    )
+                  : Image.asset(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(
+                          Icons.image_outlined,
+                          color: colorScheme.primary,
+                        );
+                      },
+                    ))
               : Icon(Icons.image_outlined, color: colorScheme.primary),
         ),
       ),

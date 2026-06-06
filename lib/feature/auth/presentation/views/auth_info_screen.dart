@@ -82,10 +82,10 @@ class _AuthInfoScreenState extends State<AuthInfoScreen> {
     final currentNickname = authState is AuthLoaded
         ? authState.user.nickname
         : authState is AuthProfileUpdated
-        ? authState.user.nickname
-        : authState is SignupOtpVerified
-        ? authState.user.nickname
-        : '';
+            ? authState.user.nickname
+            : authState is SignupOtpVerified
+                ? authState.user.nickname
+                : '';
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -127,7 +127,7 @@ class _AuthInfoScreenState extends State<AuthInfoScreen> {
                       ),
                       const SizedBox(height: 20),
                       DropdownButtonFormField<String>(
-                        value: dropdownGenderValue,
+                        initialValue: dropdownGenderValue,
                         decoration: InputDecoration(
                           labelText: SettingsStrings.genderTitle,
                           labelStyle: AppStyles.bodyMedium,
@@ -272,21 +272,19 @@ class _AuthInfoScreenState extends State<AuthInfoScreen> {
                               .read<AuthCubit>()
                               .activeAuthFlowCorrelationId;
 
-                          final saved = await context
-                              .read<AuthCubit>()
-                              .updateProfileInfo(
-                                nickname: currentNickname,
-                                birthDate: selectedDate!,
-                                gender: selectedGender!,
-                                phoneNumber: phone,
-                              );
+                          final saved =
+                              await context.read<AuthCubit>().updateProfileInfo(
+                                    nickname: currentNickname,
+                                    birthDate: selectedDate!,
+                                    gender: selectedGender!,
+                                    phoneNumber: phone,
+                                  );
 
                           if (!context.mounted) return;
 
                           if (!saved) {
-                            final currentState = context
-                                .read<AuthCubit>()
-                                .state;
+                            final currentState =
+                                context.read<AuthCubit>().state;
                             final message = currentState is AuthError
                                 ? currentState.message
                                 : 'Could not complete your profile information. Please try again.';
@@ -295,8 +293,8 @@ class _AuthInfoScreenState extends State<AuthInfoScreen> {
                               'submit_profile_info:failed',
                               data: {
                                 'cid': cid,
-                                'stateType': currentState.runtimeType
-                                    .toString(),
+                                'stateType':
+                                    currentState.runtimeType.toString(),
                                 'message': message,
                               },
                             );

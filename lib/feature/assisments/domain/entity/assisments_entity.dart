@@ -47,7 +47,7 @@ class AssismentEntity extends Equatable {
   final int score;
   final String severity;
   final String summary;
-  final List<String> recommendedDoctorIds;
+  final List<String> recommendedDoctorUsrnames;
   final List<String> recommendedSpecialties;
 
   const AssismentEntity._({
@@ -61,7 +61,7 @@ class AssismentEntity extends Equatable {
     this.score = 0,
     this.severity = '',
     this.summary = '',
-    this.recommendedDoctorIds = const [],
+    this.recommendedDoctorUsrnames = const [],
     this.recommendedSpecialties = const [],
   });
 
@@ -70,20 +70,20 @@ class AssismentEntity extends Equatable {
     required String questionText,
     required List<AssismentOptionEntity> options,
   }) : this._(
-         type: AssismentEntityType.question,
-         id: id,
-         questionText: questionText,
-         options: options,
-       );
+          type: AssismentEntityType.question,
+          id: id,
+          questionText: questionText,
+          options: options,
+        );
 
   const AssismentEntity.answer({
     required int questionId,
     required int selectedOptionId,
   }) : this._(
-         type: AssismentEntityType.answer,
-         questionId: questionId,
-         selectedOptionId: selectedOptionId,
-       );
+          type: AssismentEntityType.answer,
+          questionId: questionId,
+          selectedOptionId: selectedOptionId,
+        );
 
   const AssismentEntity.result({
     required int resultId,
@@ -93,28 +93,28 @@ class AssismentEntity extends Equatable {
     required List<String> recommendedDoctorIds,
     required List<String> recommendedSpecialties,
   }) : this._(
-         type: AssismentEntityType.result,
-         resultId: resultId,
-         score: score,
-         severity: severity,
-         summary: summary,
-         recommendedDoctorIds: recommendedDoctorIds,
-         recommendedSpecialties: recommendedSpecialties,
-       );
+          type: AssismentEntityType.result,
+          resultId: resultId,
+          score: score,
+          severity: severity,
+          summary: summary,
+          recommendedDoctorUsrnames: recommendedDoctorIds,
+          recommendedSpecialties: recommendedSpecialties,
+        );
 
   @override
   List<Object?> get props => [
-    type,
-    id,
-    questionText,
-    options,
-    questionId,
-    selectedOptionId,
-    resultId,
-    score,
-    severity,
-    summary,
-    recommendedDoctorIds,
-    recommendedSpecialties,
-  ];
+        type,
+        id,
+        questionText,
+        options,
+        questionId,
+        selectedOptionId,
+        resultId,
+        score,
+        severity,
+        summary,
+        recommendedDoctorUsrnames,
+        recommendedSpecialties,
+      ];
 }

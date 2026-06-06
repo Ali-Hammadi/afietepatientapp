@@ -118,7 +118,7 @@ class _MySessionsScreenState extends State<MySessionsScreen> {
                     isScrollControlled: true,
                     builder: (_) => CustomReviewBottomSheet(
                       sessionId: session.id,
-                      doctorId: session.doctorId,
+                      username: session.username,
                     ),
                   );
                 }
@@ -212,8 +212,8 @@ class _MySessionsScreenState extends State<MySessionsScreen> {
   }
 
   Future<void> _handleReschedule(SessionEntity session) async {
-    final doctorResult = await sl<GetDoctorByIdUseCase>()(
-      GetDoctorByIdParams(id: session.doctorId),
+    final doctorResult = await sl<GetDoctorByUsernameUseCase>()(
+      GetDoctorByUsernameParams(username: session.username),
     );
 
     await doctorResult.fold(
@@ -260,7 +260,7 @@ class _MySessionsScreenState extends State<MySessionsScreen> {
               Navigator.pop(dialogContext);
               final success = await _cubit.cancelSession(
                 sessionId: session.id,
-                doctorId: session.doctorId,
+                username: session.username,
               );
               if (success && mounted) {
                 _showSnackBar(SettingsStrings.sessionCancelled);

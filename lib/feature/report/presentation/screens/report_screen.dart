@@ -13,16 +13,16 @@ import 'package:afiete/feature/report/presentation/widgets/section_divider_widge
 
 class ReportScreen extends StatefulWidget {
   final ReportType reportType;
-  final String? doctorId;
+  final String? doctorUsername;
   final String? doctorName;
   final String? sessionId;
-  final String userId;
+  final String patientUsername;
 
   const ReportScreen({
     super.key,
     required this.reportType,
-    required this.userId,
-    this.doctorId,
+    required this.patientUsername,
+    this.doctorUsername,
     this.doctorName,
     this.sessionId,
   });
@@ -98,13 +98,13 @@ class _ReportScreenState extends State<ReportScreen> {
     }
 
     context.read<ReportCubit>().submitReport(
-      userId: widget.userId,
-      reportType: widget.reportType,
-      targetId: widget.doctorId ?? widget.sessionId,
-      targetName: widget.doctorName,
-      reason: _selectedReason!,
-      description: _descriptionController.text.trim(),
-    );
+          userId: widget.patientUsername,
+          reportType: widget.reportType,
+          targetId: widget.doctorUsername ?? widget.sessionId,
+          targetName: widget.doctorName,
+          reason: _selectedReason!,
+          description: _descriptionController.text.trim(),
+        );
   }
 
   @override

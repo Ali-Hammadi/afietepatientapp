@@ -7,7 +7,7 @@ abstract class DoctorsRepository {
   Future<Either<Failure, List<DoctorEntity>>> getDoctorsBySpecialty(
     String specialty,
   );
-  Future<Either<Failure, DoctorEntity>> getDoctorById(String id);
+  Future<Either<Failure, DoctorEntity>> getDoctorByUsername(String username);
   Future<Either<Failure, DoctorEntity>> getCurrentDoctorProfile();
   Future<Either<Failure, DoctorSchedule>> getDoctorScheduleById(String id);
   Future<Either<Failure, DoctorEntity>> getDoctorPublicProfile(

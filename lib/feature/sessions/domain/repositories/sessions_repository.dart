@@ -14,7 +14,7 @@ abstract class SessionsRepository {
 
   Future<Either<Failure, void>> cancelSession({
     required String sessionId,
-    required String doctorId,
+    required String username,
   });
 
   Future<Either<Failure, SessionEntity>> rescheduleSession({

@@ -7,7 +7,6 @@ import 'package:afiete/core/utils/age_utils.dart';
 import 'package:afiete/core/widget/profile_initial_avatar.dart';
 import 'package:afiete/feature/auth/domain/entities/auth_user_entity.dart';
 import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
-import 'package:afiete/feature/settings/presentation/widgets/language_option.dart';
 import 'package:afiete/feature/settings/presentation/widgets/setting_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -171,7 +170,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final displayName = _displayUserValue(
       authUser?.nickname?.trim(),
-      fallback: authUser?.username.trim() ?? '—',
+      fallback: authUser?.patientUsername.trim() ?? '—',
     );
     final email = _displayUserValue(authUser?.email.trim());
     final gender = _displayGender(authUser?.gender);
@@ -389,18 +388,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 12),
                   Column(
                     children: [
-                      CustomLanguageOption(
-                        value: 'en',
-                        groupValue: tempLanguage,
-                        label: SettingsStrings.english,
+                      customLanguageOption(
+                        title: SettingsStrings.english,
                         onTap: () => setModalState(() => tempLanguage = 'en'),
                       ),
                       const SizedBox(height: 10),
-                      CustomLanguageOption(
-                        value: 'ar',
-                        groupValue: tempLanguage,
-                        label: SettingsStrings.arabic,
+                      customLanguageOption(
                         onTap: () => setModalState(() => tempLanguage = 'ar'),
+                        title: SettingsStrings.arabic,
                       ),
                     ],
                   ),
@@ -419,8 +414,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       FilledButton(
                         onPressed: () async {
                           await context.read<LanguageCubit>().setLanguageCode(
-                            tempLanguage,
-                          );
+                                tempLanguage,
+                              );
                           if (context.mounted) {
                             Navigator.pop(context);
                           }
@@ -441,6 +436,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           },
         );
       },
+    );
+  }
+
+  Widget customLanguageOption(
+      {required String title, required VoidCallback onTap}) {
+    return ListTile(
+      title: Text(title),
+      onTap: onTap,
     );
   }
 

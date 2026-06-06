@@ -75,7 +75,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     required String userId,
     required String noteTitle,
     required String noteContent,
-    required String doctorId,
+    required String username,
   }) async {
     final safeUserId = userId.isEmpty ? 'mock-user' : userId;
 
@@ -84,7 +84,7 @@ class SettingsCubit extends Cubit<SettingsState> {
         userId: safeUserId,
         noteTitle: noteTitle,
         noteContent: noteContent,
-        doctorId: doctorId,
+        doctorId: username,
       ),
     );
 

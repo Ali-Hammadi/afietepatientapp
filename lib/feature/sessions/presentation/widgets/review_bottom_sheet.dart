@@ -6,12 +6,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CustomReviewBottomSheet extends StatefulWidget {
   final String sessionId;
-  final String doctorId;
+  final String username;
 
   const CustomReviewBottomSheet({
     super.key,
     required this.sessionId,
-    required this.doctorId,
+    required this.username,
   });
 
   @override
@@ -100,11 +100,11 @@ class _CustomReviewBottomSheetState extends State<CustomReviewBottomSheet> {
                   onPressed: _rating > 0 && _commentController.text.isNotEmpty
                       ? () async {
                           await context.read<SessionsCubit>().submitReview(
-                            sessionId: widget.sessionId,
-                            doctorId: widget.doctorId,
-                            rating: _rating,
-                            comment: _commentController.text,
-                          );
+                                sessionId: widget.sessionId,
+                                doctorId: widget.username,
+                                rating: _rating,
+                                comment: _commentController.text,
+                              );
                           if (context.mounted) {
                             Navigator.pop(context);
                           }

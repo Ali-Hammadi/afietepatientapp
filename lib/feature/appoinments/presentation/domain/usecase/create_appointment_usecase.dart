@@ -1,13 +1,13 @@
 import 'package:afiete/core/error/failure.dart';
 import 'package:afiete/core/usecases/usecase.dart';
-import 'package:afiete/feature/appoinments/domain/entities/appointment_entity.dart';
-import 'package:afiete/feature/appoinments/domain/repositories/appointments_repository.dart';
 import 'package:afiete/feature/appoinments/domain/values/consultation_fee.dart';
+import 'package:afiete/feature/appoinments/presentation/domain/entities/appointment_entity.dart';
+import 'package:afiete/feature/appoinments/presentation/domain/repositories/appointments_repository.dart';
 import 'package:dartz/dartz.dart';
 
 class CreateAppointmentParams {
   final String doctorUsername;
-  final String patientUsername;
+  final String patientId;
   final String doctorName;
   final DateTime scheduledAt;
   final int durationSlots;
@@ -16,7 +16,7 @@ class CreateAppointmentParams {
 
   const CreateAppointmentParams({
     required this.doctorUsername,
-    required this.patientUsername,
+    required this.patientId,
     required this.doctorName,
     required this.scheduledAt,
     required this.durationSlots,
@@ -36,8 +36,8 @@ class CreateAppointmentUseCase
     CreateAppointmentParams params,
   ) {
     return repository.createAppointment(
-      doctorUsername: params.doctorUsername,
-      patientUsername: params.patientUsername,
+      doctorId: params.doctorUsername,
+      patientId: params.patientId,
       doctorName: params.doctorName,
       scheduledAt: params.scheduledAt,
       durationSlots: params.durationSlots,

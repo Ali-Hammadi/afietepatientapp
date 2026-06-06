@@ -45,10 +45,6 @@ abstract class DioFactory {
         onRequest: (options, handler) async {
           final token = await TokenStorage.getAccessToken();
 
-          //  أضف هذا السطر مؤقتاً للـ Debugging:
-          print(
-              "[DioFactory Debug] Path: ${options.path} | Token found: ${token != null && token.isNotEmpty}");
-
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }

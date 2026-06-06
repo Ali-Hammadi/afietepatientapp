@@ -5,8 +5,7 @@ import 'package:afiete/feature/auth/domain/entities/auth_user_entity.dart';
 /// Handles JSON deserialization with proper null/field handling.
 /// Converts to [UserAuthEntity] domain entity via [toEntity()].
 class UserModel extends Equatable {
-  final String id;
-  final String username;
+  final String patientUsername;
   final String? nickname;
   final String email;
   final String? dateOfBirth; // ISO 8601 format (birth_date from backend)
@@ -20,8 +19,7 @@ class UserModel extends Equatable {
   final String? refreshToken;
 
   const UserModel({
-    required this.id,
-    required this.username,
+    required this.patientUsername,
     this.nickname,
     required this.email,
     this.dateOfBirth,
@@ -51,29 +49,27 @@ class UserModel extends Equatable {
     final tokens = rootPayload['tokens'] is Map<String, dynamic>
         ? rootPayload['tokens'] as Map<String, dynamic>
         : (json['tokens'] is Map<String, dynamic>
-              ? json['tokens'] as Map<String, dynamic>
-              : const <String, dynamic>{});
+            ? json['tokens'] as Map<String, dynamic>
+            : const <String, dynamic>{});
 
-    final accessToken =
-        payload['access_token'] ??
+    final accessToken = payload['access_token'] ??
         payload['accessToken'] ??
         payload['access'] ??
-      payload['token'] ??
+        payload['token'] ??
         rootPayload['access_token'] ??
         rootPayload['accessToken'] ??
         rootPayload['access'] ??
-      rootPayload['token'] ??
+        rootPayload['token'] ??
         json['access_token'] ??
         json['accessToken'] ??
         json['access'] ??
-      json['token'] ??
+        json['token'] ??
         tokens['access_token'] ??
         tokens['accessToken'] ??
-      tokens['access'] ??
-      tokens['token'];
+        tokens['access'] ??
+        tokens['token'];
 
-    final refreshToken =
-        payload['refresh_token'] ??
+    final refreshToken = payload['refresh_token'] ??
         payload['refreshToken'] ??
         payload['refresh'] ??
         rootPayload['refresh_token'] ??
@@ -93,12 +89,10 @@ class UserModel extends Equatable {
     final psychologicalHistory = rootPayload['psychological_history'];
 
     return UserModel(
-      id: payload['id'] ?? payload['user_id'] ?? '',
-      username: payload['username'] ?? '',
+      patientUsername: payload['username'] ?? '',
       nickname: nickname,
       email: payload['email'] ?? '',
-      dateOfBirth:
-          payload['birth_date'] ??
+      dateOfBirth: payload['birth_date'] ??
           payload['date_of_birth'] ??
           payload['dateOfBirth'],
       age: payload['age']?.toString(),
@@ -116,33 +110,32 @@ class UserModel extends Equatable {
 
   /// Convert model to JSON for API requests.
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'username': username,
-    'nickname': nickname,
-    'email': email,
-    'birth_date': dateOfBirth,
-    'age': age,
-    'gender': gender,
-    'phone': phoneNumber,
-    'psychological_history': psychologicalHistory,
-    'is_verified': isVerified,
-    'profile_image_url': profileImageUrl,
-    'access_token': accessToken,
-    'refresh_token': refreshToken,
-  };
+        'patientUsername': patientUsername,
+        'nickname': nickname,
+        'email': email,
+        'birth_date': dateOfBirth,
+        'age': age,
+        'gender': gender,
+        'phone': phoneNumber,
+        'psychological_history': psychologicalHistory,
+        'is_verified': isVerified,
+        'profile_image_url': profileImageUrl,
+        'access_token': accessToken,
+        'refresh_token': refreshToken,
+      };
 
   /// Convert data model to domain entity.
   UserAuthEntity toEntity() => UserAuthEntity(
-    username: username,
-    nickname: nickname,
-    email: email,
-    birthDate: dateOfBirth != null ? DateTime.tryParse(dateOfBirth!) : null,
-    gender: gender,
-    phoneNumber: phoneNumber,
-    isVerified: isVerified,
-    accessToken: accessToken,
-    refreshToken: refreshToken,
-  );
+        patientUsername: patientUsername,
+        nickname: nickname,
+        email: email,
+        birthDate: dateOfBirth != null ? DateTime.tryParse(dateOfBirth!) : null,
+        gender: gender,
+        phoneNumber: phoneNumber,
+        isVerified: isVerified,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      );
 
   UserModel copyWith({
     String? id,
@@ -160,8 +153,7 @@ class UserModel extends Equatable {
     String? refreshToken,
   }) {
     return UserModel(
-      id: id ?? this.id,
-      username: username ?? this.username,
+      patientUsername: username ?? patientUsername,
       nickname: nickname ?? this.nickname,
       email: email ?? this.email,
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
@@ -178,18 +170,17 @@ class UserModel extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    username,
-    nickname,
-    email,
-    dateOfBirth,
-    age,
-    gender,
-    phoneNumber,
-    psychologicalHistory,
-    isVerified,
-    profileImageUrl,
-    accessToken,
-    refreshToken,
-  ];
+        patientUsername,
+        nickname,
+        email,
+        dateOfBirth,
+        age,
+        gender,
+        phoneNumber,
+        psychologicalHistory,
+        isVerified,
+        profileImageUrl,
+        accessToken,
+        refreshToken,
+      ];
 }

@@ -28,10 +28,10 @@ class _DoctorInfoState extends State<DoctorInfo> {
   @override
   void initState() {
     super.initState();
-    final doctorId = widget.doctor?.id;
-    if (doctorId != null && doctorId.isNotEmpty) {
-      context.read<DoctorsCubit>().loadDoctorById(doctorId);
-      context.read<ArticlesCubit>().loadArticlesByDoctor(doctorId);
+    final doctorUsername = widget.doctor?.doctorUsername;
+    if (doctorUsername != null && doctorUsername.isNotEmpty) {
+      context.read<DoctorsCubit>().loadDoctorByUsername(doctorUsername);
+      context.read<ArticlesCubit>().loadArticlesByDoctor(doctorUsername);
     }
   }
 
@@ -140,13 +140,13 @@ class _DoctorInfoState extends State<DoctorInfo> {
                           children: doctorSpecialties.isEmpty
                               ? [Text(doctorTitle, style: AppStyles.bodySmall)]
                               : doctorSpecialties
-                                    .map(
-                                      (specialty) => Text(
-                                        specialty,
-                                        style: AppStyles.bodySmall,
-                                      ),
-                                    )
-                                    .toList(),
+                                  .map(
+                                    (specialty) => Text(
+                                      specialty,
+                                      style: AppStyles.bodySmall,
+                                    ),
+                                  )
+                                  .toList(),
                         ),
                       ),
                       _buildSection(
@@ -190,13 +190,14 @@ class _DoctorInfoState extends State<DoctorInfo> {
                         ),
                         onPressed: () {
                           final authState = context.read<AuthCubit>().state;
-                          final userId = switch (authState) {
-                            AuthLoaded(:final user) => user.username,
-                            AuthProfileUpdated(:final user) => user.username,
+                          final username = switch (authState) {
+                            AuthLoaded(:final user) => user.patientUsername,
+                            AuthProfileUpdated(:final user) =>
+                              user.patientUsername,
                             _ => '',
                           };
 
-                          if (userId.isEmpty) {
+                          if (username.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
@@ -212,8 +213,8 @@ class _DoctorInfoState extends State<DoctorInfo> {
                             MyRoutes.reportScreen,
                             arguments: ReportScreenArgs(
                               reportType: ReportType.doctor,
-                              userId: userId,
-                              doctorId: doctor?.id,
+                              patientUsername: username,
+                              doctorUsername: doctor?.doctorUsername,
                               doctorName: doctorName,
                             ),
                           );
@@ -465,7 +466,7 @@ class _DoctorInfoState extends State<DoctorInfo> {
                     context,
                     MyRoutes.articlesListScreen,
                     arguments: {
-                      'doctorId': widget.doctor?.id,
+                      'doctorUsername': widget.doctor?.doctorUsername,
                       'doctorName': widget.doctor?.name,
                     },
                   );

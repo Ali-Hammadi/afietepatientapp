@@ -10,13 +10,13 @@ part 'doctors_state.dart';
 class DoctorsCubit extends Cubit<DoctorsState> {
   final GetAllDoctorsUseCase getAllDoctorsUseCase;
   final GetDoctorsBySpecialtyUseCase getDoctorsBySpecialtyUseCase;
-  final GetDoctorByIdUseCase getDoctorByIdUseCase;
+  final GetDoctorByUsernameUseCase getDoctorByUsernameUseCase;
   String? _lastSpecialty;
 
   DoctorsCubit(
     this.getAllDoctorsUseCase,
     this.getDoctorsBySpecialtyUseCase,
-    this.getDoctorByIdUseCase,
+    this.getDoctorByUsernameUseCase,
   ) : super(const DoctorsInitial());
 
   Future<void> loadAllDoctors() async {
@@ -41,19 +41,20 @@ class DoctorsCubit extends Cubit<DoctorsState> {
     );
   }
 
-  Future<void> loadDoctorById(String id) async {
+  Future<void> loadDoctorByUsername(String username) async {
     emit(const DoctorLoading());
 
-    final repository = getDoctorByIdUseCase.repository;
-    final profileResult = await repository.getDoctorPublicProfile(id);
+    final repository = getDoctorByUsernameUseCase.repository;
+    final profileResult = await repository.getDoctorPublicProfile(username);
 
     DoctorEntity baseDoctor;
 
     if (profileResult.isRight()) {
-      baseDoctor = profileResult.getOrElse(() => DoctorEntity(id: id));
+      baseDoctor =
+          profileResult.getOrElse(() => DoctorEntity(doctorUsername: username));
     } else {
-      final fallbackResult = await getDoctorByIdUseCase(
-        GetDoctorByIdParams(id: id),
+      final fallbackResult = await getDoctorByUsernameUseCase(
+        GetDoctorByUsernameParams(username: username),
       );
       if (fallbackResult.isLeft()) {
         fallbackResult.fold(
@@ -62,7 +63,8 @@ class DoctorsCubit extends Cubit<DoctorsState> {
         );
         return;
       }
-      baseDoctor = fallbackResult.getOrElse(() => DoctorEntity(id: id));
+      baseDoctor = fallbackResult
+          .getOrElse(() => DoctorEntity(doctorUsername: username));
       baseDoctor = await _mergeDoctorScheduleIfNeeded(baseDoctor);
     }
 
@@ -74,7 +76,7 @@ class DoctorsCubit extends Cubit<DoctorsState> {
     DateTime date,
   ) async {
     final dateStr = DateFormat('yyyy-MM-dd').format(date);
-    final result = await getDoctorByIdUseCase.repository
+    final result = await getDoctorByUsernameUseCase.repository
         .getDoctorAvailableSlots(username, dateStr);
     return result.getOrElse(() => const <DoctorTimeSlot>[]);
   }
@@ -82,12 +84,12 @@ class DoctorsCubit extends Cubit<DoctorsState> {
   Future<DoctorEntity> _mergeDoctorScheduleIfNeeded(
     DoctorEntity doctor,
   ) async {
-    if (doctor.schedules.isNotEmpty || doctor.id.isEmpty) {
+    if (doctor.schedules.isNotEmpty || doctor.doctorUsername.isEmpty) {
       return doctor;
     }
 
-    final scheduleResult = await getDoctorByIdUseCase.repository
-        .getDoctorScheduleById(doctor.id);
+    final scheduleResult = await getDoctorByUsernameUseCase.repository
+        .getDoctorScheduleById(doctor.doctorUsername);
 
     return scheduleResult.fold(
       (_) => doctor,

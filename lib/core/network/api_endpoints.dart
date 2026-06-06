@@ -50,7 +50,11 @@ abstract class ApiEndpoints {
   static const String tokenObtainPair = '$token/';
   static const String tokenRefresh = '$token/refresh/';
   static const String tokenVerify = '$token/verify/';
-
+  // === Appointments ===
+  static const String appointmentsBase = '/$api/appointments';
+  static const String myAppointments = '$appointmentsBase/my-appointments/';
+  static const String createAppointment = '$appointmentsBase/';
+  static String cancelAppointment(String id) => '$appointmentsBase/$id/cancel/';
   // === Assessments ===
   static const String assessmentsDoctorsRecommend =
       '$assessments/doctors/recommend/';
@@ -72,33 +76,18 @@ abstract class ApiEndpoints {
   static const String keyToken = 'token';
   static const String keyIdToken = 'id_token';
 
-  // /api/doctors/ list does not exist on the server; recommended doctors come
-  // from the assessments recommend endpoint.
-  static const String allDoctors = '$assessments/doctors/recommend/';
-  static String doctorById(String id) => '$doctors/$id/';
+  // Doctors endpoints
+  static const String recommendedDoctors = '$assessments/doctors/recommend/';
+  static const String allDoctors = '$api/doctors/all/';
+  static String getDoctorsBySpecialty(String specialty) =>
+      '$doctors/specialites/$specialty/';
+  static String doctorByUsername(String username) => '$doctors/$username/';
   static String doctorPublicProfile(String username) =>
       '$doctors/$username/profile/public';
-  static String doctorAvailableSlots(String username, {String? date}) {
-    final base = '$doctors/$username/available-slots/';
+  static String doctorAvailableSlots(String doctorUsername, {String? date}) {
+    final base = '$doctors/$doctorUsername/available-slots/';
     return date != null ? '$base?date=$date' : base;
   }
-  static const String doctorRegister = '$doctors/register/';
-  // Align with Swagger paths: profile update at /doctors/profile/
-  static const String doctorProfileUpdate = '$doctors/profile/';
-  // Education endpoints per Swagger: add via /doctors/education/add
-  static const String doctorEducationAdd = '$doctors/education/add';
-  static String doctorEducationById(String id) => '$doctors/education/$id/';
-  // Doctor schedule endpoints (per Swagger)
-  static const String doctorScheduleList = '$doctors/schedule/';
-  static const String doctorScheduleCreate = '$doctors/schedule/';
-  static String doctorScheduleById(String id) => '$doctors/schedule/$id/';
-  static String doctorScheduleUpdate(String id) => '$doctors/schedule/$id/';
-  static String doctorScheduleDelete(String id) => '$doctors/schedule/$id/';
-  // Appointments -> doctors prices under the "appointmetns" base (Swagger)
-  static const String appointmentsDoctorsPrices =
-      '$appointments/dcotors/prices/';
-  static String appointmentsDoctorsPricesByType(String type) =>
-      '$appointments/dcotors/prices/$type/';
 
   // Articles endpoints
   static const String allArticles = '$articles/';

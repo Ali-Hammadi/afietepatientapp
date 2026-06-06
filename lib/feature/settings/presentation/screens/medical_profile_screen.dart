@@ -19,17 +19,18 @@ class MedicalProfileScreen extends StatelessWidget {
   const MedicalProfileScreen({super.key});
 
   static List<ShareDoctorOption> get _shareDoctors => [
-    ShareDoctorOption(
-      id: 'doc-101',
-      name: 'Dr. Sarah Ali',
-      specialization: SettingsStrings.specialtyLabel('Psychiatrist'),
-    ),
-    ShareDoctorOption(
-      id: 'doc-202',
-      name: 'Dr. Omar Hassan',
-      specialization: SettingsStrings.specialtyLabel('Clinical Psychologist'),
-    ),
-  ];
+        ShareDoctorOption(
+          id: 'doc-101',
+          name: 'Dr. Sarah Ali',
+          specialization: SettingsStrings.specialtyLabel('Psychiatrist'),
+        ),
+        ShareDoctorOption(
+          id: 'doc-202',
+          name: 'Dr. Omar Hassan',
+          specialization:
+              SettingsStrings.specialtyLabel('Clinical Psychologist'),
+        ),
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -37,10 +38,10 @@ class MedicalProfileScreen extends StatelessWidget {
 
     final authState = context.read<AuthCubit>().state;
     final userId = authState is AuthLoaded
-        ? authState.user.username
+        ? authState.user.patientUsername
         : authState is AuthProfileUpdated
-        ? authState.user.username
-        : '';
+            ? authState.user.patientUsername
+            : '';
 
     return DefaultTabController(
       length: 3,
@@ -372,9 +373,9 @@ class _PrescriptionTile extends StatelessWidget {
                       fit: BoxFit.cover,
                       errorBuilder: (_, error, stackTrace) =>
                           _buildImageFallback(
-                            colorScheme,
-                            SettingsStrings.noPrescriptionImage,
-                          ),
+                        colorScheme,
+                        SettingsStrings.noPrescriptionImage,
+                      ),
                     )
                   : _buildImageFallback(
                       colorScheme,
@@ -389,7 +390,6 @@ class _PrescriptionTile extends StatelessWidget {
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: AppColors.primaryColor),
-
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: IconButton(
@@ -397,20 +397,17 @@ class _PrescriptionTile extends StatelessWidget {
                   icon: const Icon(Icons.visibility_outlined),
                 ),
               ),
-
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: AppColors.primaryColor),
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: IconButton(
-                  onPressed: _hasImage
-                      ? () => _downloadDocument(context)
-                      : null,
+                  onPressed:
+                      _hasImage ? () => _downloadDocument(context) : null,
                   icon: const Icon(Icons.download_outlined),
                 ),
               ),
-
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: AppColors.primaryColor),
@@ -528,8 +525,7 @@ class _PrescriptionTile extends StatelessWidget {
         quality: 100,
         name: imageName,
       );
-      final isSaved =
-          result['isSuccess'] == true ||
+      final isSaved = result['isSuccess'] == true ||
           result['filePath'] != null ||
           result['status'] == true;
       if (!context.mounted) return;
@@ -699,7 +695,7 @@ class _NoteTile extends StatelessWidget {
           value: context.read<SettingsCubit>(),
           child: NoteDetailsScreen(
             note: note,
-            userId: userId,
+            username: userId,
             doctors: doctors,
           ),
         ),

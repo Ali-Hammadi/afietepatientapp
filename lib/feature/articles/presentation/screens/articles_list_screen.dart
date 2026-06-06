@@ -111,7 +111,7 @@ class _ArticlesListScreenState extends State<ArticlesListScreen> {
                 final article = state.articles[index];
                 return ArticleCardWidget(
                   article: article,
-                  onDoctorTap: article.doctor.id.trim().isNotEmpty
+                  onDoctorTap: article.doctor.doctorUsername.trim().isNotEmpty
                       ? () {
                           Navigator.pushNamed(
                             context,

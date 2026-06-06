@@ -58,10 +58,10 @@ class SessionsRepositoryImpl implements SessionsRepository {
   @override
   Future<Either<Failure, void>> cancelSession({
     required String sessionId,
-    required String doctorId,
+    required String username,
   }) async {
     try {
-      await dataSource.cancelSession(sessionId: sessionId, doctorId: doctorId);
+      await dataSource.cancelSession(sessionId: sessionId, username: username);
       return Right<Failure, void>(null);
     } on DioException catch (e) {
       return Left<Failure, void>(ServerFailure.fromDioError(e));

@@ -14,7 +14,7 @@ class DoctorsRepositoryImpl implements DoctorsRepository {
   Future<Either<Failure, List<DoctorEntity>>> getAllDoctors() async {
     try {
       final doctors = await remoteDataSource.getAllDoctors();
-      return Right(doctors.map((model) => model.toEntity()).toList());
+      return Right(doctors.map((model) => model).toList());
     } on DioException catch (e) {
       // 404 = endpoint not found / no assessment yet; 500 = server error before
       // assessment data is available — both map to an empty list, not an error.
@@ -34,7 +34,8 @@ class DoctorsRepositoryImpl implements DoctorsRepository {
   ) async {
     try {
       final doctors = await remoteDataSource.getDoctorsBySpecialty(specialty);
-      return Right(doctors.map((model) => model.toEntity()).toList());
+      // تم إزالة .toEntity() لأن DoctorModel هو بالأساس DoctorEntity
+      return Right(doctors.map((model) => model).toList());
     } on DioException catch (e) {
       final status = e.response?.statusCode;
       if (status == 404 || status == 500) {
@@ -47,10 +48,12 @@ class DoctorsRepositoryImpl implements DoctorsRepository {
   }
 
   @override
-  Future<Either<Failure, DoctorEntity>> getDoctorById(String id) async {
+  Future<Either<Failure, DoctorEntity>> getDoctorByUsername(
+      String username) async {
     try {
-      final doctor = await remoteDataSource.getDoctorById(id);
-      return Right(doctor.toEntity());
+      // تم تصحيح الميثود واستخدام getDoctorPublicProfile لأن الـ id هنا يُمثّل الـ username للباك-أند
+      final doctor = await remoteDataSource.getDoctorPublicProfile(username);
+      return Right(doctor);
     } on DioException catch (e) {
       return Left(ServerFailure.fromDioError(e));
     } catch (e) {
@@ -60,28 +63,18 @@ class DoctorsRepositoryImpl implements DoctorsRepository {
 
   @override
   Future<Either<Failure, DoctorEntity>> getCurrentDoctorProfile() async {
-    try {
-      final doctor = await remoteDataSource.getCurrentDoctorProfile();
-      return Right(doctor.toEntity());
-    } on DioException catch (e) {
-      return Left(ServerFailure.fromDioError(e));
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
+    // هندلة الدالة لتعيد خطأ مخصص لأن المريض لا يملك بروفايل طبيب في تطبيق المريض الحالي
+    return Left(
+        ServerFailure('getCurrentDoctorProfile غير متوفرة في تطبيق المريض.'));
   }
 
   @override
   Future<Either<Failure, DoctorSchedule>> getDoctorScheduleById(
     String id,
   ) async {
-    try {
-      final schedule = await remoteDataSource.getDoctorScheduleById(id);
-      return Right(schedule.toEntity());
-    } on DioException catch (e) {
-      return Left(ServerFailure.fromDioError(e));
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
+    // هندلة الدالة لإرجاع خطأ مخصص، نظراً للاعتماد الكلي على حجز الفترات عبر جلب المواعيد المتاحة (Slots)
+    return Left(ServerFailure(
+        'getDoctorScheduleById غير مدعومة، يرجى الاعتماد على جلب الفترات المتاحة للـ username.'));
   }
 
   @override
@@ -90,7 +83,8 @@ class DoctorsRepositoryImpl implements DoctorsRepository {
   ) async {
     try {
       final doctor = await remoteDataSource.getDoctorPublicProfile(username);
-      return Right(doctor.toEntity());
+      // تم إزالة .toEntity() هنا أيضاً ليتوافق الكود
+      return Right(doctor);
     } on DioException catch (e) {
       return Left(ServerFailure.fromDioError(e));
     } catch (e) {

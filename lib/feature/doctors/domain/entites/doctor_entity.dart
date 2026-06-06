@@ -12,7 +12,8 @@ class DoctorTimeSlot extends Equatable {
 
   DateTime _parse(String t, DateTime d) {
     final parts = t.split(':');
-    return DateTime(d.year, d.month, d.day, int.parse(parts[0]), int.parse(parts[1]));
+    return DateTime(
+        d.year, d.month, d.day, int.parse(parts[0]), int.parse(parts[1]));
   }
 
   String displayLabel() => '${_fmt(start)} – ${_fmt(end)}';
@@ -62,16 +63,15 @@ class DoctorSchedule extends Equatable {
   List<Object> get props => [id, dayOfWeek, startTime, endTime];
 }
 
-class DoctorEntity {
-  final String id;
+class DoctorEntity extends Equatable {
+  final String
+      doctorUsername; // الـ username هو المعرّف الفريد والأساسي للطبيب لمطابقة نظام الحجوزات
   final String? email;
-  final String? username;
   final String? gender;
   final String? imageUrl;
   final DateTime? birthDate;
   final String? phone;
-  final String? firstName;
-  final String? lastName;
+  final String? name;
   final String? age;
   final String? jobTitle;
   final List<String> specialties;
@@ -80,16 +80,14 @@ class DoctorEntity {
   final List<DoctorSessionPrice> sessionPrices;
   final List<DoctorSchedule> schedules;
 
-  DoctorEntity({
-    required this.id,
+  const DoctorEntity({
+    required this.doctorUsername,
     this.email,
-    this.username,
     this.gender,
     this.imageUrl,
     this.birthDate,
     this.phone,
-    this.firstName,
-    this.lastName,
+    this.name,
     this.age,
     this.jobTitle,
     this.specialties = const [],
@@ -99,21 +97,19 @@ class DoctorEntity {
     this.schedules = const [],
   });
 
-  String get name => _composeName(firstName, lastName, username, email ?? '');
-
   String get specialization =>
       jobTitle ?? (specialties.isNotEmpty ? specialties.first : '');
 
   String get experience =>
       experienceYears != null ? '$experienceYears years' : '';
 
-  String get rating => '';
+  String get rating => '5.0';
 
   String get description => bio ?? '';
 
   bool get isOnline => false;
 
-  double get ratingValue => 0.0;
+  double get ratingValue => 5.0;
 
   DateTime get createdAt => DateTime.now();
 
@@ -130,15 +126,13 @@ class DoctorEntity {
       const ConsultationFee(textChat: 10, videoCall: 20, voiceCall: 15);
 
   DoctorEntity copyWith({
-    String? id,
-    String? email,
     String? username,
+    String? email,
     String? gender,
     String? imageUrl,
     DateTime? birthDate,
     String? phone,
-    String? firstName,
-    String? lastName,
+    String? name,
     String? age,
     String? jobTitle,
     List<String>? specialties,
@@ -148,15 +142,13 @@ class DoctorEntity {
     List<DoctorSchedule>? schedules,
   }) {
     return DoctorEntity(
-      id: id ?? this.id,
+      doctorUsername: doctorUsername,
       email: email ?? this.email,
-      username: username ?? this.username,
       gender: gender ?? this.gender,
       imageUrl: imageUrl ?? this.imageUrl,
       birthDate: birthDate ?? this.birthDate,
       phone: phone ?? this.phone,
-      firstName: firstName ?? this.firstName,
-      lastName: lastName ?? this.lastName,
+      name: name ?? this.name,
       age: age ?? this.age,
       jobTitle: jobTitle ?? this.jobTitle,
       specialties: specialties ?? this.specialties,
@@ -166,27 +158,24 @@ class DoctorEntity {
       schedules: schedules ?? this.schedules,
     );
   }
-}
 
-String _composeName(
-  String? firstName,
-  String? lastName,
-  String? username,
-  String fallback,
-) {
-  final parts = [
-    firstName,
-    lastName,
-  ].whereType<String>().where((part) => part.trim().isNotEmpty).toList();
-  if (parts.isNotEmpty) {
-    return parts.join(' ');
-  }
-
-  if (username != null && username.isNotEmpty) {
-    return username;
-  }
-
-  return fallback;
+  @override
+  List<Object?> get props => [
+        doctorUsername,
+        email,
+        gender,
+        imageUrl,
+        birthDate,
+        phone,
+        name,
+        age,
+        jobTitle,
+        specialties,
+        experienceYears,
+        bio,
+        sessionPrices,
+        schedules,
+      ];
 }
 
 List<DateTime> _deriveAvailableTimes(List<DoctorSchedule> schedules) {

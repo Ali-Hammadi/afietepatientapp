@@ -172,12 +172,13 @@ class AssismentsCubit extends Cubit<AssismentsState> {
   ) async {
     final Map<String, DoctorEntity> uniqueDoctors = {};
 
-    if (result.recommendedDoctorIds.isNotEmpty) {
+    if (result.recommendedDoctorUsrnames.isNotEmpty) {
       final allDoctorsResult = await getAllDoctorsUseCase(NoParams());
       allDoctorsResult.fold((_) {}, (doctors) {
         for (final doctor in doctors) {
-          if (result.recommendedDoctorIds.contains(doctor.id)) {
-            uniqueDoctors[doctor.id] = doctor;
+          if (result.recommendedDoctorUsrnames
+              .contains(doctor.doctorUsername)) {
+            uniqueDoctors[doctor.doctorUsername] = doctor;
           }
         }
       });
@@ -194,7 +195,7 @@ class AssismentsCubit extends Cubit<AssismentsState> {
 
       doctorsResult.fold((_) {}, (doctors) {
         for (final doctor in doctors) {
-          uniqueDoctors[doctor.id] = doctor;
+          uniqueDoctors[doctor.doctorUsername] = doctor;
         }
       });
     }

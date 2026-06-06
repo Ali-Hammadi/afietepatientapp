@@ -41,15 +41,16 @@ class ArticlesHomeSection extends StatelessWidget {
                     .map(
                       (article) => ArticleCardWidget(
                         article: article,
-                        onDoctorTap: article.doctor.id.trim().isNotEmpty
-                            ? () {
-                                Navigator.pushNamed(
-                                  context,
-                                  MyRoutes.doctorInfoScreen,
-                                  arguments: article.doctor,
-                                );
-                              }
-                            : null,
+                        onDoctorTap:
+                            article.doctor.doctorUsername.trim().isNotEmpty
+                                ? () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      MyRoutes.doctorInfoScreen,
+                                      arguments: article.doctor,
+                                    );
+                                  }
+                                : null,
                         onReadMore: () {},
                       ),
                     )

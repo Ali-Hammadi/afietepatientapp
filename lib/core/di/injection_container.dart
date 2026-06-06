@@ -54,7 +54,6 @@ import 'package:afiete/feature/payment/data/repositories/payment_repository_impl
 import 'package:afiete/feature/payment/domain/repositories/payment_repository.dart';
 import 'package:afiete/feature/payment/domain/usecases/process_payment_usecase.dart';
 import 'package:afiete/feature/payment/presentation/cubit/payment_cubit.dart';
-import 'package:afiete/feature/sessions/data/datasources/sessions_mock_datasource.dart';
 import 'package:afiete/feature/sessions/data/datasources/sessions_remote_datasource.dart';
 import 'package:afiete/feature/sessions/data/repositories/sessions_repository_impl.dart';
 import 'package:afiete/feature/sessions/domain/repositories/sessions_repository.dart';
@@ -314,9 +313,7 @@ Future<void> init() async {
 
   // Sessions data sources
   sl.registerLazySingleton<SessionsRemoteDataSource>(
-    () => useMockDataSources
-        ? SessionsMockDataSourceImpl()
-        : SessionsRemoteDataSourceImpl(dio: sl<Dio>()),
+    () => SessionsRemoteDataSourceImpl(dio: sl<Dio>()),
   );
 
   // Sessions repositories
@@ -370,8 +367,8 @@ Future<void> init() async {
   sl.registerLazySingleton<GetDoctorsBySpecialtyUseCase>(
     () => GetDoctorsBySpecialtyUseCase(sl<DoctorsRepository>()),
   );
-  sl.registerLazySingleton<GetDoctorByIdUseCase>(
-    () => GetDoctorByIdUseCase(sl<DoctorsRepository>()),
+  sl.registerLazySingleton<GetDoctorByUsernameUseCase>(
+    () => GetDoctorByUsernameUseCase(sl<DoctorsRepository>()),
   );
 
   // Feeling data sources
@@ -483,7 +480,7 @@ Future<void> init() async {
     () => DoctorsCubit(
       sl<GetAllDoctorsUseCase>(),
       sl<GetDoctorsBySpecialtyUseCase>(),
-      sl<GetDoctorByIdUseCase>(),
+      sl<GetDoctorByUsernameUseCase>(),
     ),
   );
   // Settings data sources

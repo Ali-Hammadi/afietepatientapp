@@ -5,15 +5,12 @@ import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
 
 abstract class DoctorsRemoteDataSource {
   Future<List<DoctorModel>> getAllDoctors();
+  Future<List<DoctorModel>> getRecommendedDoctors();
   Future<List<DoctorModel>> getDoctorsBySpecialty(String specialty);
-  Future<DoctorModel> getDoctorById(String id);
-  Future<DoctorModel> getCurrentDoctorProfile();
-  Future<DoctorScheduleModel> getDoctorScheduleById(String id);
+  Future<DoctorModel> getDoctorByUsername(String username);
   Future<DoctorModel> getDoctorPublicProfile(String username);
   Future<List<DoctorTimeSlot>> getDoctorAvailableSlots(
-    String username,
-    String date,
-  );
+      String username, String? date);
 }
 
 class DoctorsRemoteDataSourceImpl implements DoctorsRemoteDataSource {
@@ -26,176 +23,61 @@ class DoctorsRemoteDataSourceImpl implements DoctorsRemoteDataSource {
     try {
       final response = await _dio.get(ApiEndpoints.allDoctors);
       if (response.statusCode == 200) {
-        final doctors = _parseDoctorList(response.data);
-        return doctors;
+        return _parseDoctorList(response.data);
       }
-      throw DioException(
-        requestOptions: response.requestOptions,
-        response: response,
-        type: DioExceptionType.badResponse,
-      );
+      throw _badResponseException(response);
     } on DioException {
       rethrow;
     } catch (e) {
-      throw DioException(
-        requestOptions: RequestOptions(path: ApiEndpoints.allDoctors),
-        error: e,
-        type: DioExceptionType.unknown,
-      );
+      throw _unknownException(ApiEndpoints.allDoctors, e);
+    }
+  }
+
+  @override
+  Future<List<DoctorModel>> getRecommendedDoctors() async {
+    try {
+      final response = await _dio.get(ApiEndpoints.recommendedDoctors);
+      if (response.statusCode == 200) {
+        return _parseDoctorList(response.data);
+      }
+      throw _badResponseException(response);
+    } on DioException {
+      rethrow;
+    } catch (e) {
+      throw _unknownException(ApiEndpoints.recommendedDoctors, e);
     }
   }
 
   @override
   Future<List<DoctorModel>> getDoctorsBySpecialty(String specialty) async {
+    final path = ApiEndpoints.getDoctorsBySpecialty(specialty);
     try {
-      final response = await _dio.get(
-        ApiEndpoints.allDoctors,
-        queryParameters: {'specialization': specialty},
-      );
+      final response = await _dio.get(path);
       if (response.statusCode == 200) {
-        final doctors = _parseDoctorList(response.data);
-        return doctors;
+        return _parseDoctorList(response.data);
       }
-      throw DioException(
-        requestOptions: response.requestOptions,
-        response: response,
-        type: DioExceptionType.badResponse,
-      );
+      throw _badResponseException(response);
     } on DioException {
       rethrow;
     } catch (e) {
-      throw DioException(
-        requestOptions: RequestOptions(path: ApiEndpoints.allDoctors),
-        error: e,
-        type: DioExceptionType.unknown,
-      );
+      throw _unknownException(path, e);
     }
   }
 
   @override
-  Future<DoctorModel> getDoctorById(String id) async {
+  Future<DoctorModel> getDoctorByUsername(String username) async {
+    final path = ApiEndpoints.doctorByUsername(username);
     try {
-      final response = await _dio.get(ApiEndpoints.doctorById(id));
-      if (response.statusCode == 200) {
-        final data = _parseDoctorMap(response.data);
-        final doctor = DoctorModel.fromJson(data);
-        if (doctor.id.isEmpty) {
-          throw _notFoundException(ApiEndpoints.doctorById(id));
-        }
-        return doctor;
+      final response = await _dio.get(path);
+      if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
+        return DoctorModel.fromJson(response.data as Map<String, dynamic>);
       }
-      throw DioException(
-        requestOptions: response.requestOptions,
-        response: response,
-        type: DioExceptionType.badResponse,
-      );
+      throw _badResponseException(response);
     } on DioException {
       rethrow;
     } catch (e) {
-      throw DioException(
-        requestOptions: RequestOptions(path: ApiEndpoints.doctorById(id)),
-        error: e,
-        type: DioExceptionType.unknown,
-      );
+      throw _unknownException(path, e);
     }
-  }
-
-  @override
-  Future<DoctorModel> getCurrentDoctorProfile() async {
-    try {
-      final response = await _dio.get(ApiEndpoints.doctorProfileUpdate);
-      if (response.statusCode == 200) {
-        final data = _parseDoctorMap(response.data);
-        final doctor = DoctorModel.fromJson(data);
-        if (doctor.id.isEmpty) {
-          throw _notFoundException(ApiEndpoints.doctorProfileUpdate);
-        }
-        return doctor;
-      }
-      throw DioException(
-        requestOptions: response.requestOptions,
-        response: response,
-        type: DioExceptionType.badResponse,
-      );
-    } on DioException {
-      rethrow;
-    } catch (e) {
-      throw DioException(
-        requestOptions: RequestOptions(path: ApiEndpoints.doctorProfileUpdate),
-        error: e,
-        type: DioExceptionType.unknown,
-      );
-    }
-  }
-
-  @override
-  Future<DoctorScheduleModel> getDoctorScheduleById(String id) async {
-    try {
-      final response = await _dio.get(ApiEndpoints.doctorScheduleById(id));
-      if (response.statusCode == 200) {
-        final data = _parseScheduleMap(response.data);
-        final schedule = DoctorScheduleModel.fromJson(data);
-        if (schedule.id.isEmpty &&
-            schedule.dayOfWeek.isEmpty &&
-            schedule.startTime.isEmpty &&
-            schedule.endTime.isEmpty) {
-          throw _notFoundException(ApiEndpoints.doctorScheduleById(id));
-        }
-        return schedule;
-      }
-      throw DioException(
-        requestOptions: response.requestOptions,
-        response: response,
-        type: DioExceptionType.badResponse,
-      );
-    } on DioException {
-      rethrow;
-    } catch (e) {
-      throw DioException(
-        requestOptions: RequestOptions(
-          path: ApiEndpoints.doctorScheduleById(id),
-        ),
-        error: e,
-        type: DioExceptionType.unknown,
-      );
-    }
-  }
-
-  List<DoctorModel> _parseDoctorList(dynamic data) {
-    List rawList = const [];
-
-    if (data is List) {
-      rawList = data;
-    } else if (data is Map<String, dynamic>) {
-      // Try common envelope keys in priority order
-      final raw = data['doctors'] ??
-          data['results'] ??
-          data['recommended_doctors'] ??
-          data['data'] ??
-          data['items'] ??
-          const [];
-      if (raw is List) rawList = raw;
-    }
-
-    return rawList
-        .whereType<Map<String, dynamic>>()
-        .map(DoctorModel.fromJson)
-        .where((doctor) => doctor.id.isNotEmpty)
-        .toList();
-  }
-
-  Map<String, dynamic> _parseDoctorMap(dynamic data) {
-    if (data is Map<String, dynamic>) {
-      return data;
-    }
-    throw _notFoundException('doctor');
-  }
-
-  Map<String, dynamic> _parseScheduleMap(dynamic data) {
-    if (data is Map<String, dynamic>) {
-      return data;
-    }
-    throw _notFoundException('schedule');
   }
 
   @override
@@ -203,68 +85,52 @@ class DoctorsRemoteDataSourceImpl implements DoctorsRemoteDataSource {
     final path = ApiEndpoints.doctorPublicProfile(username);
     try {
       final response = await _dio.get(path);
-      if (response.statusCode == 200) {
-        final data = _parseDoctorMap(response.data);
-        final enriched = Map<String, dynamic>.from(data);
-        final user = enriched['user'] as Map<String, dynamic>? ?? const {};
-        if (!enriched.containsKey('id') || enriched['id'] == null) {
-          final uname = user['username']?.toString();
-          if (uname != null && uname.isNotEmpty) {
-            enriched['id'] = uname;
-          }
-        }
-        if (enriched.containsKey('photo') && !enriched.containsKey('imageUrl')) {
-          enriched['imageUrl'] = enriched['photo'];
-        }
-        final doctor = DoctorModel.fromJson(enriched);
-        return doctor;
+      if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
+        return DoctorModel.fromJson(response.data as Map<String, dynamic>);
       }
-      throw DioException(
-        requestOptions: response.requestOptions,
-        response: response,
-        type: DioExceptionType.badResponse,
-      );
+      throw _badResponseException(response);
     } on DioException {
       rethrow;
     } catch (e) {
-      throw DioException(
-        requestOptions: RequestOptions(path: path),
-        error: e,
-        type: DioExceptionType.unknown,
-      );
+      throw _unknownException(path, e);
     }
   }
 
   @override
   Future<List<DoctorTimeSlot>> getDoctorAvailableSlots(
-    String username,
-    String date,
-  ) async {
+      String username, String? date) async {
     final path = ApiEndpoints.doctorAvailableSlots(username, date: date);
     try {
       final response = await _dio.get(path);
       if (response.statusCode == 200) {
         return _parseAvailableSlots(response.data);
       }
-      throw DioException(
-        requestOptions: response.requestOptions,
-        response: response,
-        type: DioExceptionType.badResponse,
-      );
+      throw _badResponseException(response);
     } on DioException {
       rethrow;
     } catch (e) {
-      throw DioException(
-        requestOptions: RequestOptions(path: path),
-        error: e,
-        type: DioExceptionType.unknown,
-      );
+      throw _unknownException(path, e);
     }
   }
 
+  // ميثود مساعدة لتحليل مصفوفات الأطباء بشكل آمن ومرن
+  List<DoctorModel> _parseDoctorList(dynamic data) {
+    List<dynamic> rawList = const [];
+    if (data is Map<String, dynamic>) {
+      final raw =
+          data['doctors'] ?? data['results'] ?? data['data'] ?? const [];
+      if (raw is List) rawList = raw;
+    } else if (data is List) {
+      rawList = data;
+    }
+    return rawList
+        .map((json) => DoctorModel.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  // ميثود مساعدة لتحليل السلوتات والمواعيد المتاحة بشكل آمن
   List<DoctorTimeSlot> _parseAvailableSlots(dynamic data) {
     List<dynamic> rawList = const [];
-
     if (data is Map<String, dynamic>) {
       final raw =
           data['available_slots'] ?? data['slots'] ?? data['times'] ?? const [];
@@ -276,7 +142,8 @@ class DoctorsRemoteDataSourceImpl implements DoctorsRemoteDataSource {
     final result = <DoctorTimeSlot>[];
     for (final item in rawList) {
       if (item is Map<String, dynamic>) {
-        final start = item['start']?.toString() ?? item['start_time']?.toString();
+        final start =
+            item['start']?.toString() ?? item['start_time']?.toString();
         final end = item['end']?.toString() ?? item['end_time']?.toString();
         if (start != null && end != null) {
           result.add(DoctorTimeSlot(start: start, end: end));
@@ -286,15 +153,20 @@ class DoctorsRemoteDataSourceImpl implements DoctorsRemoteDataSource {
     return result;
   }
 
-  DioException _notFoundException(String path) {
+  // دالات صياغة أخطاء DioException المخصصة:
+  DioException _badResponseException(Response response) {
+    return DioException(
+      requestOptions: response.requestOptions,
+      response: response,
+      type: DioExceptionType.badResponse,
+    );
+  }
+
+  DioException _unknownException(String path, dynamic error) {
     return DioException(
       requestOptions: RequestOptions(path: path),
-      response: Response(
-        requestOptions: RequestOptions(path: path),
-        statusCode: 404,
-        data: const {'detail': 'No doctor found.'},
-      ),
-      type: DioExceptionType.badResponse,
+      error: error,
+      type: DioExceptionType.unknown,
     );
   }
 }

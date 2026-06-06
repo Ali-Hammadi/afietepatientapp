@@ -157,8 +157,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     required String message,
   }) {
     final lowerMessage = message.toLowerCase();
-    final isConnectionIssue =
-        lowerMessage.contains('internet') ||
+    final isConnectionIssue = lowerMessage.contains('internet') ||
         lowerMessage.contains('network') ||
         lowerMessage.contains('connection') ||
         lowerMessage.contains('socket');
@@ -180,7 +179,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             Text(
               isConnectionIssue
                   ? SettingsStrings
-                        .noInternetConnectionPleaseReconnectAndTryAgain
+                      .noInternetConnectionPleaseReconnectAndTryAgain
                   : message,
               style: AppStyles.bodyMedium,
               textAlign: TextAlign.center,
@@ -239,7 +238,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           final appointment = filteredAppointments[index];
           final matchedDoctor = _findDoctorForAppointment(
             state.doctors,
-            appointment.doctorId,
+            appointment.doctorUsername,
           );
 
           return CustomAppointmentCard(
@@ -249,18 +248,18 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             onAddReview: matchedDoctor == null
                 ? null
                 : () => _showReviewSheet(
-                    appointmentId: appointment.id,
-                    doctorId: matchedDoctor.id,
-                  ),
+                      appointmentId: appointment.id,
+                      doctorUsername: matchedDoctor.doctorUsername,
+                    ),
             onBookAgain: matchedDoctor == null
                 ? null
                 : () => _handleBookAgain(doctor: matchedDoctor),
             onReschedule: matchedDoctor == null
                 ? null
                 : () => _handleReschedule(
-                    appointmentId: appointment.id,
-                    doctor: matchedDoctor,
-                  ),
+                      appointmentId: appointment.id,
+                      doctor: matchedDoctor,
+                    ),
             onCancel: () =>
                 _confirmCancel(context, appointmentId: appointment.id),
             onJoinSession: () => _handleJoinSession(appointment),
@@ -272,12 +271,12 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
 
   DoctorEntity? _findDoctorForAppointment(
     List<DoctorEntity>? doctors,
-    String doctorId,
+    String doctorUsername,
   ) {
     final list = doctors ?? const <DoctorEntity>[];
 
     for (final doctor in list) {
-      if (doctor.id == doctorId) {
+      if (doctor.doctorUsername == doctorUsername) {
         return doctor;
       }
     }
@@ -299,12 +298,11 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
       return;
     }
 
-    final success = await context
-        .read<AppointmentsCubit>()
-        .rescheduleAppointment(
-          appointmentId: appointmentId,
-          newScheduledAt: selectedTime,
-        );
+    final success =
+        await context.read<AppointmentsCubit>().rescheduleAppointment(
+              appointmentId: appointmentId,
+              newScheduledAt: selectedTime,
+            );
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(SettingsStrings.sessionRescheduledSuccessfully)),
@@ -330,7 +328,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
 
   void _showReviewSheet({
     required String appointmentId,
-    required String doctorId,
+    required String doctorUsername,
   }) {
     showModalBottomSheet<void>(
       context: context,
@@ -340,7 +338,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         create: (_) => sl<SessionsCubit>(),
         child: CustomReviewBottomSheet(
           sessionId: appointmentId,
-          doctorId: doctorId,
+          username: doctorUsername,
         ),
       ),
     );

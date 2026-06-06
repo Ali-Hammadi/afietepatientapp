@@ -1,59 +1,731 @@
+import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/core/routes/app_route.dart';
+import 'package:afiete/core/widget/custom_button.dart';
+import 'package:afiete/core/widget/error_custom_button.dart';
+import 'package:afiete/core/widget/profile_initial_avatar.dart';
+
+import 'package:afiete/feature/auth/domain/entities/auth_user_entity.dart';
+import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CustomLanguageOption extends StatelessWidget {
-  final String value;
-  final String groupValue;
-  final String label;
-  final VoidCallback onTap;
+class ProfileInfoScreen extends StatefulWidget {
+  final UserAuthEntity? initialUser;
 
-  const CustomLanguageOption({
-    super.key,
-    required this.value,
-    required this.groupValue,
-    required this.label,
-    required this.onTap,
-  });
+  const ProfileInfoScreen({super.key, this.initialUser});
+
+  @override
+  State<ProfileInfoScreen> createState() => _ProfileInfoScreenState();
+}
+
+class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
+  static const String _genderMale = 'male';
+  static const String _genderFemale = 'female';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<AuthCubit>().refreshProfileFromBackend();
+    });
+  }
+
+  String _normalizeGenderValue(String? raw) {
+    final value = (raw ?? '').trim().toLowerCase();
+    if (value == 'male' || value == 'm' || value == 'ذكر') {
+      return _genderMale;
+    }
+    if (value == 'female' ||
+        value == 'f' ||
+        value == 'أنثى' ||
+        value == 'انثى') {
+      return _genderFemale;
+    }
+    return _genderMale;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isSelected = value == groupValue;
+    return BlocConsumer<AuthCubit, AuthState>(
+      listenWhen: (previous, current) => current is AuthError,
+      listener: (context, state) {
+        if (state is AuthError && state.message.isNotEmpty) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
+        }
+      },
+      builder: (context, state) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        final user = _currentUser(state);
+        final nickname = (user?.nickname?.trim().isNotEmpty ?? false)
+            ? user!.nickname!.trim()
+            : '—';
+        final username = (user?.patientUsername.trim().isNotEmpty ?? false)
+            ? user!.patientUsername.trim()
+            : '—';
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            width: 0.85,
-            color: isSelected
-                ? colorScheme.primary
-                : colorScheme.outline.withValues(alpha: 0.35),
+        final displayGender = _displayGender(user?.gender);
+        final displayBirthDate = _displayBirthDate(user?.birthDate);
+        final displayPhone = user?.phoneNumber?.trim().isNotEmpty == true
+            ? user!.phoneNumber!.trim()
+            : '—';
+
+        return Scaffold(
+          backgroundColor: theme.scaffoldBackgroundColor,
+          appBar: AppBar(
+            backgroundColor: theme.scaffoldBackgroundColor,
+            automaticallyImplyLeading: true,
+            elevation: 0,
+            title: Text(
+              SettingsStrings.profileTitle,
+              style: AppStyles.headingSmall,
+            ),
           ),
-          color: isSelected
-              ? colorScheme.primaryContainer.withValues(alpha: 0.35)
-              : Colors.transparent,
-        ),
-        child: Row(
-          children: [
-            Radio<String>(
-              value: value,
-              groupValue: groupValue,
-              onChanged: (selected) {
-                if (selected == value) onTap();
-              },
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppStyles.padding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(AppStyles.smallPadding),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest.withValues(
+                      alpha: 0.12,
+                    ),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: colorScheme.outline.withValues(alpha: 0.28),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 14),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ProfileInitialAvatar(name: nickname, radius: 40),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  nickname,
+                                  style: AppStyles.headingMedium.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                InkWell(
+                                  onTap: () => _copyUsername(context, username),
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 6,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            username,
+                                            style: AppStyles.bodyMedium,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Icon(
+                                          Icons.copy_outlined,
+                                          size: 18,
+                                          color: colorScheme.primary,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      Text(
+                        SettingsStrings.updateProfileHint,
+                        style: AppStyles.bodyMedium.copyWith(
+                          color: colorScheme.onSurface.withValues(alpha: 0.72),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      _buildInfoRow(
+                        context: context,
+                        label: SettingsStrings.nicknameLabel,
+                        value: nickname,
+                        icon: Icons.person_outline,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildInfoRow(
+                        context: context,
+                        label: SettingsStrings.passwordTitle,
+                        value: '••••••••',
+                        icon: Icons.lock_outline,
+                        onEdit: user == null ? null : () => _editPassword(user),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildInfoRow(
+                        context: context,
+                        label: SettingsStrings.birthDateTitle,
+                        value: displayBirthDate,
+                        icon: Icons.cake_outlined,
+                        onEdit:
+                            user == null ? null : () => _editBirthDate(user),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildInfoRow(
+                        context: context,
+                        label: SettingsStrings.genderTitle,
+                        value: displayGender,
+                        icon: Icons.person_outline,
+                        onEdit: user == null ? null : () => _editGender(user),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildInfoRow(
+                        context: context,
+                        label: SettingsStrings.phoneTitleProfile,
+                        value: displayPhone,
+                        icon: Icons.phone_outlined,
+                        onEdit: user == null ? null : () => _editPhone(user),
+                      ),
+                      const SizedBox(height: 16),
+                      CustomButton(
+                        widget: Text(SettingsStrings.saveChanges),
+                        onPressed:
+                            user == null ? null : () => _saveProfileInfo(user),
+                      ),
+                      const SizedBox(height: 16),
+                      ErrorCustomButton(
+                        widget: Text(SettingsStrings.deleteAccountTitle),
+                        onPressed: () => _handleDeleteAccount,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(label, style: Theme.of(context).textTheme.bodyMedium),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _copyUsername(BuildContext context, String username) async {
+    if (username.isEmpty) return;
+    await Clipboard.setData(ClipboardData(text: username));
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${SettingsStrings.usernameLabel} copied')),
+    );
+  }
+
+  UserAuthEntity? _currentUser(AuthState authState) {
+    if (authState is AuthLoaded) return authState.user;
+    if (authState is AuthProfileUpdated) return authState.user;
+    if (widget.initialUser != null) return widget.initialUser;
+    return null;
+  }
+
+  String _displayGender(String? raw) {
+    final normalized = _normalizeGenderValue(raw);
+    if (normalized == _genderFemale) return SettingsStrings.female;
+    return SettingsStrings.male;
+  }
+
+  String _displayBirthDate(DateTime? birthDate) {
+    if (birthDate == null) return '—';
+    return birthDate.toLocal().toString().split(' ').first;
+  }
+
+  Widget _buildInfoRow({
+    required BuildContext context,
+    required String label,
+    required String value,
+    required IconData icon,
+    VoidCallback? onEdit,
+  }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.4)),
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppStyles.padding / 2,
+        vertical: AppStyles.smallPadding,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: colorScheme.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
             ),
-            if (isSelected)
-              Icon(Icons.check_circle, color: colorScheme.primary, size: 20),
-          ],
-        ),
+            child: Icon(icon, size: 20, color: colorScheme.primary),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: AppStyles.bodySmall),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppStyles.bodyMedium,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          TextButton(
+            onPressed: onEdit,
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(onEdit != null ? SettingsStrings.editNote : ''),
+          ),
+        ],
       ),
     );
+  }
+
+  Future<String?> _showTextEditor({
+    required String title,
+    required String label,
+    required String initialValue,
+    required IconData icon,
+    TextInputType keyboardType = TextInputType.text,
+    String? hintText,
+    String? Function(String?)? validator,
+    List<TextInputFormatter>? inputFormatters,
+    int? maxLength,
+  }) async {
+    final controller = TextEditingController(text: initialValue);
+    final formKey = GlobalKey<FormState>();
+
+    final result = await showDialog<String?>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(title),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              controller: controller,
+              keyboardType: keyboardType,
+              inputFormatters: inputFormatters,
+              maxLength: maxLength,
+              validator: validator,
+              decoration: InputDecoration(
+                labelText: label,
+                hintText: hintText,
+                prefixIcon: Icon(icon),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(SettingsStrings.cancel),
+            ),
+            FilledButton(
+              onPressed: () {
+                if (!(formKey.currentState?.validate() ?? false)) {
+                  return;
+                }
+                Navigator.pop(dialogContext, controller.text.trim());
+              },
+              child: Text(SettingsStrings.saveChanges),
+            ),
+          ],
+        );
+      },
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        controller.dispose();
+      } catch (_) {}
+    });
+
+    return result;
+  }
+
+  Future<String?> _showGenderEditor(UserAuthEntity user) async {
+    String selectedGender = _normalizeGenderValue(user.gender);
+
+    return showDialog<String?>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text(SettingsStrings.genderTitle),
+              // FIX: Replaced individual fields with RadioGroup wrapper context
+              content: RadioGroup<String>(
+                groupValue: selectedGender,
+                onChanged: (value) {
+                  if (value == null) return;
+                  setDialogState(() {
+                    selectedGender = value;
+                  });
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        const Radio<String>(
+                          value: _genderMale,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(SettingsStrings.male)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Radio<String>(
+                          value: _genderFemale,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(SettingsStrings.female)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: Text(SettingsStrings.cancel),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.pop(dialogContext, selectedGender),
+                  child: Text(SettingsStrings.saveChanges),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<({String currentPassword, String newPassword})?>
+      _showPasswordEditor() async {
+    final formKey = GlobalKey<FormState>();
+    final currentPasswordController = TextEditingController();
+    final newPasswordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
+    bool showCurrentPassword = false;
+    bool showNewPassword = false;
+    bool showConfirmPassword = false;
+
+    final result =
+        await showDialog<({String currentPassword, String newPassword})>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              scrollable: true,
+              title: Text(SettingsStrings.passwordTitle),
+              content: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: currentPasswordController,
+                      obscureText: !showCurrentPassword,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return SettingsStrings.currentPasswordRequired;
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        labelText: SettingsStrings.oldPasswordLabel,
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            showCurrentPassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
+                          onPressed: () {
+                            setDialogState(() {
+                              showCurrentPassword = !showCurrentPassword;
+                            });
+                          },
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: newPasswordController,
+                      obscureText: !showNewPassword,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return SettingsStrings.newPasswordRequired;
+                        }
+                        if (value.length < 6) {
+                          return SettingsStrings.passwordAtLeastSixChars;
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        labelText: SettingsStrings.newPasswordLabel,
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            showNewPassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
+                          onPressed: () {
+                            setDialogState(() {
+                              showNewPassword = !showNewPassword;
+                            });
+                          },
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: confirmPasswordController,
+                      obscureText: !showConfirmPassword,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return SettingsStrings.confirmPasswordRequired;
+                        }
+                        if (value != newPasswordController.text) {
+                          return SettingsStrings.passwordMismatch;
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        labelText: SettingsStrings.confirmPasswordLabel,
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            showConfirmPassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
+                          onPressed: () {
+                            setDialogState(() {
+                              showConfirmPassword = !showConfirmPassword;
+                            });
+                          },
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: Text(SettingsStrings.cancel),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    if (!(formKey.currentState?.validate() ?? false)) {
+                      return;
+                    }
+                    Navigator.pop(dialogContext, (
+                      currentPassword: currentPasswordController.text,
+                      newPassword: newPasswordController.text,
+                    ));
+                  },
+                  child: Text(SettingsStrings.saveChanges),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        currentPasswordController.dispose();
+      } catch (_) {}
+      try {
+        newPasswordController.dispose();
+      } catch (_) {}
+      try {
+        confirmPasswordController.dispose();
+      } catch (_) {}
+    });
+
+    return result;
+  }
+
+  Future<void> _editPhone(UserAuthEntity user) async {
+    final newPhone = await _showTextEditor(
+      title: SettingsStrings.phoneTitleProfile,
+      label: SettingsStrings.phoneTitleProfile,
+      initialValue: user.phoneNumber ?? '',
+      icon: Icons.phone_outlined,
+      keyboardType: TextInputType.phone,
+      validator: (value) {
+        final text = value?.trim() ?? '';
+        if (text.isNotEmpty && text.length < 10) {
+          return SettingsStrings.invalidPhoneNumber;
+        }
+        return null;
+      },
+    );
+
+    if (newPhone == null) {
+      return;
+    }
+
+    final normalizedPhone = newPhone.trim();
+    if (normalizedPhone == (user.phoneNumber ?? '').trim()) {
+      return;
+    }
+
+    await _saveProfileInfo(
+      user,
+      phoneNumber: normalizedPhone.isEmpty ? '' : normalizedPhone,
+    );
+  }
+
+  Future<void> _editBirthDate(UserAuthEntity user) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: user.birthDate ?? DateTime.now(),
+      firstDate: DateTime(1950),
+      lastDate: DateTime.now(),
+    );
+
+    if (picked == null) {
+      return;
+    }
+
+    if (user.birthDate != null && _sameDate(user.birthDate!, picked)) {
+      return;
+    }
+
+    await _saveProfileInfo(user, birthDate: picked);
+  }
+
+  Future<void> _editGender(UserAuthEntity user) async {
+    final selectedGender = await _showGenderEditor(user);
+    if (selectedGender == null) {
+      return;
+    }
+
+    if (_normalizeGenderValue(user.gender) == selectedGender) {
+      return;
+    }
+
+    await _saveProfileInfo(user, gender: selectedGender);
+  }
+
+  Future<void> _editPassword(UserAuthEntity user) async {
+    if (user.email.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(SettingsStrings.couldNotRetrieveUserEmail)),
+      );
+      return;
+    }
+
+    final messenger = ScaffoldMessenger.of(context);
+    final authCubit = context.read<AuthCubit>();
+
+    final credentials = await _showPasswordEditor();
+    if (credentials == null) {
+      return;
+    }
+
+    final success = await authCubit.changePassword(
+      currentPassword: credentials.currentPassword,
+      newPassword: credentials.newPassword,
+    );
+
+    if (!mounted) return;
+
+    if (success) {
+      if (!mounted) return;
+      messenger.showSnackBar(
+        SnackBar(content: Text(SettingsStrings.passwordChanged)),
+      );
+    }
+  }
+
+  Future<void> _saveProfileInfo(
+    UserAuthEntity user, {
+    String? nickname,
+    DateTime? birthDate,
+    String? gender,
+    String? phoneNumber,
+  }) async {
+    final saved = await context.read<AuthCubit>().updateProfileInfo(
+          nickname: nickname ?? user.nickname,
+          birthDate: birthDate ?? user.birthDate ?? DateTime.now(),
+          gender: gender ?? _normalizeGenderValue(user.gender),
+          phoneNumber: phoneNumber ?? user.phoneNumber ?? '',
+        );
+
+    if (!mounted) return;
+
+    if (saved) {
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showSnackBar(
+        SnackBar(content: Text(SettingsStrings.profileUpdatedSuccess)),
+      );
+    }
+  }
+
+  bool _sameDate(DateTime first, DateTime second) {
+    return first.year == second.year &&
+        first.month == second.month &&
+        first.day == second.day;
+  }
+
+  Future<void> _handleDeleteAccount() async {
+    await Navigator.pushNamed(context, MyRoutes.deleteAccountScreen);
   }
 }

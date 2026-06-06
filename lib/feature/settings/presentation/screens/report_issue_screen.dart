@@ -20,11 +20,11 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
   ReportReason? selectedReason;
 
   List<ReportReason> get reasons => const [
-    ReportReason.appBug,
-    ReportReason.crashOrFreeze,
-    ReportReason.paymentIssue,
-    ReportReason.other,
-  ];
+        ReportReason.appBug,
+        ReportReason.crashOrFreeze,
+        ReportReason.paymentIssue,
+        ReportReason.other,
+      ];
 
   @override
   void dispose() {
@@ -39,10 +39,10 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
 
     final authState = context.read<AuthCubit>().state;
     final userId = authState is AuthLoaded
-        ? authState.user.username
+        ? authState.user.patientUsername
         : authState is AuthProfileUpdated
-        ? authState.user.username
-        : '';
+            ? authState.user.patientUsername
+            : '';
 
     return BlocProvider<SettingsCubit>(
       create: (_) => sl<SettingsCubit>(),
@@ -177,10 +177,10 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
                               }
 
                               context.read<SettingsCubit>().submitReportIssue(
-                                userId: userId,
-                                reason: selectedReason!.name,
-                                details: detailsController.text.trim(),
-                              );
+                                    userId: userId,
+                                    reason: selectedReason!.name,
+                                    details: detailsController.text.trim(),
+                                  );
                             },
                       widget: isLoading
                           ? SizedBox(
