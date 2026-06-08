@@ -1,6 +1,7 @@
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/constants/styles.dart';
-import 'package:afiete/feature/relax/domain/entities/breathing_exercise_entity.dart';
+import 'package:afiete/feature/music_and_breathing/domain/entities/breathing_exercise_entity.dart';
+import 'package:afiete/feature/music_and_breathing/domain/entities/music_entity.dart';
 import 'package:flutter/material.dart';
 
 class BreathingExerciseScreen extends StatefulWidget {
@@ -26,47 +27,53 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> {
     super.initState();
     _steps = _buildSteps(widget.exercise);
     _currentStepIndex = 0;
-    _remainingSeconds = _steps.first.durationSeconds;
+    _remainingSeconds = _steps.isNotEmpty ? _steps.first.durationSeconds : 0;
     _elapsedSeconds = 0;
   }
 
+  // ربط الأطوار بالثواني الحقيقية القادمة ديناميكياً من الـ Entity والسيرفر
   List<_PhaseStep> _buildSteps(BreathingExerciseEntity exercise) {
     switch (exercise.type) {
       case BreathingExerciseType.boxBreathing:
         return [
-          _PhaseStep(_PhaseType.inhale, SettingsStrings.inhaleLabel, 4),
-          _PhaseStep(_PhaseType.hold, SettingsStrings.holdLabel, 4),
-          _PhaseStep(_PhaseType.exhale, SettingsStrings.exhaleLabel, 4),
-          _PhaseStep(_PhaseType.rest, SettingsStrings.holdLabel, 4),
+          _PhaseStep(_PhaseType.inhale, SettingsStrings.inhaleLabel,
+              exercise.inhaleSeconds),
+          _PhaseStep(
+              _PhaseType.hold, SettingsStrings.holdLabel, exercise.holdSeconds),
+          _PhaseStep(_PhaseType.exhale, SettingsStrings.exhaleLabel,
+              exercise.exhaleSeconds),
+          _PhaseStep(
+              _PhaseType.rest, SettingsStrings.holdLabel, exercise.restSeconds),
         ];
       case BreathingExerciseType.fourSevenEight:
         return [
-          _PhaseStep(_PhaseType.inhale, SettingsStrings.inhaleLabel, 4),
-          _PhaseStep(_PhaseType.hold, SettingsStrings.holdLabel, 7),
-          _PhaseStep(_PhaseType.exhale, SettingsStrings.exhaleLabel, 8),
+          _PhaseStep(_PhaseType.inhale, SettingsStrings.inhaleLabel,
+              exercise.inhaleSeconds),
+          _PhaseStep(
+              _PhaseType.hold, SettingsStrings.holdLabel, exercise.holdSeconds),
+          _PhaseStep(_PhaseType.exhale, SettingsStrings.exhaleLabel,
+              exercise.exhaleSeconds),
         ];
       case BreathingExerciseType.diaphragmatic:
         return [
           _PhaseStep(
             _PhaseType.inhale,
             '${SettingsStrings.inhaleLabel} (${SettingsStrings.bellyLabel})',
-            5,
+            exercise.inhaleSeconds,
           ),
           _PhaseStep(
             _PhaseType.exhale,
             '${SettingsStrings.slowLabel} ${SettingsStrings.exhaleLabel}',
-            5,
+            exercise.exhaleSeconds,
           ),
         ];
       case BreathingExerciseType.pacedBreathing:
-        return [
-          _PhaseStep(_PhaseType.inhale, SettingsStrings.inhaleLabel, 5),
-          _PhaseStep(_PhaseType.exhale, SettingsStrings.exhaleLabel, 5),
-        ];
       case BreathingExerciseType.resonance:
         return [
-          _PhaseStep(_PhaseType.inhale, SettingsStrings.inhaleLabel, 5),
-          _PhaseStep(_PhaseType.exhale, SettingsStrings.exhaleLabel, 5),
+          _PhaseStep(_PhaseType.inhale, SettingsStrings.inhaleLabel,
+              exercise.inhaleSeconds),
+          _PhaseStep(_PhaseType.exhale, SettingsStrings.exhaleLabel,
+              exercise.exhaleSeconds),
         ];
     }
   }
@@ -123,20 +130,21 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> {
     final totalSeconds = widget.exercise.durationMinutes * 60;
     final progress = totalSeconds == 0 ? 0.0 : _elapsedSeconds / totalSeconds;
 
-    // Get localized exercise details
-    final localizedTitle = widget.exercise.type.localizedTitle;
-    final localizedDescription = widget.exercise.type.localizedDescription;
-    final localizedSteps = widget.exercise.type.localizedSteps;
+    final localizedTitle = widget.exercise.type;
+    final localizedDescription = widget.exercise.type;
+
+    // تم استخدام مصفوفة الـ steps الممررة ديناميكياً داخل الكائن نفسه
+    final currentExerciseSteps = widget.exercise.steps;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(title: Text(localizedTitle), centerTitle: true),
+      appBar: AppBar(title: Text(localizedTitle as String), centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             Text(
-              localizedDescription,
+              localizedDescription as String,
               textAlign: TextAlign.center,
               style: AppStyles.bodyMedium.copyWith(
                 color: colorScheme.onSurfaceVariant,
@@ -148,7 +156,7 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> {
               height: 220,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: colorScheme.primaryContainer.withValues(alpha: 0.55),
+                color: colorScheme.primaryContainer.withAlpha(140),
                 border: Border.all(color: colorScheme.primary, width: 6),
               ),
               child: Stack(
@@ -160,9 +168,7 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> {
                     child: CircularProgressIndicator(
                       value: progress,
                       strokeWidth: 8,
-                      backgroundColor: colorScheme.primary.withValues(
-                        alpha: 0.12,
-                      ),
+                      backgroundColor: colorScheme.primary.withAlpha(30),
                     ),
                   ),
                   Column(
@@ -194,7 +200,7 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> {
             ),
             const SizedBox(height: 28),
             Text(
-              localizedSteps.join('\n'),
+              currentExerciseSteps.join('\n'),
               textAlign: TextAlign.center,
               style: AppStyles.bodyMedium.copyWith(
                 color: colorScheme.onSurfaceVariant,
@@ -220,7 +226,8 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> {
                       _isRunning = false;
                       _isCompleted = false;
                       _currentStepIndex = 0;
-                      _remainingSeconds = _steps.first.durationSeconds;
+                      _remainingSeconds =
+                          _steps.isNotEmpty ? _steps.first.durationSeconds : 0;
                       _elapsedSeconds = 0;
                     });
                   },

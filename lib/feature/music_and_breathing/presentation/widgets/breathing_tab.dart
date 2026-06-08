@@ -1,8 +1,8 @@
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/constants/styles.dart';
-import 'package:afiete/feature/relax/domain/entities/breathing_exercise_entity.dart';
-import 'package:afiete/feature/relax/presentation/cubit/music_cubit.dart';
-import 'package:afiete/feature/relax/presentation/widgets/breathing_exercise_card.dart';
+import 'package:afiete/feature/music_and_breathing/domain/entities/breathing_exercise_entity.dart';
+import 'package:afiete/feature/music_and_breathing/presentation/cubit/music_cubit.dart';
+import 'package:afiete/feature/music_and_breathing/presentation/widgets/breathing_exercise_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -45,16 +45,14 @@ class BreathingTab extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
+                      // FIX: Read properties directly from the entity instead of using the nonexistent .type getters
                       Text(
-                        state.activeBreathingExercise!.type.localizedTitle,
+                        state.activeBreathingExercise!.title,
                         style: AppStyles.headingSmall,
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        state
-                            .activeBreathingExercise!
-                            .type
-                            .localizedDescription,
+                        state.activeBreathingExercise!.description,
                         style: AppStyles.bodyMedium,
                       ),
                       const SizedBox(height: 12),

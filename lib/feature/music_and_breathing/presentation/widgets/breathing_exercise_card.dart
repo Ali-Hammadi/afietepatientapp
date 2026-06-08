@@ -1,6 +1,6 @@
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/constants/styles.dart';
-import 'package:afiete/feature/relax/domain/entities/breathing_exercise_entity.dart';
+import 'package:afiete/feature/music_and_breathing/domain/entities/breathing_exercise_entity.dart';
 import 'package:flutter/material.dart';
 
 class BreathingExerciseCard extends StatelessWidget {
@@ -18,11 +18,11 @@ class BreathingExerciseCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    // Get localized exercise details
-    final localizedTitle = exercise.type.localizedTitle;
-    final localizedDescription = exercise.type.localizedDescription;
-    final localizedRecommendedFor = exercise.type.localizedRecommendedFor;
-    final localizedSteps = exercise.type.localizedSteps;
+    // FIX: Extracted actual string and list values directly from the entity fields
+    final localizedTitle = exercise.title;
+    final localizedDescription = exercise.description;
+    final localizedRecommendedFor = exercise.recommendedFor;
+    final localizedSteps = exercise.steps;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),

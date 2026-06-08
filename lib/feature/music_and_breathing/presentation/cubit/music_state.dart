@@ -23,9 +23,9 @@ class MusicLoaded extends MusicState {
     required this.selectedFeeling,
     required this.tracks,
     required this.breathingExercises,
-    required this.hasSavedFeeling,
     this.activeTrack,
     this.activeBreathingExercise,
+    required this.hasSavedFeeling,
   });
 
   MusicLoaded copyWith({
@@ -49,13 +49,13 @@ class MusicLoaded extends MusicState {
 
   @override
   List<Object?> get props => [
-    selectedFeeling,
-    tracks,
-    breathingExercises,
-    activeTrack,
-    activeBreathingExercise,
-    hasSavedFeeling,
-  ];
+        selectedFeeling,
+        tracks,
+        breathingExercises,
+        activeTrack,
+        activeBreathingExercise,
+        hasSavedFeeling,
+      ];
 }
 
 class MusicError extends MusicState {

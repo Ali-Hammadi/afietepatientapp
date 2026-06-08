@@ -11,7 +11,7 @@ import 'package:afiete/feature/home/presentation/widgets/assisment_widget.dart';
 import 'package:afiete/feature/home/presentation/widgets/emotions_widget.dart';
 import 'package:afiete/feature/home/presentation/widgets/music_widget.dart';
 import 'package:afiete/feature/home/presentation/widgets/top_doctor.dart';
-import 'package:afiete/feature/relax/presentation/cubit/music_cubit.dart';
+import 'package:afiete/feature/music_and_breathing/presentation/cubit/music_cubit.dart';
 // تذكر استيراد الـ Cubit الخاص بالأطباء إذا لم يكن مستورداً داخل الـ CustomTopDoctorsWidget
 // import 'package:afiete/feature/doctors/presentation/cubits/doctors_cubit.dart';
 import 'package:flutter/material.dart';

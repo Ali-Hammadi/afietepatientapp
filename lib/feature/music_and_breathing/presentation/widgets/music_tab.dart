@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/constants/styles.dart';
-import 'package:afiete/feature/relax/domain/entities/music_entity.dart';
-import 'package:afiete/feature/relax/presentation/cubit/music_cubit.dart';
-import 'package:afiete/feature/relax/presentation/widgets/music_track_card.dart';
+import 'package:afiete/feature/music_and_breathing/domain/entities/music_entity.dart';
+import 'package:afiete/feature/music_and_breathing/presentation/cubit/music_cubit.dart';
+import 'package:afiete/feature/music_and_breathing/presentation/widgets/music_track_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
@@ -224,9 +224,8 @@ class _MusicTabState extends State<MusicTab>
             ? const Duration(seconds: 1)
             : durationForUi;
 
-        final currentPosition = _position > effectiveDuration
-            ? effectiveDuration
-            : _position;
+        final currentPosition =
+            _position > effectiveDuration ? effectiveDuration : _position;
 
         return ListView(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
@@ -405,9 +404,8 @@ class _MusicTabState extends State<MusicTab>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton(
-                  onPressed: _isLoadingAudio
-                      ? null
-                      : () => _playPrevious(state),
+                  onPressed:
+                      _isLoadingAudio ? null : () => _playPrevious(state),
                   icon: const Icon(Icons.skip_previous_rounded),
                 ),
                 const SizedBox(width: 18),

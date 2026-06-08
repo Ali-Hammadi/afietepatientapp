@@ -136,14 +136,14 @@ abstract class ApiEndpoints {
   static const String reportsByType = '$reports/by-type';
 
   // Relax endpoints (per API spec)
-  static const String relaxBreathingExercises = '$relax/breathing-exercises/';
-  static const String relaxFeelingLast = '$relax/feeling/last/';
-  static const String relaxRecommendations = '$relax/recommendations/';
+  static const String relaxBreathingExercises = '/$relax/breathing-exercises/';
+  static const String relaxFeelingLast = '/$relax/feeling/last/';
+  static const String relaxRecommendations = '/$relax/recommendations/';
 
+  // Voice and Video Call Endpoints
   static const String voiceCalls = '$voice/calls';
   static const String voiceCallsStart = '$voice/calls/start';
   static String voiceCallsEnd(String callId) => '$voice/calls/$callId/end';
-
   static const String videoCalls = '$video/calls';
   static const String videoCallsStart = '$video/calls/start';
   static String videoCallsEnd(String callId) => '$video/calls/$callId/end';

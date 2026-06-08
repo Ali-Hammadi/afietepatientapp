@@ -1,10 +1,8 @@
 import 'package:bloc/bloc.dart';
-import 'package:afiete/core/constants/feeling_type.dart';
 import 'package:equatable/equatable.dart';
-import 'package:afiete/core/usecases/usecase.dart';
-import 'package:afiete/feature/relax/domain/entities/breathing_exercise_entity.dart';
-import 'package:afiete/feature/relax/domain/entities/music_entity.dart';
-import 'package:afiete/feature/relax/domain/usecase/get_recommended_music_usecase.dart';
+import '../../domain/entities/breathing_exercise_entity.dart';
+import '../../domain/entities/music_entity.dart';
+import '../../domain/usecase/get_recommended_music_usecase.dart';
 
 part 'music_state.dart';
 
@@ -24,26 +22,25 @@ class MusicCubit extends Cubit<MusicState> {
   Future<void> loadHub() async {
     emit(MusicLoading());
 
-    final lastFeelingResult = await getLastSelectedFeelingUseCase(NoParams());
-    final breathingResult = await getBreathingExercisesUseCase(NoParams());
+    final lastFeelingResult = await getLastSelectedFeelingUseCase();
+    final breathingResult = await getBreathingExercisesUseCase();
 
     final resolvedFeeling = lastFeelingResult.fold(
       (_) => FeelingType.neutral,
-      (feeling) => feeling ?? FeelingType.neutral,
+      (feeling) => feeling,
     );
 
     final tracksResult = await getRecommendedMusicUseCase(
-      GetRecommendedMusicParams(feeling: resolvedFeeling, limit: 6),
+      RecommendedMusicParams(
+        feeling: resolvedFeeling,
+        limit: 10,
+      ),
     );
 
     final tracks = tracksResult.fold((_) => <MusicEntity>[], (items) => items);
     final breathingExercises = breathingResult.fold(
       (_) => <BreathingExerciseEntity>[],
       (items) => items,
-    );
-    final savedFeeling = lastFeelingResult.fold(
-      (_) => null,
-      (feeling) => feeling,
     );
 
     emit(
@@ -52,10 +49,9 @@ class MusicCubit extends Cubit<MusicState> {
         tracks: tracks,
         breathingExercises: breathingExercises,
         activeTrack: tracks.isNotEmpty ? tracks.first : null,
-        activeBreathingExercise: breathingExercises.isNotEmpty
-            ? breathingExercises.first
-            : null,
-        hasSavedFeeling: savedFeeling != null,
+        activeBreathingExercise:
+            breathingExercises.isNotEmpty ? breathingExercises.first : null,
+        hasSavedFeeling: lastFeelingResult.isRight(),
       ),
     );
   }
@@ -68,20 +64,15 @@ class MusicCubit extends Cubit<MusicState> {
       emit(MusicLoading());
     }
 
-    await saveLastSelectedFeelingUseCase(
-      SaveLastSelectedFeelingParams(feeling: feeling),
-    );
+    await saveLastSelectedFeelingUseCase(feeling);
 
     final tracksResult = await getRecommendedMusicUseCase(
-      GetRecommendedMusicParams(
+      RecommendedMusicParams(
         feeling: feeling,
-        limit: 6,
-        excludeTrackId: currentState is MusicLoaded
-            ? currentState.activeTrack?.id
-            : null,
+        limit: 10,
       ),
     );
-    final breathingResult = await getBreathingExercisesUseCase(NoParams());
+    final breathingResult = await getBreathingExercisesUseCase();
 
     final tracks = tracksResult.fold((_) => <MusicEntity>[], (items) => items);
     final breathingExercises = breathingResult.fold(
@@ -95,9 +86,8 @@ class MusicCubit extends Cubit<MusicState> {
         tracks: tracks,
         breathingExercises: breathingExercises,
         activeTrack: tracks.isNotEmpty ? tracks.first : null,
-        activeBreathingExercise: breathingExercises.isNotEmpty
-            ? breathingExercises.first
-            : null,
+        activeBreathingExercise:
+            breathingExercises.isNotEmpty ? breathingExercises.first : null,
         hasSavedFeeling: true,
       ),
     );
