@@ -108,14 +108,30 @@ abstract class ApiEndpoints {
   static const String articlesTrending = '/api/patient/articles/trending/';
   static String articleReact(String article_id) =>
       '/api/patient/articles/{$article_id}/react/';
-
-  // Articles query/body keys for doctor linkage and filtering
-
   // ===============================================================================================
-  // Relax endpoints (per API spec)
+  // === Relax endpoints (per API spec) ===
   static const String relaxBreathingExercises =
       '/api/patient/assessment/breathing-exercises/';
   static const String relaxFeelingLast =
       '/api/patient/assessment/feeling/last/';
+
+  /// Empty Link
+  static const String relaxRecommendedTracks = '';
+  // ===============================================================================================
+  // === Medical Profile ===
+  /// Fake Link
+  static const String settingsMedicalProfile = '/api/patient/medical-profile/';
+  // ===============================================================================================
+  // === Video call Endpoints ===
+  /// Fake Links (to be updated with real endpoints when available)
+  static const String videoCalls = '/api/patient/videoCalls/token/';
+  static const String videoCallsStart = '/api/patient/videoCallsStart/token/';
+  static String videoCallsEnd(String id) => '/api/patient/videoCallsEnd/token/';
+  // ===============================================================================================
+  // === Voice call Endpoints ===
+  /// Fake Links (to be updated with real endpoints when available)
+  static const String voiceCalls = '/api/patient/videoCalls/token/';
+  static const String voiceCallsStart = '/api/patient/videoCallsStart/token/';
+  static String voiceCallsEnd(String id) => '/api/patient/videoCallsEnd/token/';
   // ===============================================================================================
 }

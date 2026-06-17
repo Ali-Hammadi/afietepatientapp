@@ -33,6 +33,10 @@ abstract class SettingsStrings {
   static String get themeTitle => _t('Theme', 'المظهر');
   static String get termsPrivacyTitle =>
       _t('Terms & Privacy', 'الشروط والخصوصية');
+
+  static String get reportOnApp => _t('App Issue', 'مشكلة في التطبيق ');
+  static String get reportOnUser => _t('Report On User', 'بلاغ على مستخدم  ');
+  static String get reportOnSession => _t('Session Issue', 'مشكلة في الجلسة  ');
   static String get contactUsTitle => _t('Contact us', 'تواصل معنا');
   static String get reportsTitle => _t('Reports', 'التقارير');
   static String get logoutTitle => _t('Log out', 'تسجيل الخروج');

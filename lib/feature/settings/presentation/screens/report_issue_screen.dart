@@ -1,9 +1,9 @@
+import 'package:afiete/core/constants/report_types.dart';
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/di/injection_container.dart';
 import 'package:afiete/core/widget/custom_button.dart';
 import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
-import 'package:afiete/feature/report/domain/entities/report_entity.dart';
 import 'package:afiete/feature/settings/presentation/cubits/settings_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,13 +17,12 @@ class ReportIssueScreen extends StatefulWidget {
 
 class _ReportIssueScreenState extends State<ReportIssueScreen> {
   final TextEditingController detailsController = TextEditingController();
-  ReportReason? selectedReason;
+  ReportType? selectedReason;
 
-  List<ReportReason> get reasons => const [
-        ReportReason.appBug,
-        ReportReason.crashOrFreeze,
-        ReportReason.paymentIssue,
-        ReportReason.other,
+  List<ReportType> get reasons => const [
+        ReportType.session,
+        ReportType.doctor,
+        ReportType.app,
       ];
 
   @override
@@ -210,7 +209,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
     );
   }
 
-  Widget _buildReasonTile(ReportReason reason) {
+  Widget _buildReasonTile(ReportType reason) {
     final isSelected = selectedReason == reason;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -236,7 +235,8 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
           child: Row(
             children: [
               Expanded(
-                child: Text(reason.localizedLabel, style: AppStyles.bodyMedium),
+                child: Text(SettingsStrings.reportIssue,
+                    style: AppStyles.bodyMedium),
               ),
               Container(
                 width: 24,

@@ -213,9 +213,6 @@ class _DoctorInfoState extends State<DoctorInfo> {
                             MyRoutes.reportScreen,
                             arguments: ReportScreenArgs(
                               reportType: ReportType.doctor,
-                              patientUsername: username,
-                              doctorUsername: doctor?.doctorUsername,
-                              doctorName: doctorName,
                             ),
                           );
                         },

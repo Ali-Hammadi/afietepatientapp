@@ -63,7 +63,7 @@ class RelaxRemoteDataSourceImpl implements RelaxRemoteDataSource {
     }
 
     final response = await dio.get(
-      ApiEndpoints.,
+      ApiEndpoints.relaxRecommendedTracks,
       queryParameters: queryParameters,
     );
 

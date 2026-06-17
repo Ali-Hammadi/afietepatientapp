@@ -71,7 +71,7 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
   }) async {
     try {
       final response = await _dio.patch(
-        '${ApiEndpoints.settingsMedicalProfile}/notes',
+        ApiEndpoints.notes,
         data: {
           'userId': userId,
           'noteTitle': noteTitle,
@@ -95,7 +95,7 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
     } catch (e) {
       throw DioException(
         requestOptions: RequestOptions(
-          path: '${ApiEndpoints.settingsMedicalProfile}/notes',
+          path: ApiEndpoints.notes,
         ),
         error: e.toString(),
       );
@@ -111,7 +111,7 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
   }) async {
     try {
       final response = await _dio.post(
-        '${ApiEndpoints.settingsMedicalProfile}/notes/share',
+        ApiEndpoints.notes,
         data: {
           'userId': userId,
           'noteTitle': noteTitle,
@@ -133,7 +133,7 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
     } catch (e) {
       throw DioException(
         requestOptions: RequestOptions(
-          path: '${ApiEndpoints.settingsMedicalProfile}/notes/share',
+          path: ApiEndpoints.notes,
         ),
         error: e.toString(),
       );
@@ -148,7 +148,7 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
   }) async {
     try {
       final response = await _dio.post(
-        ApiEndpoints.settingsReports,
+        ApiEndpoints.appReports,
         data: {'userId': userId, 'reason': reason, 'details': details},
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -164,7 +164,7 @@ class SettingsRemoteDataSourceImpl implements SettingsRemoteDataSource {
       rethrow;
     } catch (e) {
       throw DioException(
-        requestOptions: RequestOptions(path: ApiEndpoints.settingsReports),
+        requestOptions: RequestOptions(path: ApiEndpoints.appReports),
         error: e.toString(),
       );
     }
