@@ -26,9 +26,6 @@ import 'package:afiete/feature/appoinments/domain/usecase/create_appointment_use
 import 'package:afiete/feature/appoinments/domain/usecase/get_appointments_usecase.dart';
 import 'package:afiete/feature/appoinments/domain/usecase/reschedule_appointment_usecase.dart';
 import 'package:afiete/feature/appoinments/presentation/cubits/appointments_cubit.dart';
-import 'package:afiete/feature/chat/data/datasources/chat_mock_datasource.dart';
-import 'package:afiete/feature/chat/data/datasources/chat_remote_datasource.dart';
-import 'package:afiete/feature/chat/data/repositories/chat_repository_impl.dart';
 import 'package:afiete/feature/chat/domain/repositories/chat_repository.dart';
 import 'package:afiete/feature/chat/domain/usecases/get_chat_messages_usecase.dart';
 import 'package:afiete/feature/chat/domain/usecases/mark_chat_message_read_usecase.dart';
@@ -43,8 +40,8 @@ import 'package:afiete/feature/feeling/data/repositories/feeling_repository_impl
 import 'package:afiete/feature/feeling/domain/repositories/feeling_repository.dart';
 import 'package:afiete/feature/feeling/domain/usecase/feeling_usecases.dart';
 import 'package:afiete/feature/feeling/presentation/cubit/feeling_cubit.dart';
-import 'package:afiete/feature/music_and_breathing/data/datasources/breathing.dart';
-import 'package:afiete/feature/music_and_breathing/data/repositories/music_and_breathing_impl.dart';
+import 'package:afiete/feature/music_and_breathing/data/datasources/relax_remote_data_source.dart';
+import 'package:afiete/feature/music_and_breathing/data/repositories/relax_repository_impl.dart';
 import 'package:afiete/feature/music_and_breathing/domain/repositories/music_repository.dart';
 import 'package:afiete/feature/music_and_breathing/domain/usecase/get_recommended_music_usecase.dart';
 import 'package:afiete/feature/music_and_breathing/presentation/cubit/music_cubit.dart';
@@ -88,10 +85,7 @@ import 'package:afiete/feature/voice/domain/usecase/get_voice_calls_usecase.dart
 import 'package:afiete/feature/voice/domain/usecase/start_voice_call_usecase.dart';
 import 'package:afiete/feature/report/data/datasources/report_remote_datasource.dart';
 import 'package:afiete/feature/report/data/repositories/report_repository_impl.dart';
-import 'package:afiete/feature/report/domain/repositories/report_repository.dart';
-import 'package:afiete/feature/report/domain/usecases/submit_report_usecase.dart';
-import 'package:afiete/feature/report/domain/usecases/get_report_history_usecase.dart';
-import 'package:afiete/feature/report/domain/usecases/get_reports_by_type_usecase.dart';
+import 'package:afiete/feature/report/domain/usecases/report_usecase.dart';
 import 'package:afiete/feature/report/presentation/cubits/report_cubit.dart';
 import 'package:afiete/feature/articles/data/repositories/articles_repository_impl.dart';
 import 'package:afiete/feature/articles/domain/repositories/articles_repository.dart';
@@ -183,17 +177,17 @@ Future<void> init() async {
     ),
   );
 
-  // Chat data sources
-  sl.registerLazySingleton<ChatRemoteDataSource>(
-    () => useMockDataSources
-        ? ChatMockDataSourceImpl()
-        : ChatRemoteDataSourceImpl(dio: sl<Dio>()),
-  );
+  // // Chat data sources
+  // sl.registerLazySingleton<ChatRemoteDataSource>(
+  //   () => useMockDataSources
+  //       ? ChatMockDataSourceImpl()
+  //       : ChatRemoteDataSourceImpl(dio: sl<Dio>()),
+  // );
 
-  // Chat repositories
-  sl.registerLazySingleton<ChatRepository>(
-    () => ChatRepositoryImpl(dataSource: sl<ChatRemoteDataSource>()),
-  );
+  // // Chat repositories
+  // sl.registerLazySingleton<ChatRepository>(
+  //   () => ChatRepositoryImpl(dataSource: sl<ChatRemoteDataSource>()),
+  // );
 
   // Chat use cases
   sl.registerLazySingleton<GetChatMessagesUseCase>(
@@ -402,33 +396,33 @@ Future<void> init() async {
   );
 
   // Music data sources
-  sl.registerLazySingleton<MusicLocalDataSource>(
-    () => MusicLocalDataSourceImpl(),
+  sl.registerLazySingleton<RelaxRemoteDataSource>(
+    () => RelaxRemoteDataSourceImpl(dio: sl<Dio>()),
   );
 
   // Music repositories
-  sl.registerLazySingleton<MusicRepository>(
-    () => MusicRepositoryImpl(dataSource: sl<MusicLocalDataSource>()),
+  sl.registerLazySingleton<RelaxRepository>(
+    () => RelaxRepositoryImpl(remoteDataSource: sl<RelaxRemoteDataSource>()),
   );
 
   // Music use cases
   sl.registerLazySingleton<GetRecommendedMusicUseCase>(
-    () => GetRecommendedMusicUseCase(sl<MusicRepository>()),
-  );
-  sl.registerLazySingleton<GetTracksByGoalUseCase>(
-    () => GetTracksByGoalUseCase(sl<MusicRepository>()),
-  );
-  sl.registerLazySingleton<GetTrackByIdUseCase>(
-    () => GetTrackByIdUseCase(sl<MusicRepository>()),
-  );
-  sl.registerLazySingleton<GetBreathingExercisesUseCase>(
-    () => GetBreathingExercisesUseCase(sl<MusicRepository>()),
+    () => GetRecommendedMusicUseCase(sl<RelaxRepository>()),
   );
   sl.registerLazySingleton<SaveLastSelectedFeelingUseCase>(
-    () => SaveLastSelectedFeelingUseCase(sl<MusicRepository>()),
+    () => SaveLastSelectedFeelingUseCase(sl<RelaxRepository>()),
   );
   sl.registerLazySingleton<GetLastSelectedFeelingUseCase>(
-    () => GetLastSelectedFeelingUseCase(sl<MusicRepository>()),
+    () => GetLastSelectedFeelingUseCase(sl<RelaxRepository>()),
+  );
+  sl.registerLazySingleton<GetBreathingExercisesUseCase>(
+    () => GetBreathingExercisesUseCase(sl<RelaxRepository>()),
+  );
+  sl.registerLazySingleton<SaveLastSelectedFeelingUseCase>(
+    () => SaveLastSelectedFeelingUseCase(sl<RelaxRepository>()),
+  );
+  sl.registerLazySingleton<GetLastSelectedFeelingUseCase>(
+    () => GetLastSelectedFeelingUseCase(sl<RelaxRepository>()),
   );
 
   // Music cubit
@@ -522,32 +516,40 @@ Future<void> init() async {
   );
 
   // Report data sources
-  sl.registerLazySingleton<ReportRemoteDataSource>(
-    () => ReportRemoteDataSourceImpl(dio: sl<Dio>()),
+  sl.registerLazySingleton<ReportsRemoteDataSourceImpl>(
+    () => ReportsRemoteDataSourceImpl(dio: sl<Dio>()),
   );
 
   // Report repositories
-  sl.registerLazySingleton<ReportRepository>(
-    () => ReportRepositoryImpl(remoteDataSource: sl<ReportRemoteDataSource>()),
+  sl.registerLazySingleton<ReportsRepositoryImpl>(
+    () => ReportsRepositoryImpl(
+        remoteDataSource: sl<ReportsRemoteDataSourceImpl>()),
   );
 
   // Report use cases
-  sl.registerLazySingleton<SubmitReportUseCase>(
-    () => SubmitReportUseCase(sl<ReportRepository>()),
+  sl.registerLazySingleton<GetReportConfigUseCase>(
+    () => GetReportConfigUseCase(sl<ReportsRepositoryImpl>()),
   );
-  sl.registerLazySingleton<GetReportHistoryUseCase>(
-    () => GetReportHistoryUseCase(sl<ReportRepository>()),
+  sl.registerLazySingleton<GetMyReportsUseCase>(
+    () => GetMyReportsUseCase(sl<ReportsRepositoryImpl>()),
   );
-  sl.registerLazySingleton<GetReportsByTypeUseCase>(
-    () => GetReportsByTypeUseCase(sl<ReportRepository>()),
+  sl.registerLazySingleton<CreateAppReportUseCase>(
+    () => CreateAppReportUseCase(sl<ReportsRepositoryImpl>()),
+  );
+  sl.registerLazySingleton<GetReportConfigUseCase>(
+    () => GetReportConfigUseCase(sl<ReportsRepositoryImpl>()),
   );
 
   // Report cubit
   sl.registerFactory<ReportCubit>(
     () => ReportCubit(
-      submitReportUseCase: sl<SubmitReportUseCase>(),
-      getReportHistoryUseCase: sl<GetReportHistoryUseCase>(),
-      getReportsByTypeUseCase: sl<GetReportsByTypeUseCase>(),
+      createAppReportUseCase:
+          CreateAppReportUseCase(sl<ReportsRepositoryImpl>()),
+      createUserReportUseCase:
+          CreateUserReportUseCase(sl<ReportsRepositoryImpl>()),
+      getMyReportsUseCase: GetMyReportsUseCase(sl<ReportsRepositoryImpl>()),
+      getReportConfigUseCase:
+          GetReportConfigUseCase(sl<ReportsRepositoryImpl>()),
     ),
   );
 

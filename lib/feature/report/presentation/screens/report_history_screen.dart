@@ -1,284 +1,126 @@
+import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:afiete/core/constants/settings_strings.dart';
-import 'package:afiete/core/constants/styles.dart';
-import 'package:afiete/feature/report/domain/entities/report_entity.dart';
-import 'package:afiete/feature/report/presentation/cubits/report_cubit.dart';
-import 'package:afiete/feature/report/presentation/widgets/report_card.dart';
+import '../../../../core/constants/styles.dart';
+import '../cubits/report_cubit.dart';
+import '../widgets/report_card.dart';
 
 class ReportHistoryScreen extends StatefulWidget {
-  final String userId;
-
-  const ReportHistoryScreen({super.key, required this.userId});
+  const ReportHistoryScreen({super.key});
 
   @override
   State<ReportHistoryScreen> createState() => _ReportHistoryScreenState();
 }
 
-class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
-  ReportType? _selectedFilter;
+class _ReportHistoryScreenState extends State<ReportHistoryScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _loadReportHistory();
+    _tabController = TabController(length: 2, vsync: this);
+    context.read<ReportCubit>().loadReportsDashboard();
   }
 
-  void _loadReportHistory() {
-    context.read<ReportCubit>().getReportHistory(userId: widget.userId);
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
-        backgroundColor: theme.scaffoldBackgroundColor,
-        automaticallyImplyLeading: true,
-        title: Text(
-          SettingsStrings.reportHistoryTitle,
-          style: AppStyles.headingMedium,
+        title: Text(SettingsStrings.reportIssueTitle),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: [
+            Tab(
+                text: SettingsStrings.reportIssueTitle,
+                icon: Icon(Icons.phonelink_setup)),
+            Tab(
+                text: SettingsStrings.reportDoctorTitle,
+                icon: Icon(Icons.people_alt)),
+          ],
         ),
       ),
       body: BlocBuilder<ReportCubit, ReportState>(
         builder: (context, state) {
-          if (state is ReportHistoryLoading) {
+          if (state is ReportsDashboardLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is ReportsError) {
             return Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(state.message,
+                    style: const TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center),
               ),
             );
-          }
-
-          if (state is ReportHistoryEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.receipt_long_outlined,
-                    size: 64,
-                    color: colorScheme.outline,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    SettingsStrings.noReportsYet,
-                    style: AppStyles.headingMedium.copyWith(
-                      color: colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    SettingsStrings.yourSubmittedReportsWillAppearHere,
-                    style: AppStyles.bodyMedium.copyWith(
-                      color: colorScheme.onSurface.withValues(alpha: 0.75),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (state is ReportError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 64, color: colorScheme.error),
-                  const SizedBox(height: 16),
-                  Text(
-                    SettingsStrings.errorLoadingReports,
-                    style: AppStyles.headingMedium.copyWith(
-                      color: colorScheme.error,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    state.message,
-                    style: AppStyles.bodyMedium.copyWith(
-                      color: colorScheme.onSurface.withValues(alpha: 0.75),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: _loadReportHistory,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colorScheme.primary,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                    ),
-                    child: Text(
-                      SettingsStrings.retry,
-                      style: AppStyles.bodyMedium.copyWith(
-                        color: colorScheme.onPrimary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (state is ReportHistoryLoaded) {
-            final reports = _selectedFilter != null
-                ? state.reports
-                      .where((r) => r.reportType == _selectedFilter)
-                      .toList()
-                : state.reports;
-
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(AppStyles.padding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Filter Chips
-                  Wrap(
-                    spacing: 8,
-                    children: [
-                      _buildFilterChip(
-                        label: SettingsStrings.allFilter,
-                        isSelected: _selectedFilter == null,
-                        onTap: () {
-                          setState(() {
-                            _selectedFilter = null;
-                          });
-                        },
-                      ),
-                      _buildFilterChip(
-                        label: SettingsStrings.doctorFilter,
-                        isSelected: _selectedFilter == ReportType.doctor,
-                        onTap: () {
-                          setState(() {
-                            _selectedFilter = ReportType.doctor;
-                          });
-                        },
-                      ),
-                      _buildFilterChip(
-                        label: SettingsStrings.appFilter,
-                        isSelected: _selectedFilter == ReportType.app,
-                        onTap: () {
-                          setState(() {
-                            _selectedFilter = ReportType.app;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Reports List
-                  if (reports.isEmpty)
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 32),
-                        child: Text(
-                          SettingsStrings.noReportsFound,
-                          style: AppStyles.bodyMedium.copyWith(
-                            color: colorScheme.onSurface.withValues(
-                              alpha: 0.75,
-                            ),
-                          ),
+          } else if (state is ReportsDashboardLoaded) {
+            return TabBarView(
+              controller: _tabController,
+              children: [
+                // التاب الأول: بلاغات التطبيق التقنية والاقتراحات
+                state.appReports.isEmpty
+                    ? const Center(child: Text("لا توجد بلاغات تقنية سابقة."))
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(AppStyles.padding),
+                        itemCount: state.appReports.length =
+                            state.appReports.length,
+                        itemBuilder: (context, index) => CustomReportCard(
+                          report: state.appReports[index],
+                          onTap: () => _showDetailsBottomSheet(
+                              context, state.appReports[index].content),
                         ),
                       ),
-                    )
-                  else
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: reports.length,
-                      itemBuilder: (context, index) {
-                        return CustomReportCard(
-                          report: reports[index],
-                          onTap: () {
-                            _showReportDetails(context, reports[index]);
-                          },
-                        );
-                      },
-                    ),
-                ],
-              ),
+
+                // التاب الثاني: بلاغات سلوكية ضد مستخدمين آخرين بينهما جلسة
+                state.userReports.isEmpty
+                    ? const Center(
+                        child: Text("لم تقم بتقديم أي شكوى سلوكية سابقة."))
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(AppStyles.padding),
+                        itemCount: state.userReports.length,
+                        itemBuilder: (context, index) => CustomReportCard(
+                          report: state.userReports[index],
+                          onTap: () => _showDetailsBottomSheet(
+                              context, state.userReports[index].content),
+                        ),
+                      ),
+              ],
             );
           }
-
-          return const Center(child: CircularProgressIndicator());
+          return Center(child: Text(SettingsStrings.reportWillBeReviewed));
         },
       ),
     );
   }
 
-  Widget _buildFilterChip({
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return FilterChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (_) => onTap(),
-      backgroundColor: theme.cardColor,
-      selectedColor: colorScheme.primaryContainer,
-      side: BorderSide(
-        color: isSelected ? colorScheme.primary : colorScheme.outline,
-        width: isSelected ? 2 : 1,
-      ),
-      labelStyle: AppStyles.bodySmall.copyWith(
-        color: isSelected ? colorScheme.primary : colorScheme.onSurface,
-        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-      ),
-    );
-  }
-
-  void _showReportDetails(BuildContext context, ReportEntity report) {
-    final colorScheme = Theme.of(context).colorScheme;
-
+  void _showDetailsBottomSheet(BuildContext context, String content) {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(AppStyles.padding),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  SettingsStrings.reportDetailsTitle,
-                  style: AppStyles.headingSmall,
-                ),
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const Icon(Icons.close),
-                ),
-              ],
-            ),
+            Text(SettingsStrings.reportDetailsTitle,
+                style: AppStyles.headingSmall),
             const SizedBox(height: 16),
-            Text(
-              SettingsStrings.descriptionLabel,
-              style: AppStyles.bodyLarge.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              report.description,
-              style: AppStyles.bodyMedium.copyWith(
-                color: colorScheme.onSurface.withValues(alpha: 0.75),
-              ),
-            ),
+            Text(content, style: AppStyles.bodyMedium),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(SettingsStrings.cancel)),
+            )
           ],
         ),
       ),

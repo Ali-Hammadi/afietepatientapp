@@ -1,5 +1,5 @@
+import 'package:afiete/feature/music_and_breathing/domain/entities/music_entity.dart';
 import 'package:bloc/bloc.dart';
-import 'package:afiete/core/constants/feeling_type.dart';
 import 'package:afiete/core/usecases/usecase.dart';
 import 'package:afiete/feature/feeling/domain/entities/feeling_entry_entity.dart';
 import 'package:afiete/feature/feeling/domain/usecase/feeling_usecases.dart';

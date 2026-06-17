@@ -16,7 +16,7 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
   Future<PaymentModel> processPayment(PaymentRequestEntity request) async {
     try {
       final response = await _dio.post(
-        ApiEndpoints.appointmentsCreate,
+        ApiEndpoints.createAppointment,
         data: {
           'doctorUsername': request.doctorUsername,
           'patientId': request.patientId,
@@ -48,7 +48,7 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
       rethrow;
     } catch (e) {
       throw DioException(
-        requestOptions: RequestOptions(path: ApiEndpoints.appointmentsCreate),
+        requestOptions: RequestOptions(path: ApiEndpoints.createAppointment),
         error: e,
         type: DioExceptionType.unknown,
       );

@@ -1,82 +1,84 @@
+import 'package:afiete/feature/report/data/config/report_config.dart';
+import 'package:afiete/feature/report/domain/entities/report_entity.dart';
+import 'package:afiete/feature/report/domain/usecases/report_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:afiete/feature/report/domain/entities/report_entity.dart';
-import 'package:afiete/feature/report/domain/usecases/submit_report_usecase.dart';
-import 'package:afiete/feature/report/domain/usecases/get_report_history_usecase.dart';
-import 'package:afiete/feature/report/domain/usecases/get_reports_by_type_usecase.dart';
 
 part 'report_state.dart';
 
 class ReportCubit extends Cubit<ReportState> {
-  final SubmitReportUseCase submitReportUseCase;
-  final GetReportHistoryUseCase getReportHistoryUseCase;
-  final GetReportsByTypeUseCase getReportsByTypeUseCase;
-
+  final GetReportConfigUseCase getReportConfigUseCase;
+  final GetMyReportsUseCase getMyReportsUseCase;
+  final CreateAppReportUseCase createAppReportUseCase;
+  final CreateUserReportUseCase createUserReportUseCase;
   ReportCubit({
-    required this.submitReportUseCase,
-    required this.getReportHistoryUseCase,
-    required this.getReportsByTypeUseCase,
+    required this.getReportConfigUseCase,
+    required this.getMyReportsUseCase,
+    required this.createAppReportUseCase,
+    required this.createUserReportUseCase,
   }) : super(const ReportInitial());
 
-  Future<void> submitReport({
-    required String userId,
-    required ReportType reportType,
-    String? targetId,
-    String? targetName,
-    required ReportReason reason,
-    required String description,
+  /// جلب لوحة تحكم التقارير بالكامل (الأسباب المتاحة + سجل المستخدم الحالي)
+  Future<void> loadReportsDashboard() async {
+    emit(const ReportsDashboardLoading());
+
+    final configResult = await getReportConfigUseCase();
+    final reportsResult = await getMyReportsUseCase();
+
+    configResult.fold(
+      (failure) => emit(ReportsError(failure.errorMessage)),
+      (config) {
+        reportsResult.fold(
+          (failure) => emit(ReportsError(failure.errorMessage)),
+          (reportsMap) {
+            emit(ReportsDashboardLoaded(
+              config: config,
+              appReports: reportsMap['app_reports'] as List<AppReport>,
+              userReports: reportsMap['user_reports'] as List<UserReport>,
+            ));
+          },
+        );
+      },
+    );
+  }
+
+  /// إنشاء بلاغ تقني أو اقتراح للتطبيق
+  Future<void> submitAppReport({
+    required String reportType,
+    required String title,
+    required String content,
   }) async {
-    emit(const ReportSubmitting());
+    emit(const ReportActionLoading());
 
-    final result = await submitReportUseCase(
-      SubmitReportParams(
-        userId: userId,
-        reportType: reportType,
-        targetId: targetId,
-        targetName: targetName,
-        reason: reason,
-        description: description,
-      ),
+    final result = await createAppReportUseCase(
+      reportType: reportType,
+      title: title,
+      content: content,
     );
 
     result.fold(
-      (failure) => emit(ReportError(failure.errorMessage)),
-      (report) => emit(ReportSubmitted(report)),
+      (failure) => emit(ReportsError(failure.errorMessage)),
+      (_) => emit(const ReportSubmitSuccess(
+          "Your report has been submitted successfully and will be reviewed.")),
     );
   }
 
-  Future<void> getReportHistory({required String userId}) async {
-    emit(const ReportHistoryLoading());
-
-    final result = await getReportHistoryUseCase(
-      GetReportHistoryParams(userId: userId),
-    );
-
-    result.fold(
-      (failure) => emit(ReportError(failure.errorMessage)),
-      (reports) => reports.isEmpty
-          ? emit(const ReportHistoryEmpty())
-          : emit(ReportHistoryLoaded(reports)),
-    );
-  }
-
-  Future<void> getReportsByType({
-    required String userId,
-    required ReportType reportType,
+  /// إنشاء بلاغ ضد مستخدم (طبيب/مريض) - سيتحقق السيرفر تلقائياً من الجلسة المشتركة
+  Future<void> submitUserReport({
+    required String reportedUsername,
+    required String content,
   }) async {
-    emit(const ReportsByTypeLoading());
+    emit(const ReportActionLoading());
 
-    final result = await getReportsByTypeUseCase(
-      GetReportsByTypeParams(userId: userId, reportType: reportType),
+    final result = await createUserReportUseCase(
+      reportedUsername: reportedUsername,
+      content: content,
     );
 
     result.fold(
-      (failure) => emit(ReportError(failure.errorMessage)),
-      (reports) => emit(ReportsByTypeLoaded(reports, reportType)),
+      (failure) => emit(ReportsError(failure.errorMessage)),
+      (_) => emit(const ReportSubmitSuccess(
+          "Your report against the user has been submitted successfully and will be reviewed.")),
     );
-  }
-
-  void resetState() {
-    emit(const ReportInitial());
   }
 }

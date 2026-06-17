@@ -1,8 +1,8 @@
-import 'package:afiete/core/constants/feeling_type.dart';
 import 'package:afiete/core/error/failure.dart';
 import 'package:afiete/feature/feeling/data/datasources/feeling_local_data_source.dart';
 import 'package:afiete/feature/feeling/domain/entities/feeling_entry_entity.dart';
 import 'package:afiete/feature/feeling/domain/repositories/feeling_repository.dart';
+import 'package:afiete/feature/music_and_breathing/domain/entities/music_entity.dart';
 import 'package:dartz/dartz.dart';
 
 class FeelingRepositoryImpl implements FeelingRepository {

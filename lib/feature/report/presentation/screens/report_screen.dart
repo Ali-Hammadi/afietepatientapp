@@ -1,30 +1,21 @@
-import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/feature/report/data/config/report_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:afiete/core/constants/styles.dart';
-import 'package:afiete/core/widget/custom_button.dart';
-import 'package:afiete/feature/report/data/datasources/mock_report_data.dart';
-import 'package:afiete/feature/report/domain/entities/report_entity.dart';
-import 'package:afiete/feature/report/presentation/cubits/report_cubit.dart';
-import 'package:afiete/feature/report/presentation/widgets/report_form_widget.dart';
-import 'package:afiete/feature/report/presentation/widgets/report_header_widget.dart';
-import 'package:afiete/feature/report/presentation/widgets/report_reason_card.dart';
-import 'package:afiete/feature/report/presentation/widgets/section_divider_widget.dart';
+import '../../../../core/constants/styles.dart';
+import '../../../../core/widget/custom_button.dart';
+import '../cubits/report_cubit.dart';
+import '../widgets/report_form_widget.dart';
+import '../widgets/report_reason_card.dart';
 
 class ReportScreen extends StatefulWidget {
-  final ReportType reportType;
-  final String? doctorUsername;
-  final String? doctorName;
-  final String? sessionId;
-  final String patientUsername;
+  final String?
+      reportedUsername; // إذا وجد يعني بلاغ ضد يوزر، إذا فرغ يعني بلاغ تقني للتطبيق
+  final String? targetName; // اسم الطبيب أو المريض المشتكى عليه للعرض الشكلي
 
   const ReportScreen({
     super.key,
-    required this.reportType,
-    required this.patientUsername,
-    this.doctorUsername,
-    this.doctorName,
-    this.sessionId,
+    this.reportedUsername,
+    this.targetName,
   });
 
   @override
@@ -32,234 +23,185 @@ class ReportScreen extends StatefulWidget {
 }
 
 class _ReportScreenState extends State<ReportScreen> {
-  late TextEditingController _descriptionController;
-  ReportReason? _selectedReason;
-  late List<Map<String, dynamic>> _reportReasons;
+  final TextEditingController _contentController = TextEditingController();
+  final TextEditingController _titleController =
+      TextEditingController(); // خاص ببلاغات التطبيق فقط
+
+  ReasonItem? _selectedReason;
+  String _selectedAppType = "BUG"; // الافتراضي لبلاغات التطبيق
 
   @override
   void initState() {
     super.initState();
-    _descriptionController = TextEditingController();
-    _loadReportReasons();
+    // إعادة تنشيط وضمان تحميل أحدث تكوين للأسباب من السيرفر
+    context.read<ReportCubit>().loadReportsDashboard();
   }
 
   @override
   void dispose() {
-    _descriptionController.dispose();
+    _contentController.dispose();
+    _titleController.dispose();
     super.dispose();
   }
 
-  void _loadReportReasons() {
-    if (widget.reportType == ReportType.doctor) {
-      _reportReasons = MockReportData.getMockDoctorReportReasons();
-    } else {
-      _reportReasons = MockReportData.getMockAppReportReasons();
-    }
-  }
-
-  String _getScreenTitle() {
-    if (widget.reportType == ReportType.doctor) {
-      return SettingsStrings.reportDoctorTitle;
-    } else if (widget.reportType == ReportType.session) {
-      return SettingsStrings.reportSessionTitle;
-    } else {
-      return SettingsStrings.reportIssueTitle;
-    }
-  }
-
-  String _getHeaderDescription() {
-    if (widget.reportType == ReportType.doctor) {
-      return SettingsStrings.reportDoctorDescription;
-    } else if (widget.reportType == ReportType.session) {
-      return SettingsStrings.reportSessionDescription;
-    } else {
-      return SettingsStrings.reportIssueDescription;
-    }
-  }
-
-  String _getReasonLabel(ReportReason reason) {
-    return reason.localizedLabel;
-  }
-
-  bool _isFormValid() {
-    return _selectedReason != null &&
-        _descriptionController.text.trim().isNotEmpty;
-  }
-
-  void _submitReport() {
-    if (!_isFormValid()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(SettingsStrings.pleaseSelectReasonAndProvideDetails),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
+  void _submitAction() {
+    final cubit = context.read<ReportCubit>();
+    if (_contentController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("الرجاء كتابة تفاصيل المشكلة أو البلاغ")));
       return;
     }
 
-    context.read<ReportCubit>().submitReport(
-          userId: widget.patientUsername,
-          reportType: widget.reportType,
-          targetId: widget.doctorUsername ?? widget.sessionId,
-          targetName: widget.doctorName,
-          reason: _selectedReason!,
-          description: _descriptionController.text.trim(),
-        );
+    if (widget.reportedUsername != null) {
+      cubit.submitUserReport(
+        reportedUsername: widget.reportedUsername!,
+        content:
+            "السبب: ${_selectedReason?.label ?? 'غير محدد'} - التفاصيل: ${_contentController.text}",
+      );
+    } else {
+      // 2. إرسال بلاغ فني تقني أو اقتراح يخص التطبيق ككل
+      if (_titleController.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("الرجاء كتابة عنوان البلاغ التقني")));
+        return;
+      }
+      cubit.submitAppReport(
+        reportType: _selectedAppType,
+        title: _titleController.text,
+        content: _contentController.text,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final isUserReporting = widget.reportedUsername != null;
 
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
-        backgroundColor: theme.scaffoldBackgroundColor,
-        automaticallyImplyLeading: true,
-        title: Text(_getScreenTitle(), style: AppStyles.headingMedium),
+        title: Text(isUserReporting
+            ? "إبلاغ عن مخالفة سلوكية"
+            : "إرسال بلاغ تقني / اقتراح"),
       ),
-      body: BlocListener<ReportCubit, ReportState>(
+      body: BlocConsumer<ReportCubit, ReportState>(
         listener: (context, state) {
-          if (state is ReportSubmitted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(SettingsStrings.reportSubmittedSuccessfully),
-                backgroundColor: colorScheme.primary,
-              ),
-            );
-            Navigator.pop(context, true);
-          } else if (state is ReportError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: colorScheme.error,
-              ),
-            );
+          if (state is ReportSubmitSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(state.message), backgroundColor: Colors.green));
+            context
+                .read<ReportCubit>()
+                .loadReportsDashboard(); // تحديث السجل فوراً
+            Navigator.pop(context);
+          } else if (state is ReportsError) {
+            // هنا يظهر الخطأ الأمني الصادر من الباك إند (مثال: غياب الجلسة المشتركة بين المستخدمين)
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(state.message), backgroundColor: Colors.red));
           }
         },
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppStyles.padding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        builder: (context, state) {
+          if (state is ReportsDashboardLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          // استخراج قوائم الأسباب الديناميكية عند اكتمال تحميل التكوين من السيرفر
+          List<ReasonItem> availableReasons = [];
+          if (state is ReportsDashboardLoaded) {
+            availableReasons = isUserReporting
+                ? (state.config.reasons['user'] ?? [])
+                : (state.config.reasons['app'] ?? []);
+          }
+
+          return ListView(
+            padding: const EdgeInsets.all(AppStyles.padding),
             children: [
-              _buildHeaderSection(),
+              if (isUserReporting) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8)),
+                  child: Text(
+                    "أنت تقوم بتقديم بلاغ رسمي ضد: ${widget.targetName ?? 'هذا المستخدم'}.\nملاحظة: سيتحقق النظام تلقائياً من وجود جلسة مشتركة بينكما لضمان مصداقية البلاغ.",
+                    style: TextStyle(
+                        color: theme.colorScheme.error,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+              if (!isUserReporting) ...[
+                // واجهة اختيار نوع بلاغ التطبيق (فني / اقتراح)
+                DropdownButtonFormField<String>(
+                  value: _selectedAppType,
+                  decoration:
+                      const InputDecoration(labelText: "نوع البلاغ الفني"),
+                  items: const [
+                    DropdownMenuItem(
+                        value: "BUG",
+                        child: Text("Technical Bug / عطل فني في التطبيق")),
+                    DropdownMenuItem(
+                        value: "SUGGESTION",
+                        child: Text("Suggestion / اقتراح وتطوير")),
+                    DropdownMenuItem(
+                        value: "OTHER", child: Text("Other / أمور أخرى")),
+                  ],
+                  onChanged: (val) =>
+                      setState(() => _selectedAppType = val ?? "BUG"),
+                ),
+                const SizedBox(height: 16),
+                CustomReportFormWidget(
+                  label: "عنوان المشكلة",
+                  hintText: "اكتب عنواناً مختصراً للمشكلة التقنية...",
+                  controller: _titleController,
+                  maxLines: 1,
+                  maxLength: 50,
+                ),
+                const SizedBox(height: 16),
+              ],
+              Text("اختر سبب البلاغ الأساسي المعتمد ديناميكياً:",
+                  style: AppStyles.bodyLarge
+                      .copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              availableReasons.isEmpty
+                  ? const Text(
+                      "جاري جلب قائمة الأسباب المعتمدة من خوادم النظام...")
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: availableReasons.length,
+                      itemBuilder: (context, index) {
+                        final reason = availableReasons[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: CustomReportReasonCard(
+                            label: reason.label,
+                            icon: isUserReporting ? 'block' : 'bug_report',
+                            isSelected: _selectedReason?.key == reason.key,
+                            onTap: () =>
+                                setState(() => _selectedReason = reason),
+                          ),
+                        );
+                      },
+                    ),
+              const SizedBox(height: 16),
+              CustomReportFormWidget(
+                label: "شرح تفصيلي للمشكلة",
+                hintText:
+                    "يرجى كتابة تفاصيل دقيقة لمساعدتنا في التحقيق الفوري...",
+                controller: _contentController,
+              ),
               const SizedBox(height: 24),
-              _buildReasonSection(),
-              const SizedBox(height: 24),
-              const CustomSectionDividerWidget(),
-              _buildDescriptionSection(),
-              const SizedBox(height: 24),
-              _buildSubmitButton(colorScheme: colorScheme),
-              const SizedBox(height: 12),
-              _buildInfoBanner(colorScheme: colorScheme),
+              CustomButton(
+                widget: state is ReportActionLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text("إرسال البلاغ فوراً للإدارة",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                onPressed: state is ReportActionLoading ? null : _submitAction,
+              ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeaderSection() {
-    return CustomReportHeaderWidget(
-      title: SettingsStrings.reportConfidentialTitle,
-      description: _getHeaderDescription(),
-      icon: const Icon(Icons.info),
-    );
-  }
-
-  Widget _buildReasonSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(SettingsStrings.selectReason, style: AppStyles.headingSmall),
-        const SizedBox(height: 12),
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: _reportReasons.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 8),
-          itemBuilder: (context, index) {
-            final reason = _reportReasons[index];
-            final reportReason = ReportReason.values.firstWhere(
-              (e) => e.name == reason['key'],
-              orElse: () => ReportReason.other,
-            );
-
-            return CustomReportReasonCard(
-              label: _getReasonLabel(reportReason),
-              icon: reason['icon'],
-              color: reason['color'],
-              isSelected: _selectedReason == reportReason,
-              onTap: () {
-                setState(() {
-                  _selectedReason = reportReason;
-                });
-              },
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDescriptionSection() {
-    return CustomReportFormWidget(
-      label: SettingsStrings.additionalDetails,
-      hintText: SettingsStrings.reportDescriptionHint,
-      controller: _descriptionController,
-      maxLines: 6,
-      maxLength: 500,
-      onChanged: (value) {
-        setState(() {});
-      },
-    );
-  }
-
-  Widget _buildSubmitButton({required ColorScheme colorScheme}) {
-    return BlocBuilder<ReportCubit, ReportState>(
-      builder: (context, state) {
-        final isLoading = state is ReportSubmitting;
-
-        return CustomButton(
-          widget: Text(
-            isLoading
-                ? SettingsStrings.submitting
-                : SettingsStrings.submitReport,
-            style: AppStyles.bodyLarge.copyWith(
-              color: colorScheme.onPrimary,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          onPressed: isLoading ? null : _submitReport,
-        );
-      },
-    );
-  }
-
-  Widget _buildInfoBanner({required ColorScheme colorScheme}) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withValues(alpha: 0.45),
-        borderRadius: BorderRadius.circular(AppStyles.borderRadius),
-        border: Border.all(
-          color: colorScheme.outline.withValues(alpha: 0.45),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.info_outline, color: colorScheme.primary, size: 20),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              SettingsStrings.reportWillBeReviewed,
-              style: AppStyles.bodySmall.copyWith(color: colorScheme.onSurface),
-              textAlign: TextAlign.start,
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

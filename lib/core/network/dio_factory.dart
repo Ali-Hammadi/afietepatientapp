@@ -149,8 +149,8 @@ abstract class DioFactory {
       );
 
       final response = await refreshDio.post<Map<String, dynamic>>(
-        ApiEndpoints.tokenRefresh,
-        data: {ApiEndpoints.keyRefresh: refreshToken},
+        ApiEndpoints.refreshToken,
+        data: {ApiEndpoints.refreshToken: refreshToken},
       );
 
       final refreshedAccessToken = _extractAccessToken(response.data) ??

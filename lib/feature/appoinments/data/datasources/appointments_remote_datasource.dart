@@ -169,7 +169,7 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
     // أو اتركه كما هو حالياً مستهدفاً الـ Legacy لحين توفير الاندبوينت من الباك-إند.
     try {
       final response = await _dio.post(
-        ApiEndpoints.appointmentsReschedule,
+        ApiEndpoints.reschedualAppointment(appointmentId),
         data: {
           'appointmentId': appointmentId,
           'newScheduledAt': newScheduledAt.toIso8601String(),
@@ -194,8 +194,8 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
       rethrow;
     } catch (e) {
       throw DioException(
-        requestOptions:
-            RequestOptions(path: ApiEndpoints.appointmentsReschedule),
+        requestOptions: RequestOptions(
+            path: ApiEndpoints.reschedualAppointment(appointmentId)),
         error: e,
         type: DioExceptionType.unknown,
       );

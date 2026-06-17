@@ -1,3 +1,4 @@
+import 'package:afiete/core/constants/report_types.dart';
 import 'package:afiete/feature/doctors/presentation/widgets/doctor_profile_image.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/constants/styles.dart';
@@ -11,7 +12,6 @@ import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
 import 'package:afiete/feature/doctors/presentation/cubits/doctors_cubit.dart';
 
 import 'package:afiete/feature/home/presentation/widgets/custom_container.dart';
-import 'package:afiete/feature/report/domain/entities/report_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

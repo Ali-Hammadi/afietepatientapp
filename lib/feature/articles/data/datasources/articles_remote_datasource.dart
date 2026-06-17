@@ -19,21 +19,21 @@ class ArticlesRemoteDataSourceImpl implements ArticlesRemoteDataSource {
 
   @override
   Future<List<ArticleModel>> getRecommendedArticles() async {
-    final response = await _dio.get('${ApiEndpoints.articles}/recommended/');
+    final response = await _dio.get(ApiEndpoints.articlesRecommended);
     return _parseArticleList(response.data);
   }
 
   @override
   Future<List<ArticleModel>> getTrendingArticles() async {
-    final response = await _dio.get('${ApiEndpoints.articles}/trending/');
+    final response = await _dio.get(ApiEndpoints.articlesTrending);
     return _parseArticleList(response.data);
   }
 
   @override
   Future<List<ArticleModel>> getArticlesByDoctor(String doctorId) async {
     // جلب مقالات طبيب معين (تصفية عبر Query parameters أو endpoint مخصصة)
-    final response = await _dio
-        .get(ApiEndpoints.articles, queryParameters: {'author': doctorId});
+    final response = await _dio.get(ApiEndpoints.articleById(doctorId),
+        queryParameters: {'author': doctorId});
     return _parseArticleList(response.data);
   }
 
@@ -41,7 +41,7 @@ class ArticlesRemoteDataSourceImpl implements ArticlesRemoteDataSource {
   Future<List<ArticleModel>> getAllArticles(
       {required int page, int pageSize = 10}) async {
     final response = await _dio.get(
-      '${ApiEndpoints.articles}/',
+      ApiEndpoints.articlesFeed,
       queryParameters: {'page': page, 'page_size': pageSize},
     );
     return _parseArticleList(response.data);
@@ -49,14 +49,14 @@ class ArticlesRemoteDataSourceImpl implements ArticlesRemoteDataSource {
 
   @override
   Future<ArticleModel> getArticleById(String articleId) async {
-    final response = await _dio.get('${ApiEndpoints.articles}/$articleId/');
+    final response = await _dio.get(ApiEndpoints.articleById(articleId));
     return ArticleModel.fromJson(_parseArticleMap(response.data));
   }
 
   @override
   Future<void> reactToArticle(String articleId, String reaction) async {
     await _dio.post(
-      '${ApiEndpoints.articles}/$articleId/react/',
+      ApiEndpoints.articleReact(articleId),
       data: {'reaction': reaction},
     );
   }

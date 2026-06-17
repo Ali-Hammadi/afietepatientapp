@@ -1,3 +1,5 @@
+import 'package:afiete/core/constants/report_types.dart';
+import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/di/injection_container.dart';
 import 'package:afiete/feature/assisments/presentation/cubits/assisments_cubit.dart';
 import 'package:afiete/feature/assisments/presentation/screens/assisment_result_screen.dart';
@@ -20,7 +22,6 @@ import 'package:afiete/feature/home/presentation/screens/first_home_screen.dart'
 import 'package:afiete/feature/home/presentation/screens/global_home_screen.dart';
 import 'package:afiete/feature/payment/domain/entities/payment_entity.dart';
 import 'package:afiete/feature/payment/presentation/screens/payment_screen.dart';
-import 'package:afiete/feature/report/domain/entities/report_entity.dart';
 import 'package:afiete/feature/report/presentation/cubits/report_cubit.dart';
 import 'package:afiete/feature/report/presentation/screens/report_history_screen.dart';
 import 'package:afiete/feature/report/presentation/screens/report_screen.dart';
@@ -219,46 +220,47 @@ class AppRouter {
             ? args
             : args is Map<String, dynamic>
                 ? ReportScreenArgs(
-                    reportType: args['reportType'] as ReportType,
-                    patientUsername: args['patientUsername'] as String,
-                    doctorUsername: args['doctorUsername'] as String?,
-                    doctorName: args['doctorName'] as String?,
+                    // استخدام الـ Extension الذي قمنا ببنائه لمنع الكراش وتحويل النص لـ Enum بآمان
+                    reportType: args['reportType'] is String
+                        ? ReportTypeExtension.fromString(
+                            args['reportType'] as String)
+                        : args['reportType'] as ReportType,
+                    reportedUsername: args['reportedUserId'],
                     sessionId: args['sessionId'] as String?,
+                    reportedName: args['reportedName'] as String?,
                   )
                 : null;
 
+        // إذا كان البلاغ سلوكي (طبيب أو جلسة) ولم نمرر البيانات الأساسية، نرفع شاشة الخطأ حماية للسيستم
         if (reportArgs == null) {
           return MaterialPageRoute(
             builder: (context) => Scaffold(
-              appBar: AppBar(),
-              body: const Center(
+              appBar: AppBar(title: const Text("خطأ في البيانات")),
+              body: Center(
                 child: Text(
-                  'Report data is required.',
+                  SettingsStrings.unCompletedReportInformation,
                   style: TextStyle(fontSize: 18),
                 ),
               ),
             ),
           );
         }
+
         return MaterialPageRoute(
           builder: (_) => BlocProvider<ReportCubit>(
             create: (_) => sl<ReportCubit>(),
             child: ReportScreen(
-              reportType: reportArgs.reportType,
-              patientUsername: reportArgs.patientUsername,
-              doctorUsername: reportArgs.doctorUsername,
-              doctorName: reportArgs.doctorName,
-              sessionId: reportArgs.sessionId,
+              reportedUsername: reportArgs
+                  .reportedUsername, // تمرير الـ ID لطبقة الـ Presentation
+              targetName: reportArgs.reportedName, // تمرير الاسم للعرض الشكلي
             ),
           ),
         );
-
       case MyRoutes.reportHistoryScreen:
-        final userId = settings.arguments as String;
         return MaterialPageRoute(
           builder: (_) => BlocProvider<ReportCubit>(
             create: (_) => sl<ReportCubit>(),
-            child: ReportHistoryScreen(userId: userId),
+            child: ReportHistoryScreen(),
           ),
         );
 
@@ -300,17 +302,16 @@ class AppRouter {
 
 class ReportScreenArgs {
   final ReportType reportType;
-  final String patientUsername;
-  final String? doctorUsername;
-  final String? doctorName;
-  final String? sessionId;
+  final String?
+      reportedUsername; // المعرف الرقمي للمستخدم المشكو بحقه (مهم جداً)
+  final String? sessionId; // معرف الجلسة إذا كان البلاغ متعلق بموعد
+  final String? reportedName; // الاسم الذي سيظهر في الواجهة (طبيب أو مريض)
 
-  ReportScreenArgs({
+  const ReportScreenArgs({
     required this.reportType,
-    required this.patientUsername,
-    this.doctorUsername,
-    this.doctorName,
+    this.reportedUsername,
     this.sessionId,
+    this.reportedName,
   });
 }
 

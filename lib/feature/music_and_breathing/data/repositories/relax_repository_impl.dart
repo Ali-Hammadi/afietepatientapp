@@ -5,7 +5,7 @@ import '../../domain/entities/breathing_exercise_entity.dart';
 import '../../domain/entities/music_entity.dart';
 import '../../domain/repositories/music_repository.dart';
 import '../../domain/usecase/get_recommended_music_usecase.dart';
-import '../datasources/music_data_source.dart';
+import '../datasources/relax_remote_data_source.dart';
 
 class RelaxRepositoryImpl implements RelaxRepository {
   final RelaxRemoteDataSource remoteDataSource;

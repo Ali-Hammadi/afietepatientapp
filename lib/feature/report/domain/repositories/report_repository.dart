@@ -1,23 +1,14 @@
-import 'package:dartz/dartz.dart';
 import 'package:afiete/core/error/failure.dart';
-import 'package:afiete/feature/report/domain/entities/report_entity.dart';
+import 'package:afiete/feature/report/data/config/report_config.dart';
+import 'package:dartz/dartz.dart';
 
-abstract class ReportRepository {
-  Future<Either<Failure, ReportEntity>> submitReport({
-    required String userId,
-    required ReportType reportType,
-    String? targetId,
-    String? targetName,
-    required ReportReason reason,
-    required String description,
-  });
-
-  Future<Either<Failure, List<ReportEntity>>> getReportHistory({
-    required String userId,
-  });
-
-  Future<Either<Failure, List<ReportEntity>>> getReportsByType({
-    required String userId,
-    required ReportType reportType,
-  });
+abstract class ReportsRepository {
+  Future<Either<Failure, ReportConfig>> getReportConfig();
+  Future<Either<Failure, Map<String, List<dynamic>>>> getMyReports();
+  Future<Either<Failure, Unit>> createAppReport(
+      {required String reportType,
+      required String title,
+      required String content});
+  Future<Either<Failure, Unit>> createUserReport(
+      {required String reportedUsername, required String content});
 }

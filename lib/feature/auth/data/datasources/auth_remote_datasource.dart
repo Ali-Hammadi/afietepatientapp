@@ -138,7 +138,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final _log = loggerFor('AuthRemoteDataSource');
 
   AuthRemoteDataSourceImpl({required Dio dio, String? serverClientId})
-    : _dio = dio;
+      : _dio = dio;
 
   // ==================== SIGNUP FLOW ====================
 
@@ -213,8 +213,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           'responseKeys': (response.data ?? {}).keys.toList(),
           'hasDataObject':
               (response.data ?? {})['data'] is Map<String, dynamic>,
-          'hasAccessToken':
-              ((response.data ?? {})['access']?.toString().isNotEmpty ??
+          'hasAccessToken': ((response.data ?? {})['access']
+                      ?.toString()
+                      .isNotEmpty ??
                   false) ||
               ((response.data ?? {})['access_token']?.toString().isNotEmpty ??
                   false),
@@ -405,34 +406,29 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: data,
       );
 
-        final serverNickname =
-          (response.data?['nickname'] ??
+      final serverNickname = (response.data?['nickname'] ??
               (response.data?['user'] is Map<String, dynamic>
-                ? (response.data?['user'] as Map<String, dynamic>)
-                  .cast<String, dynamic>()['nickname']
-                : null))
-            ?.toString()
-            .trim();
-      final serverPsychologicalHistory = response
-          .data?['psychological_history']
+                  ? (response.data?['user'] as Map<String, dynamic>)
+                      .cast<String, dynamic>()['nickname']
+                  : null))
           ?.toString()
           .trim();
+      final serverPsychologicalHistory =
+          response.data?['psychological_history']?.toString().trim();
 
       final requestedNickname = nickname?.toString().trim();
-      final requestedPsychologicalHistory = psychologicalHistory
-          ?.toString()
-          .trim();
+      final requestedPsychologicalHistory =
+          psychologicalHistory?.toString().trim();
 
-      final nicknameMismatch =
-          requestedNickname != null &&
+      final nicknameMismatch = requestedNickname != null &&
           requestedNickname.isNotEmpty &&
           serverNickname != null &&
           serverNickname.isNotEmpty &&
           serverNickname != requestedNickname;
       final psychologicalHistoryMismatch =
           requestedPsychologicalHistory != null &&
-          serverPsychologicalHistory != null &&
-          serverPsychologicalHistory != requestedPsychologicalHistory;
+              serverPsychologicalHistory != null &&
+              serverPsychologicalHistory != requestedPsychologicalHistory;
 
       if (nicknameMismatch || psychologicalHistoryMismatch) {
         _log.warn(
@@ -543,7 +539,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     );
     try {
       final response = await _dio.post<Map<String, dynamic>>(
-        ApiEndpoints.forgotPasswordVerifyOtp,
+        ApiEndpoints.forgotPasswordOtp,
         data: {'email': email, 'code': otpCode},
       );
       _log.info(

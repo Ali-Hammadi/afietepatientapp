@@ -1,6 +1,5 @@
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
-import 'package:afiete/core/constants/feeling_type.dart';
 import 'package:afiete/core/di/injection_container.dart';
 import 'package:afiete/feature/assisments/domain/entity/assisments_entity.dart';
 import 'package:afiete/feature/assisments/presentation/cubits/assisments_cubit.dart';
@@ -11,6 +10,7 @@ import 'package:afiete/feature/home/presentation/widgets/assisment_widget.dart';
 import 'package:afiete/feature/home/presentation/widgets/emotions_widget.dart';
 import 'package:afiete/feature/home/presentation/widgets/music_widget.dart';
 import 'package:afiete/feature/home/presentation/widgets/top_doctor.dart';
+import 'package:afiete/feature/music_and_breathing/domain/entities/music_entity.dart';
 import 'package:afiete/feature/music_and_breathing/presentation/cubit/music_cubit.dart';
 // تذكر استيراد الـ Cubit الخاص بالأطباء إذا لم يكن مستورداً داخل الـ CustomTopDoctorsWidget
 // import 'package:afiete/feature/doctors/presentation/cubits/doctors_cubit.dart';

@@ -24,9 +24,9 @@ abstract class SettingsStrings {
   static String get supportHelpTitle =>
       _t('How can we help?', 'كيف يمكننا مساعدتك؟');
   static String get supportHelpDescription => _t(
-    'Choose one of the quick support options below.',
-    'اختر أحد خيارات الدعم السريع أدناه.',
-  );
+        'Choose one of the quick support options below.',
+        'اختر أحد خيارات الدعم السريع أدناه.',
+      );
   static String get contactSupport => _t('Contact support', 'تواصل مع الدعم');
   static String get reportIssue => _t('Report an issue', 'الإبلاغ عن مشكلة');
   static String get supportFAQ => _t('FAQ', 'الأسئلة الشائعة');
@@ -41,9 +41,9 @@ abstract class SettingsStrings {
   static String get logoutConfirmTitle =>
       _t('Log out?', 'هل تريد تسجيل الخروج؟');
   static String get logoutConfirmMessage => _t(
-    'You will need to sign in again to access the app.',
-    'ستحتاج إلى تسجيل الدخول مرة أخرى للوصول إلى التطبيق.',
-  );
+        'You will need to sign in again to access the app.',
+        'ستحتاج إلى تسجيل الدخول مرة أخرى للوصول إلى التطبيق.',
+      );
   static String get logoutSuccess =>
       _t('Logged out successfully', 'تم تسجيل الخروج بنجاح');
   static String get homeNavLabel => _t('Home', 'الرئيسية');
@@ -81,9 +81,9 @@ abstract class SettingsStrings {
       _t('Session cancelled', 'تم إلغاء الجلسة');
   static String get cancelSessionTitle => _t('Cancel Session', 'إلغاء الجلسة');
   static String get cancelSessionQuestion => _t(
-    'Are you sure you want to cancel this session?',
-    'هل أنت متأكد أنك تريد إلغاء هذه الجلسة؟',
-  );
+        'Are you sure you want to cancel this session?',
+        'هل أنت متأكد أنك تريد إلغاء هذه الجلسة؟',
+      );
   static String get no => _t('No', 'لا');
   static String get yesCancel => _t('Yes, Cancel', 'نعم، إلغاء');
   static String get addReview => _t('Add Review', 'إضافة تقييم');
@@ -117,52 +117,56 @@ abstract class SettingsStrings {
       _t('Payment successful: $reference', 'تم الدفع بنجاح: $reference');
   static String get reportDoctorTitle =>
       _t('Report Doctor', 'الإبلاغ عن الطبيب');
+
+  static String get unCompletedReportInformation => _t(
+      'The report informations are\'t complete. ',
+      'بيانات البلاغ مطلوبة وغير مكتملة.');
   static String get reportSessionTitle =>
       _t('Report Session', 'الإبلاغ عن الجلسة');
   static String get reportIssueTitle => _t('Report Issue', 'الإبلاغ عن مشكلة');
   static String get reportDoctorDescription => _t(
-    'Help us maintain a safe environment by reporting any inappropriate behavior from your doctor.',
-    'ساعدنا في الحفاظ على بيئة آمنة بالإبلاغ عن أي سلوك غير مناسب من الطبيب.',
-  );
+        'Help us maintain a safe environment by reporting any inappropriate behavior from your doctor.',
+        'ساعدنا في الحفاظ على بيئة آمنة بالإبلاغ عن أي سلوك غير مناسب من الطبيب.',
+      );
   static String get reportSessionDescription => _t(
-    'Report any issues you experienced during your session.',
-    'أبلغ عن أي مشاكل واجهتها أثناء الجلسة.',
-  );
+        'Report any issues you experienced during your session.',
+        'أبلغ عن أي مشاكل واجهتها أثناء الجلسة.',
+      );
   static String get reportIssueDescription => _t(
-    'Let us know about any technical issues or problems with the app.',
-    'أخبرنا عن أي مشاكل تقنية أو أعطال في التطبيق.',
-  );
+        'Let us know about any technical issues or problems with the app.',
+        'أخبرنا عن أي مشاكل تقنية أو أعطال في التطبيق.',
+      );
   static String get pleaseSelectReasonAndProvideDetails => _t(
-    'Please select a reason and provide details',
-    'يرجى اختيار سبب وتقديم التفاصيل',
-  );
+        'Please select a reason and provide details',
+        'يرجى اختيار سبب وتقديم التفاصيل',
+      );
   static String get reportSubmittedSuccessfully =>
       _t('Report submitted successfully', 'تم إرسال البلاغ بنجاح');
   static String get reportIssueConfidentialMessage => _t(
-    'Your report is confidential and helps us maintain a safe environment.',
-    'بلاغك سري ويساعدنا في الحفاظ على بيئة آمنة.',
-  );
+        'Your report is confidential and helps us maintain a safe environment.',
+        'بلاغك سري ويساعدنا في الحفاظ على بيئة آمنة.',
+      );
   static String get reportConfidentialTitle =>
       _t('Your Report is Confidential', 'بلاغك سري');
   static String get selectReason => _t('Select Reason', 'اختر السبب');
   static String get additionalDetails =>
       _t('Additional Details', 'تفاصيل إضافية');
   static String get reportDescriptionHint => _t(
-    'Please provide more information about your report. Be as specific as possible.',
-    'يرجى تقديم المزيد من المعلومات حول البلاغ. كن محددًا قدر الإمكان.',
-  );
+        'Please provide more information about your report. Be as specific as possible.',
+        'يرجى تقديم المزيد من المعلومات حول البلاغ. كن محددًا قدر الإمكان.',
+      );
   static String get submitReport => _t('Submit Report', 'إرسال البلاغ');
   static String get submitting => _t('Submitting...', 'جارٍ الإرسال...');
   static String get reportWillBeReviewed => _t(
-    'Your report will be reviewed by our team. We will take appropriate action.',
-    'سيتم مراجعة بلاغك من قبل فريقنا. سنتخذ الإجراء المناسب.',
-  );
+        'Your report will be reviewed by our team. We will take appropriate action.',
+        'سيتم مراجعة بلاغك من قبل فريقنا. سنتخذ الإجراء المناسب.',
+      );
   static String get reportHistoryTitle => _t('Report History', 'سجل التقارير');
   static String get noReportsYet => _t('No Reports Yet', 'لا توجد تقارير بعد');
   static String get yourSubmittedReportsWillAppearHere => _t(
-    'Your submitted reports will appear here',
-    'ستظهر التقارير التي أرسلتها هنا',
-  );
+        'Your submitted reports will appear here',
+        'ستظهر التقارير التي أرسلتها هنا',
+      );
   static String get errorLoadingReports =>
       _t('Error Loading Reports', 'خطأ في تحميل التقارير');
   static String get noReportsFound => _t('No reports found', 'لا توجد تقارير');
@@ -218,22 +222,22 @@ abstract class SettingsStrings {
   static String get cbt => _t('CBT', 'العلاج المعرفي السلوكي');
   static String get depression => _t('Depression', 'الاكتئاب');
   static String get doctorProfileUnavailable => _t(
-    'Doctor profile details are not available right now.',
-    'تفاصيل ملف الطبيب غير متاحة حاليًا.',
-  );
+        'Doctor profile details are not available right now.',
+        'تفاصيل ملف الطبيب غير متاحة حاليًا.',
+      );
   static String get reviewsLabel => _t('Reviews', 'التقييمات');
   static String get experienceLabel => _t('Experience', 'الخبرة');
   static String get patientsLabel => _t('Patients', 'المرضى');
   static String get pleaseSignInToReportDoctor => _t(
-    'Please sign in to report a doctor.',
-    'يرجى تسجيل الدخول للإبلاغ عن الطبيب.',
-  );
+        'Please sign in to report a doctor.',
+        'يرجى تسجيل الدخول للإبلاغ عن الطبيب.',
+      );
   static String get doctorDataNotLoadedYet =>
       _t('Doctor data not loaded yet.', 'لم يتم تحميل بيانات الطبيب بعد.');
   static String get pleaseSignInToReportADoctor => _t(
-    'Please sign in to report a doctor.',
-    'يرجى تسجيل الدخول للإبلاغ عن طبيب.',
-  );
+        'Please sign in to report a doctor.',
+        'يرجى تسجيل الدخول للإبلاغ عن طبيب.',
+      );
   static String get topDoctorsTitle => _t('Top Doctors', 'أفضل الأطباء');
   static String get howAreYouFeelingToday =>
       _t('How are you feeling today?', 'كيف تشعر اليوم؟');
@@ -244,21 +248,21 @@ abstract class SettingsStrings {
   static String get feelingAnxiousLabel => _t('Anxious', 'قلق');
   static String get relax => _t('Relax', 'الاسترخاء');
   static String get musicSubtitle => _t(
-    'Listen from your last mood or choose a new one',
-    'استمع حسب آخر مزاج محفوظ أو اختر حالة جديدة',
-  );
+        'Listen from your last mood or choose a new one',
+        'استمع حسب آخر مزاج محفوظ أو اختر حالة جديدة',
+      );
   static String get recommendedForYou => _t('Recommended for you', 'مقترح لك');
   static String get continueFromLastMood =>
       _t('Continue from last mood', 'الاستمرار من آخر حالة شعورية');
   static String get chooseMoodHint => _t(
-    'Choose a feeling or keep the last one',
-    'اختر شعورًا أو ابقَ على آخر اختيار',
-  );
+        'Choose a feeling or keep the last one',
+        'اختر شعورًا أو ابقَ على آخر اختيار',
+      );
   static String get breathingTitle => _t('Breathing', 'تمارين التنفس');
   static String get breathingSubtitle => _t(
-    'Medical breathing exercises for calm and regulation',
-    'تمارين تنفس علاجية للتهدئة وتنظيم الجسم',
-  );
+        'Medical breathing exercises for calm and regulation',
+        'تمارين تنفس علاجية للتهدئة وتنظيم الجسم',
+      );
   static String get startExercise => _t('Start exercise', 'ابدأ التمرين');
   static String get pauseExercise => _t('Pause', 'إيقاف مؤقت');
   static String get resumeExercise => _t('Resume', 'متابعة');
@@ -300,47 +304,47 @@ abstract class SettingsStrings {
 
   // Breathing Exercise Descriptions
   static String get boxBreathingDesc => _t(
-    'Used in stress control and focus training.',
-    'يُستخدم في التحكم في التوتر والتدريب على التركيز.',
-  );
+        'Used in stress control and focus training.',
+        'يُستخدم في التحكم في التوتر والتدريب على التركيز.',
+      );
   static String get fourSevenEightDesc => _t(
-    'Common relaxation technique used for anxiety and sleep.',
-    'تقنية استرخاء شائعة تُستخدم للقلق والنوم.',
-  );
+        'Common relaxation technique used for anxiety and sleep.',
+        'تقنية استرخاء شائعة تُستخدم للقلق والنوم.',
+      );
   static String get diaphragmaticDesc => _t(
-    'Slow belly breathing to support body relaxation.',
-    'تنفس بطيء من البطن لدعم استرخاء الجسم.',
-  );
+        'Slow belly breathing to support body relaxation.',
+        'تنفس بطيء من البطن لدعم استرخاء الجسم.',
+      );
   static String get pacedBreathingDesc => _t(
-    'Even breathing rhythm used for heart-rate regulation.',
-    'إيقاع تنفسي منتظم يُستخدم لتنظيم نبضات القلب.',
-  );
+        'Even breathing rhythm used for heart-rate regulation.',
+        'إيقاع تنفسي منتظم يُستخدم لتنظيم نبضات القلب.',
+      );
   static String get resonanceDesc => _t(
-    'Slow therapeutic breathing around six breaths per minute.',
-    'تنفس علاجي بطيء حوالي ستة أنفاس في الدقيقة.',
-  );
+        'Slow therapeutic breathing around six breaths per minute.',
+        'تنفس علاجي بطيء حوالي ستة أنفاس في الدقيقة.',
+      );
 
   // Breathing Exercise Recommended For
   static String get boxBreathingFor => _t(
-    'Stress, focus, and emotional reset',
-    'التوتر والتركيز وإعادة تعيين الحالة الانفعالية',
-  );
+        'Stress, focus, and emotional reset',
+        'التوتر والتركيز وإعادة تعيين الحالة الانفعالية',
+      );
   static String get fourSevenEightFor => _t(
-    'Anxiety, insomnia, and pre-sleep calming',
-    'القلق والأرق والهدوء قبل النوم',
-  );
+        'Anxiety, insomnia, and pre-sleep calming',
+        'القلق والأرق والهدوء قبل النوم',
+      );
   static String get diaphragmaticFor => _t(
-    'Panic sensitivity, stress, and body tension',
-    'حساسية الذعر والتوتر وشد الجسم',
-  );
+        'Panic sensitivity, stress, and body tension',
+        'حساسية الذعر والتوتر وشد الجسم',
+      );
   static String get pacedBreathingFor => _t(
-    'Daily regulation and calming the nervous system',
-    'التنظيم اليومي وتهدئة الجهاز العصبي',
-  );
+        'Daily regulation and calming the nervous system',
+        'التنظيم اليومي وتهدئة الجهاز العصبي',
+      );
   static String get resonanceFor => _t(
-    'HRV training and long-term stress regulation',
-    'تدريب تقلب معدل ضربات القلب وتنظيم التوتر طويل الأجل',
-  );
+        'HRV training and long-term stress regulation',
+        'تدريب تقلب معدل ضربات القلب وتنظيم التوتر طويل الأجل',
+      );
 
   // Breathing Exercise Steps
   static String get boxBreathingStep1 =>
@@ -360,15 +364,15 @@ abstract class SettingsStrings {
       _t('Exhale for 8 seconds', 'أطلق النفس لمدة 8 ثواني');
 
   static String get diaphragmaticStep1 => _t(
-    'Place one hand on chest and one on belly',
-    'ضع يدًا على الصدر وأخرى على البطن',
-  );
+        'Place one hand on chest and one on belly',
+        'ضع يدًا على الصدر وأخرى على البطن',
+      );
   static String get diaphragmaticStep2 =>
       _t('Breathe in slowly through the nose', 'خذ نفسًا بطيئًا من الأنف');
   static String get diaphragmaticStep3 => _t(
-    'Let the belly rise more than the chest',
-    'دع البطن ترتفع أكثر من الصدر',
-  );
+        'Let the belly rise more than the chest',
+        'دع البطن ترتفع أكثر من الصدر',
+      );
   static String get diaphragmaticStep4 =>
       _t('Exhale gently through the mouth', 'أطلق النفس برفق من الفم');
 
@@ -386,18 +390,18 @@ abstract class SettingsStrings {
   static String get resonanceStep1 =>
       _t('Inhale slowly through the nose', 'استنشق ببطء من الأنف');
   static String get resonanceStep2 => _t(
-    'Exhale longer and softer than the inhale',
-    'أطلق النفس أطول وأنعم من الاستنشاق',
-  );
+        'Exhale longer and softer than the inhale',
+        'أطلق النفس أطول وأنعم من الاستنشاق',
+      );
   static String get resonanceStep3 =>
       _t('Stay relaxed and steady', 'ابقَ متسترخيًا ومستقرًا');
 
   static String get takeAssismentTitle =>
       _t('Not sure where to start?', 'لست متأكدًا من أين تبدأ؟');
   static String get takeAssismentDescription => _t(
-    'Take a short mental health Assisment so we can understand your state and suggest the best doctors for you',
-    'أكمل تقييمًا قصيرًا للصحة النفسية حتى نفهم حالتك ونقترح أفضل الأطباء لك',
-  );
+        'Take a short mental health Assisment so we can understand your state and suggest the best doctors for you',
+        'أكمل تقييمًا قصيرًا للصحة النفسية حتى نفهم حالتك ونقترح أفضل الأطباء لك',
+      );
   static String get takeAssismentButton =>
       _t('Take an Assisment', 'ابدأ التقييم');
   static String get todayLabel => _t('Today', 'اليوم');
@@ -408,23 +412,23 @@ abstract class SettingsStrings {
   static String get articleAnxietyAndStressTitle =>
       _t('Understanding Anxiety and Stress', 'فهم القلق والتوتر');
   static String get articleDepressionTitle => _t(
-    'Depression: Symptoms and Treatment Options',
-    'الاكتئاب: الأعراض وخيارات العلاج',
-  );
+        'Depression: Symptoms and Treatment Options',
+        'الاكتئاب: الأعراض وخيارات العلاج',
+      );
   static String get articleBetterSleepTitle => _t(
-    'Better Sleep: Evidence-Based Habits',
-    'نوم أفضل: عادات مبنية على الأدلة',
-  );
+        'Better Sleep: Evidence-Based Habits',
+        'نوم أفضل: عادات مبنية على الأدلة',
+      );
   static String get articleChildMentalHealthTitle => _t(
-    'Child Mental Health: Early Signs and Support',
-    'صحة الطفل النفسية: العلامات المبكرة والدعم',
-  );
+        'Child Mental Health: Early Signs and Support',
+        'صحة الطفل النفسية: العلامات المبكرة والدعم',
+      );
   static String get articleMindfulnessTitle =>
       _t('Mindfulness and Guided Breathing', 'اليقظة الذهنية والتنفس الموجه');
   static String get articleHealthyRelationshipsTitle => _t(
-    'Healthy Relationships and Self-Worth',
-    'العلاقات الصحية وتقدير الذات',
-  );
+        'Healthy Relationships and Self-Worth',
+        'العلاقات الصحية وتقدير الذات',
+      );
   static String get articlesLabel => _t('Articles', 'المقالات');
   static String get readMore => _t('Read more', 'اقرأ المزيد');
   static String get readLess => _t('Read less', 'اقرأ أقل');
@@ -435,20 +439,20 @@ abstract class SettingsStrings {
       _t('$count Dislikes', '$count عدم إعجاب');
   static String get yearsLabel => _t('Years', 'سنوات');
   static String experienceYearsLabel(String experience) => _t(
-    experience,
-    experience.replaceAll('years', 'سنوات').replaceAll('year', 'سنة'),
-  );
+        experience,
+        experience.replaceAll('years', 'سنوات').replaceAll('year', 'سنة'),
+      );
   static String get medicalSpecialtiesLabel =>
       _t('Medical Specialties', 'التخصصات الطبية');
   static String get noArticlesAvailableForThisDoctorYet => _t(
-    'No articles available for this doctor yet.',
-    'لا توجد مقالات متاحة لهذا الطبيب بعد.',
-  );
+        'No articles available for this doctor yet.',
+        'لا توجد مقالات متاحة لهذا الطبيب بعد.',
+      );
   static String specialtyLabel(String specialty) {
     final normalized = specialty.trim().toLowerCase().replaceAll(
-      RegExp(r'[^a-z0-9]+'),
-      '',
-    );
+          RegExp(r'[^a-z0-9]+'),
+          '',
+        );
     switch (normalized) {
       case 'psychiatrist':
         return _t('Psychiatrist', 'طبيب نفسي');
@@ -502,9 +506,9 @@ abstract class SettingsStrings {
   static String get suggestedSpecialistTitle =>
       _t('Suggested specialist', 'المتخصص المقترح');
   static String get noSuggestedSpecialistsFoundYet => _t(
-    'No suggested specialists found yet.',
-    'لم يتم العثور على متخصصين مقترحين بعد.',
-  );
+        'No suggested specialists found yet.',
+        'لم يتم العثور على متخصصين مقترحين بعد.',
+      );
   static String get homeLabel => _t('Home', 'الرئيسية');
   static String get specialistsLabel => _t('Specialists', 'المتخصصون');
   static String get retakeAssessment =>
@@ -512,9 +516,9 @@ abstract class SettingsStrings {
   static String get lastAssessmentResultTitle =>
       _t('Last Assessment Result', 'نتيجة آخر اختبار');
   static String get lastAssessmentResultSubtitle => _t(
-    'Here are your scores from your most recent assessment.',
-    'هذه هي نتائجك من آخر تقييم أجريته.',
-  );
+        'Here are your scores from your most recent assessment.',
+        'هذه هي نتائجك من آخر تقييم أجريته.',
+      );
   static String get severitySevere => _t('Severe', 'شديد');
   static String get severityModerate => _t('Moderate', 'معتدل');
   static String get severityMild => _t('Mild', 'خفيف');
@@ -537,25 +541,25 @@ abstract class SettingsStrings {
       _t('Available from database', 'متاح من قاعدة البيانات');
   static String get sessionAvailableLabel => _t('Available', 'متاح');
   static String bookingFeePerSession(double amount) => _t(
-    '\$${amount.toStringAsFixed(2)} per session',
-    '\$${amount.toStringAsFixed(2)} لكل جلسة',
-  );
+        '\$${amount.toStringAsFixed(2)} per session',
+        '\$${amount.toStringAsFixed(2)} لكل جلسة',
+      );
   static String get noAvailableTimesForThisDate => _t(
-    'No available times for this date.',
-    'لا توجد أوقات متاحة لهذا التاريخ.',
-  );
+        'No available times for this date.',
+        'لا توجد أوقات متاحة لهذا التاريخ.',
+      );
   static String get noAvailableScheduleLoadedYet => _t(
-    'This doctor has no available schedule loaded from the database yet.',
-    'لم يتم تحميل أي جدول متاح لهذا الطبيب من قاعدة البيانات بعد.',
-  );
+        'This doctor has no available schedule loaded from the database yet.',
+        'لم يتم تحميل أي جدول متاح لهذا الطبيب من قاعدة البيانات بعد.',
+      );
   static String get definedByProviderAvailability =>
       _t('Defined by provider availability', 'يتم تحديده حسب توفر المزود');
   static String minutesLabel(int minutes) =>
       _t('$minutes $minuteAbbreviation', '$minutes $minuteAbbreviation');
   static String get noInternetConnectionPleaseReconnectAndTryAgain => _t(
-    'No internet connection. Please reconnect and try again.',
-    'لا يوجد اتصال بالإنترنت. يرجى إعادة الاتصال والمحاولة مرة أخرى.',
-  );
+        'No internet connection. Please reconnect and try again.',
+        'لا يوجد اتصال بالإنترنت. يرجى إعادة الاتصال والمحاولة مرة أخرى.',
+      );
   static String get retry => _t('Retry', 'إعادة المحاولة');
   static String get noUpcomingAppointments =>
       _t('No upcoming appointments.', 'لا توجد مواعيد قادمة.');
@@ -563,9 +567,9 @@ abstract class SettingsStrings {
       _t('No past appointments.', 'لا توجد مواعيد سابقة.');
   static String get specialistLabelInAppointment => _t('Specialist', 'المتخصص');
   static String durationMinutesLabel(int minutes) => _t(
-    'Duration: $minutes $minuteAbbreviation',
-    'المدة: $minutes $minuteAbbreviation',
-  );
+        'Duration: $minutes $minuteAbbreviation',
+        'المدة: $minutes $minuteAbbreviation',
+      );
   static String get selectLanguageTitle => _t('Select language', 'اختر اللغة');
   static String get cancel => _t('Cancel', 'إلغاء');
   static String get select => _t('Select', 'اختيار');
@@ -606,21 +610,21 @@ abstract class SettingsStrings {
   static String get prescriptionDocument => _t('Prescription', 'وصفة');
   static String get sessionReportDocument => _t('Session Report', 'تقرير جلسة');
   static String get sharedWithPharmacistSuccess => _t(
-    'Prescription image shared successfully.',
-    'تمت مشاركة صورة الوصفة بنجاح.',
-  );
+        'Prescription image shared successfully.',
+        'تمت مشاركة صورة الوصفة بنجاح.',
+      );
   static String get imageDownloadedSuccess => _t(
-    'Prescription image downloaded successfully.',
-    'تم تنزيل صورة الوصفة بنجاح.',
-  );
+        'Prescription image downloaded successfully.',
+        'تم تنزيل صورة الوصفة بنجاح.',
+      );
   static String get imageOperationFailed => _t(
-    'Could not complete image operation. Please try again.',
-    'تعذر إكمال عملية الصورة. يرجى المحاولة مرة أخرى.',
-  );
+        'Could not complete image operation. Please try again.',
+        'تعذر إكمال عملية الصورة. يرجى المحاولة مرة أخرى.',
+      );
   static String get noImageToShare => _t(
-    'No image attached to this prescription yet.',
-    'لا توجد صورة مرفقة بهذه الوصفة بعد.',
-  );
+        'No image attached to this prescription yet.',
+        'لا توجد صورة مرفقة بهذه الوصفة بعد.',
+      );
   static String get totalLabel => _t('Total:', 'الإجمالي:');
   static String get activeMedicinesLabel =>
       _t('Active medicines:', 'الأدوية النشطة:');
@@ -666,13 +670,13 @@ abstract class SettingsStrings {
   static String get profileUpdatedSuccess =>
       _t('Profile updated successfully.', 'تم تحديث الملف الشخصي بنجاح.');
   static String get emailVerificationRequired => _t(
-    'Verify the new email before saving it.',
-    'تحقق من البريد الجديد قبل الحفظ.',
-  );
+        'Verify the new email before saving it.',
+        'تحقق من البريد الجديد قبل الحفظ.',
+      );
   static String get updateProfileHint => _t(
-    'Edit the profile fields below. Email changes will be verified by OTP.',
-    'قم بتعديل بيانات الملف أدناه. سيتم التحقق من تغيير البريد عبر رمز OTP.',
-  );
+        'Edit the profile fields below. Email changes will be verified by OTP.',
+        'قم بتعديل بيانات الملف أدناه. سيتم التحقق من تغيير البريد عبر رمز OTP.',
+      );
   static String get verificationCodeSent =>
       _t('Verification code sent.', 'تم إرسال رمز التحقق.');
   static String get emailUpdatedSuccess =>
@@ -683,9 +687,9 @@ abstract class SettingsStrings {
   static String get verify => _t('Verify', 'تحقق');
 
   static String get changePasswordDescription => _t(
-    'Change your password to keep your account secure.',
-    'غيّر كلمة المرور للحفاظ على أمان حسابك.',
-  );
+        'Change your password to keep your account secure.',
+        'غيّر كلمة المرور للحفاظ على أمان حسابك.',
+      );
   static String get oldPasswordLabel =>
       _t('Old Password', 'كلمة المرور القديمة');
   static String get oldPasswordHint =>
@@ -699,9 +703,9 @@ abstract class SettingsStrings {
   static String get newPasswordRequired =>
       _t('New password is required', 'كلمة المرور الجديدة مطلوبة');
   static String get passwordAtLeastSixChars => _t(
-    'Password must be at least 6 characters',
-    'يجب أن تتكون كلمة المرور من 6 أحرف على الأقل',
-  );
+        'Password must be at least 6 characters',
+        'يجب أن تتكون كلمة المرور من 6 أحرف على الأقل',
+      );
   static String get confirmPasswordLabel =>
       _t('Confirm Password', 'تأكيد كلمة المرور');
   static String get confirmPasswordHint =>
@@ -717,30 +721,30 @@ abstract class SettingsStrings {
   static String get verifyOldEmailTitle =>
       _t('Verify Current Email', 'تحقق من البريد الحالي');
   static String get verifyOldEmailDesc => _t(
-    'We will send a verification code to your current email address.',
-    'سنرسل رمز تحقق إلى عنوان بريدك الإلكتروني الحالي.',
-  );
+        'We will send a verification code to your current email address.',
+        'سنرسل رمز تحقق إلى عنوان بريدك الإلكتروني الحالي.',
+      );
   static String get newEmailVerificationDesc => _t(
-    'A verification code will be sent to your new email address.',
-    'سيتم إرسال رمز تحقق إلى عنوان بريدك الإلكتروني الجديد.',
-  );
+        'A verification code will be sent to your new email address.',
+        'سيتم إرسال رمز تحقق إلى عنوان بريدك الإلكتروني الجديد.',
+      );
   static String get deleteAccountWarning => _t(
-    'Are you sure you want to delete your account? This action cannot be undone.',
-    'هل أنت متأكد من حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء.',
-  );
+        'Are you sure you want to delete your account? This action cannot be undone.',
+        'هل أنت متأكد من حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء.',
+      );
   static String get deleteAccountConfirm => _t(
-    'Type "DELETE" to confirm account deletion.',
-    'اكتب "DELETE" لتأكيد حذف الحساب.',
-  );
+        'Type "DELETE" to confirm account deletion.',
+        'اكتب "DELETE" لتأكيد حذف الحساب.',
+      );
   static String get deleteConfirmationText => 'DELETE';
   static String get accountDeletedSuccess =>
       _t('Your account has been deleted successfully.', 'تم حذف حسابك بنجاح.');
   static String get forgotPasswordTitle =>
       _t('Reset Password', 'إعادة تعيين كلمة المرور');
   static String get forgotPasswordDesc => _t(
-    'Enter your email address and we will send you a code to reset your password.',
-    'أدخل بريدك الإلكتروني وسنرسل لك رمزا لإعادة تعيين كلمة المرور.',
-  );
+        'Enter your email address and we will send you a code to reset your password.',
+        'أدخل بريدك الإلكتروني وسنرسل لك رمزا لإعادة تعيين كلمة المرور.',
+      );
   static String get sendCode => _t('Send Code', 'إرسال الرمز');
   static String get resetPassword =>
       _t('Reset Password', 'إعادة تعيين كلمة المرور');
@@ -754,30 +758,30 @@ abstract class SettingsStrings {
   static String get cookiePolicyTitle =>
       _t('Cookie Policy', 'سياسة ملفات الارتباط');
   static String get privacyPolicyBody => _t(
-    'We are committed to protecting your privacy and ensuring you have a positive experience on our platform. This privacy policy explains how we collect, use, and protect your personal information.\n\nData Collection:\n• We collect information you provide directly, such as your name, email, and medical history.\n• We automatically collect certain information about your device and usage patterns.\n\nData Usage:\n• Your information is used to provide and improve our services.\n• We use your data to communicate with you about appointments and updates.\n• We may use aggregated data for research and analytics.\n\nData Protection:\n• We implement industry-standard security measures to protect your data.\n• Your data is encrypted both in transit and at rest.\n• We comply with all relevant data protection regulations.\n\nThird-Party Sharing:\n• We do not sell your personal information to third parties.\n• We only share your information with healthcare providers as needed for your care.\n• Third parties are bound by confidentiality agreements.',
-    'نحن ملتزمون بحماية خصوصيتك وضمان حصولك على تجربة إيجابية على منصتنا. توضح سياسة الخصوصية هذه كيفية جمع معلوماتك الشخصية واستخدامها وحمايتها.\n\nجمع البيانات:\n• نجمع المعلومات التي تقدمها مباشرة، مثل اسمك وبريدك الإلكتروني وتاريخك الطبي.\n• نجمع تلقائيًا بعض المعلومات حول جهازك وأنماط الاستخدام.\n\nاستخدام البيانات:\n• تُستخدم معلوماتك لتقديم خدماتنا وتحسينها.\n• نستخدم بياناتك للتواصل معك بشأن المواعيد والتحديثات.\n• قد نستخدم البيانات المجمعة للبحث والتحليلات.\n\nحماية البيانات:\n• نطبق إجراءات أمان معيارية لحماية بياناتك.\n• يتم تشفير بياناتك أثناء النقل وعند التخزين.\n• نلتزم بجميع لوائح حماية البيانات ذات الصلة.\n\nالمشاركة مع أطراف ثالثة:\n• نحن لا نبيع معلوماتك الشخصية لأطراف ثالثة.\n• نشارك معلوماتك فقط مع مقدمي الرعاية الصحية عند الحاجة إلى ذلك من أجل رعايتك.\n• تلتزم الأطراف الثالثة باتفاقيات السرية.',
-  );
+        'We are committed to protecting your privacy and ensuring you have a positive experience on our platform. This privacy policy explains how we collect, use, and protect your personal information.\n\nData Collection:\n• We collect information you provide directly, such as your name, email, and medical history.\n• We automatically collect certain information about your device and usage patterns.\n\nData Usage:\n• Your information is used to provide and improve our services.\n• We use your data to communicate with you about appointments and updates.\n• We may use aggregated data for research and analytics.\n\nData Protection:\n• We implement industry-standard security measures to protect your data.\n• Your data is encrypted both in transit and at rest.\n• We comply with all relevant data protection regulations.\n\nThird-Party Sharing:\n• We do not sell your personal information to third parties.\n• We only share your information with healthcare providers as needed for your care.\n• Third parties are bound by confidentiality agreements.',
+        'نحن ملتزمون بحماية خصوصيتك وضمان حصولك على تجربة إيجابية على منصتنا. توضح سياسة الخصوصية هذه كيفية جمع معلوماتك الشخصية واستخدامها وحمايتها.\n\nجمع البيانات:\n• نجمع المعلومات التي تقدمها مباشرة، مثل اسمك وبريدك الإلكتروني وتاريخك الطبي.\n• نجمع تلقائيًا بعض المعلومات حول جهازك وأنماط الاستخدام.\n\nاستخدام البيانات:\n• تُستخدم معلوماتك لتقديم خدماتنا وتحسينها.\n• نستخدم بياناتك للتواصل معك بشأن المواعيد والتحديثات.\n• قد نستخدم البيانات المجمعة للبحث والتحليلات.\n\nحماية البيانات:\n• نطبق إجراءات أمان معيارية لحماية بياناتك.\n• يتم تشفير بياناتك أثناء النقل وعند التخزين.\n• نلتزم بجميع لوائح حماية البيانات ذات الصلة.\n\nالمشاركة مع أطراف ثالثة:\n• نحن لا نبيع معلوماتك الشخصية لأطراف ثالثة.\n• نشارك معلوماتك فقط مع مقدمي الرعاية الصحية عند الحاجة إلى ذلك من أجل رعايتك.\n• تلتزم الأطراف الثالثة باتفاقيات السرية.',
+      );
   static String get termsBody => _t(
-    'By using our platform, you agree to these terms and conditions. Please read them carefully.\n\nAcceptable Use:\n• You must be at least 18 years old or have parental consent.\n• You agree not to use the platform for illegal activities.\n• You must provide accurate and truthful information.\n\nUser Responsibilities:\n• You are responsible for maintaining your account security.\n• You must not share your login credentials with others.\n• You agree to use the platform only for legitimate healthcare purposes.\n\nPlatform Limitations:\n• Our platform is not a substitute for emergency medical care.\n• In case of emergency, please contact local emergency services.\n• We are not liable for interruptions or unavailability of service.\n\nIntellectual Property:\n• All content on our platform is protected by copyright.\n• You may not reproduce, distribute, or transmit any content without permission.\n\nDisclaimer:\n• We provide medical information for educational purposes only.\n• Consult with healthcare professionals before making medical decisions.\n• We are not liable for any health outcomes resulting from the use of our platform.',
-    'باستخدامك لمنصتنا، فإنك توافق على هذه الشروط والأحكام. يرجى قراءتها بعناية.\n\nالاستخدام المقبول:\n• يجب أن يكون عمرك 18 عامًا على الأقل أو لديك موافقة ولي الأمر.\n• توافق على عدم استخدام المنصة في أنشطة غير قانونية.\n• يجب أن تقدم معلومات دقيقة وصحيحة.\n\nمسؤوليات المستخدم:\n• أنت مسؤول عن الحفاظ على أمان حسابك.\n• يجب ألا تشارك بيانات تسجيل الدخول مع الآخرين.\n• توافق على استخدام المنصة فقط لأغراض الرعاية الصحية المشروعة.\n\nقيود المنصة:\n• منصتنا ليست بديلاً عن الرعاية الطبية الطارئة.\n• في حالة الطوارئ، يرجى الاتصال بخدمات الطوارئ المحلية.\n• نحن غير مسؤولين عن الانقطاعات أو عدم توفر الخدمة.\n\nالملكية الفكرية:\n• جميع المحتويات على منصتنا محمية بحقوق النشر.\n• لا يجوز لك إعادة إنتاج أي محتوى أو توزيعه أو نقله دون إذن.\n\nإخلاء المسؤولية:\n• نقدم معلومات طبية لأغراض تعليمية فقط.\n• استشر المختصين قبل اتخاذ أي قرارات طبية.\n• نحن غير مسؤولين عن أي نتائج صحية ناتجة عن استخدام منصتنا.',
-  );
+        'By using our platform, you agree to these terms and conditions. Please read them carefully.\n\nAcceptable Use:\n• You must be at least 18 years old or have parental consent.\n• You agree not to use the platform for illegal activities.\n• You must provide accurate and truthful information.\n\nUser Responsibilities:\n• You are responsible for maintaining your account security.\n• You must not share your login credentials with others.\n• You agree to use the platform only for legitimate healthcare purposes.\n\nPlatform Limitations:\n• Our platform is not a substitute for emergency medical care.\n• In case of emergency, please contact local emergency services.\n• We are not liable for interruptions or unavailability of service.\n\nIntellectual Property:\n• All content on our platform is protected by copyright.\n• You may not reproduce, distribute, or transmit any content without permission.\n\nDisclaimer:\n• We provide medical information for educational purposes only.\n• Consult with healthcare professionals before making medical decisions.\n• We are not liable for any health outcomes resulting from the use of our platform.',
+        'باستخدامك لمنصتنا، فإنك توافق على هذه الشروط والأحكام. يرجى قراءتها بعناية.\n\nالاستخدام المقبول:\n• يجب أن يكون عمرك 18 عامًا على الأقل أو لديك موافقة ولي الأمر.\n• توافق على عدم استخدام المنصة في أنشطة غير قانونية.\n• يجب أن تقدم معلومات دقيقة وصحيحة.\n\nمسؤوليات المستخدم:\n• أنت مسؤول عن الحفاظ على أمان حسابك.\n• يجب ألا تشارك بيانات تسجيل الدخول مع الآخرين.\n• توافق على استخدام المنصة فقط لأغراض الرعاية الصحية المشروعة.\n\nقيود المنصة:\n• منصتنا ليست بديلاً عن الرعاية الطبية الطارئة.\n• في حالة الطوارئ، يرجى الاتصال بخدمات الطوارئ المحلية.\n• نحن غير مسؤولين عن الانقطاعات أو عدم توفر الخدمة.\n\nالملكية الفكرية:\n• جميع المحتويات على منصتنا محمية بحقوق النشر.\n• لا يجوز لك إعادة إنتاج أي محتوى أو توزيعه أو نقله دون إذن.\n\nإخلاء المسؤولية:\n• نقدم معلومات طبية لأغراض تعليمية فقط.\n• استشر المختصين قبل اتخاذ أي قرارات طبية.\n• نحن غير مسؤولين عن أي نتائج صحية ناتجة عن استخدام منصتنا.',
+      );
   static String get cookieBody => _t(
-    'We use cookies to enhance your experience on our platform.\n\nTypes of Cookies:\n• Essential cookies are necessary for the platform to function.\n• Analytical cookies help us understand how you use our platform.\n• Preference cookies remember your settings and preferences.\n\nCookie Management:\n• You can control cookies through your browser settings.\n• Disabling cookies may affect platform functionality.',
-    'نستخدم ملفات تعريف الارتباط لتحسين تجربتك على منصتنا.\n\nأنواع ملفات الارتباط:\n• ملفات الارتباط الأساسية ضرورية لعمل المنصة.\n• تساعدنا ملفات الارتباط التحليلية على فهم كيفية استخدامك للمنصة.\n• تتذكر ملفات الارتباط التفضيلية إعداداتك وتفضيلاتك.\n\nإدارة ملفات الارتباط:\n• يمكنك التحكم في ملفات الارتباط من خلال إعدادات المتصفح.\n• قد يؤدي تعطيل ملفات الارتباط إلى التأثير على وظائف المنصة.',
-  );
+        'We use cookies to enhance your experience on our platform.\n\nTypes of Cookies:\n• Essential cookies are necessary for the platform to function.\n• Analytical cookies help us understand how you use our platform.\n• Preference cookies remember your settings and preferences.\n\nCookie Management:\n• You can control cookies through your browser settings.\n• Disabling cookies may affect platform functionality.',
+        'نستخدم ملفات تعريف الارتباط لتحسين تجربتك على منصتنا.\n\nأنواع ملفات الارتباط:\n• ملفات الارتباط الأساسية ضرورية لعمل المنصة.\n• تساعدنا ملفات الارتباط التحليلية على فهم كيفية استخدامك للمنصة.\n• تتذكر ملفات الارتباط التفضيلية إعداداتك وتفضيلاتك.\n\nإدارة ملفات الارتباط:\n• يمكنك التحكم في ملفات الارتباط من خلال إعدادات المتصفح.\n• قد يؤدي تعطيل ملفات الارتباط إلى التأثير على وظائف المنصة.',
+      );
   static String get privacyLastUpdated =>
       _t('Last updated: April 2026', 'آخر تحديث: أبريل 2026');
   static String get privacyContactHint => _t(
-    'For questions about our privacy practices or terms, please contact us.',
-    'للأسئلة حول ممارسات الخصوصية أو الشروط، يرجى التواصل معنا.',
-  );
+        'For questions about our privacy practices or terms, please contact us.',
+        'للأسئلة حول ممارسات الخصوصية أو الشروط، يرجى التواصل معنا.',
+      );
 
   static String get contactScreenTitle => _t('Contact Us', 'اتصل بنا');
   static String get getInTouchTitle => _t('Get in Touch', 'ابق على تواصل');
   static String get getInTouchSubtitle => _t(
-    'We\'d love to hear from you. Send us a message and we\'ll respond as soon as possible.',
-    'يسعدنا سماعك. أرسل لنا رسالة وسنرد عليك بأسرع وقت.',
-  );
+        'We\'d love to hear from you. Send us a message and we\'ll respond as soon as possible.',
+        'يسعدنا سماعك. أرسل لنا رسالة وسنرد عليك بأسرع وقت.',
+      );
   static String get sendMessageSectionTitle =>
       _t('Send us a Message', 'أرسل لنا رسالة');
   static String get sendMessageButton => _t('Send Message', 'إرسال الرسالة');
@@ -800,9 +804,9 @@ abstract class SettingsStrings {
   static String get invalidEmailError =>
       _t('Please enter a valid email address', 'يرجى إدخال بريد إلكتروني صالح');
   static String get invalidPhoneNumber => _t(
-    'Phone number must be at least 9 digits',
-    'يجب أن يكون رقم الهاتف 9 أرقام على الأقل',
-  );
+        'Phone number must be at least 9 digits',
+        'يجب أن يكون رقم الهاتف 9 أرقام على الأقل',
+      );
   static String get phoneNumberTitle => _t('Phone Number', 'رقم الهاتف');
   static String get messageSentSuccess =>
       _t('Message sent successfully!', 'تم إرسال الرسالة بنجاح!');
@@ -825,29 +829,29 @@ abstract class SettingsStrings {
 
   static String get assessmentTitle => _t('Assessment', 'التقييم');
   static String get assessmentPrompt => _t(
-    'Select the option that best represents your current state of mind.',
-    'اختر الخيار الذي يصف حالتك الحالية بشكل أفضل.',
-  );
+        'Select the option that best represents your current state of mind.',
+        'اختر الخيار الذي يصف حالتك الحالية بشكل أفضل.',
+      );
   static String get assessmentNoQuestionsAvailable => _t(
-    'No assessment questions are available right now.',
-    'لا توجد أسئلة متاحة للتقييم حاليًا.',
-  );
+        'No assessment questions are available right now.',
+        'لا توجد أسئلة متاحة للتقييم حاليًا.',
+      );
   static String get backButton => _t('Back', 'رجوع');
   static String get continueButton => _t('Continue', 'متابعة');
   static String get submitButton => _t('Submit', 'إرسال');
   static String get retryButton => _t('Retry', 'إعادة المحاولة');
   static String get chooseAnswerBeforeContinuing => _t(
-    'Please choose an answer before continuing.',
-    'يرجى اختيار إجابة قبل المتابعة.',
-  );
+        'Please choose an answer before continuing.',
+        'يرجى اختيار إجابة قبل المتابعة.',
+      );
   static String get answerAllQuestionsBeforeSubmitting => _t(
-    'Please answer all questions before submitting.',
-    'يرجى الإجابة عن جميع الأسئلة قبل الإرسال.',
-  );
+        'Please answer all questions before submitting.',
+        'يرجى الإجابة عن جميع الأسئلة قبل الإرسال.',
+      );
   static String get assismentRecommendedSpecialistSummary => _t(
-    'Based on your answers, we recommend speaking with a specialist that matches your current mental health state.',
-    'بناءً على إجاباتك، نوصي بالتحدث مع متخصص يناسب حالتك النفسية الحالية.',
-  );
+        'Based on your answers, we recommend speaking with a specialist that matches your current mental health state.',
+        'بناءً على إجاباتك، نوصي بالتحدث مع متخصص يناسب حالتك النفسية الحالية.',
+      );
 
   static String assismentSeverityLabel(String severity) {
     final normalized = severity.trim().toLowerCase();
@@ -943,37 +947,37 @@ abstract class SettingsStrings {
   static String get verifyYourNewEmail =>
       _t('Verify your new email', 'تحقق من بريدك الإلكتروني الجديد');
   static String verificationCodeSentTo(String email) => _t(
-    'We sent a verification code to:\n$email',
-    'أرسلنا رمز التحقق إلى:\n$email',
-  );
+        'We sent a verification code to:\n$email',
+        'أرسلنا رمز التحقق إلى:\n$email',
+      );
   static String get otpSentToNewEmail => _t(
-    'OTP sent to your new email address.',
-    'تم إرسال رمز التحقق إلى بريدك الإلكتروني الجديد.',
-  );
+        'OTP sent to your new email address.',
+        'تم إرسال رمز التحقق إلى بريدك الإلكتروني الجديد.',
+      );
   static String get otpResentToEmail => _t(
-    'OTP resent to your email.',
-    'تمت إعادة إرسال رمز التحقق إلى بريدك الإلكتروني.',
-  );
+        'OTP resent to your email.',
+        'تمت إعادة إرسال رمز التحقق إلى بريدك الإلكتروني.',
+      );
   static String get invalidFourDigitCode => _t(
-    'Please enter a valid 4-digit code.',
-    'يرجى إدخال رمز صحيح مكون من 4 أرقام.',
-  );
+        'Please enter a valid 4-digit code.',
+        'يرجى إدخال رمز صحيح مكون من 4 أرقام.',
+      );
   static String get incorrectOtpTryAgain => _t(
-    'Incorrect OTP. Please try again.',
-    'رمز التحقق غير صحيح. يرجى المحاولة مرة أخرى.',
-  );
+        'Incorrect OTP. Please try again.',
+        'رمز التحقق غير صحيح. يرجى المحاولة مرة أخرى.',
+      );
 
   static String get forgotEmailHint => _t('your@email.com', 'your@email.com');
   static String get sendResetLink =>
       _t('Send Reset Link', 'إرسال رابط إعادة التعيين');
   static String get resetInstructionsHint => _t(
-    'Check your email for password reset instructions.',
-    'تحقق من بريدك الإلكتروني للحصول على تعليمات إعادة تعيين كلمة المرور.',
-  );
+        'Check your email for password reset instructions.',
+        'تحقق من بريدك الإلكتروني للحصول على تعليمات إعادة تعيين كلمة المرور.',
+      );
   static String get passwordResetLinkSent => _t(
-    'Password reset link sent to your email.',
-    'تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.',
-  );
+        'Password reset link sent to your email.',
+        'تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.',
+      );
 
   static String get deleteWhatWillBeDeleted =>
       _t('What will be deleted:', 'ما الذي سيتم حذفه:');
@@ -992,33 +996,33 @@ abstract class SettingsStrings {
   static String get pleaseEnterPassword =>
       _t('Please enter your password', 'يرجى إدخال كلمة المرور');
   static String get deleteIrreversibleConfirm => _t(
-    'This action cannot be undone. Are you absolutely sure?',
-    'لا يمكن التراجع عن هذا الإجراء. هل أنت متأكد تماما؟',
-  );
+        'This action cannot be undone. Are you absolutely sure?',
+        'لا يمكن التراجع عن هذا الإجراء. هل أنت متأكد تماما؟',
+      );
   static String get couldNotRetrieveUserEmail =>
       _t('Could not retrieve user email', 'تعذر الحصول على بريد المستخدم');
 
   static String get verifyAccountTitle =>
       _t('Verify your account', 'تحقق من حسابك');
   static String get verifyAccountDescription => _t(
-    'We have sent 4-digit code to your Email\nEnter the code below to verify your account.',
-    'لقد أرسلنا رمزًا مكونًا من 4 أرقام إلى بريدك الإلكتروني\nأدخل الرمز أدناه للتحقق من حسابك.',
-  );
+        'We have sent 4-digit code to your Email\nEnter the code below to verify your account.',
+        'لقد أرسلنا رمزًا مكونًا من 4 أرقام إلى بريدك الإلكتروني\nأدخل الرمز أدناه للتحقق من حسابك.',
+      );
   static String otpVerifiedWith(String pin) =>
       _t('OTP Verified: $pin', 'تم التحقق من الرمز: $pin');
   static String get codeResentToEmail => _t(
-    'Code resent to your email',
-    'تمت إعادة إرسال الرمز إلى بريدك الإلكتروني',
-  );
+        'Code resent to your email',
+        'تمت إعادة إرسال الرمز إلى بريدك الإلكتروني',
+      );
   static String get didntReceiveCodeResend =>
       _t('Didn\'t receive the code? Resend', 'لم تتلق الرمز؟ أعد الإرسال');
 
   static String get birthdateLabel => _t('Birthdate', 'تاريخ الميلاد');
   static String get next => _t('Next', 'التالي');
   static String get enterBirthdateAndGender => _t(
-    'Please enter your birthdate and gender.',
-    'يرجى إدخال تاريخ الميلاد والجنس.',
-  );
+        'Please enter your birthdate and gender.',
+        'يرجى إدخال تاريخ الميلاد والجنس.',
+      );
 
   static String get createYourAccount =>
       _t('Create your account', 'أنشئ حسابك');
@@ -1026,15 +1030,15 @@ abstract class SettingsStrings {
   static String get usernameLabel => _t('Username', 'اسم المستخدم');
   static String get nameRequired => _t('Name is required', 'الاسم مطلوب');
   static String get nameMinTwoChars => _t(
-    'Name must be at least 2 characters',
-    'الاسم يجب أن يكون على الأقل حرفين',
-  );
+        'Name must be at least 2 characters',
+        'الاسم يجب أن يكون على الأقل حرفين',
+      );
   static String get passwordRequired =>
       _t('Password is required', 'كلمة المرور مطلوبة');
   static String get passwordMinSixChars => _t(
-    'Password must be at least 6 characters',
-    'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
-  );
+        'Password must be at least 6 characters',
+        'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
+      );
   static String get login => _t('Login', 'تسجيل الدخول');
   static String get enterYourAccount => _t('Enter your account', 'أدخل حسابك');
   static String get emailLabel => _t('Email', 'البريد الإلكتروني');
@@ -1047,14 +1051,14 @@ abstract class SettingsStrings {
   static String get letsGetToKnowYou =>
       _t("Let's get to know you", 'دعنا نتعرف عليك');
   static String get personalizeExperienceHint => _t(
-    'The following information will help us to personalize your experience',
-    'ستساعدنا المعلومات التالية على تخصيص تجربتك',
-  );
+        'The following information will help us to personalize your experience',
+        'ستساعدنا المعلومات التالية على تخصيص تجربتك',
+      );
 
   static String get passwordChangePreparing => _t(
-    'Password change feature is being prepared. Please check back soon.',
-    'ميزة تغيير كلمة المرور قيد التجهيز. يرجى المحاولة لاحقا.',
-  );
+        'Password change feature is being prepared. Please check back soon.',
+        'ميزة تغيير كلمة المرور قيد التجهيز. يرجى المحاولة لاحقا.',
+      );
 
   static String errorWith(String message) =>
       _t('Error: $message', 'خطأ: $message');

@@ -1,4 +1,4 @@
-import 'package:afiete/core/constants/feeling_type.dart';
+import 'package:afiete/feature/music_and_breathing/domain/entities/music_entity.dart';
 import 'package:equatable/equatable.dart';
 
 class FeelingEntryEntity extends Equatable {

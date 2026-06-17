@@ -11,58 +11,46 @@ class ReportInitial extends ReportState {
   const ReportInitial();
 }
 
-// Submit Report States
-class ReportSubmitting extends ReportState {
-  const ReportSubmitting();
+// حالة تحميل لوحة التحكم بالبلاغات (الإعدادات + السجل السلوكي والتقني)
+class ReportsDashboardLoading extends ReportState {
+  const ReportsDashboardLoading();
 }
 
-class ReportSubmitted extends ReportState {
-  final ReportEntity report;
+class ReportsDashboardLoaded extends ReportState {
+  final ReportConfig config;
+  final List<AppReport> appReports;
+  final List<UserReport> userReports;
 
-  const ReportSubmitted(this.report);
+  const ReportsDashboardLoaded({
+    required this.config,
+    required this.appReports,
+    required this.userReports,
+  });
 
   @override
-  List<Object?> get props => [report];
+  List<Object?> get props => [config, appReports, userReports];
 }
 
-class ReportError extends ReportState {
+// حالات معالجة إرسال بلاغ جديد (سواء كان تطبيق أو يوزر)
+class ReportActionLoading extends ReportState {
+  const ReportActionLoading();
+}
+
+class ReportSubmitSuccess extends ReportState {
   final String message;
 
-  const ReportError(this.message);
+  const ReportSubmitSuccess(this.message);
 
   @override
   List<Object?> get props => [message];
 }
 
-// History States
-class ReportHistoryLoading extends ReportState {
-  const ReportHistoryLoading();
-}
+// حالة الأخطاء الموحدة (تشمل أخطاء السيرفر مثل غياب الجلسة المشتركة)
+class ReportsError extends ReportState {
+  final String message;
 
-class ReportHistoryLoaded extends ReportState {
-  final List<ReportEntity> reports;
-
-  const ReportHistoryLoaded(this.reports);
+  const ReportsError(this.message);
 
   @override
-  List<Object?> get props => [reports];
-}
-
-class ReportHistoryEmpty extends ReportState {
-  const ReportHistoryEmpty();
-}
-
-// Type-specific States
-class ReportsByTypeLoading extends ReportState {
-  const ReportsByTypeLoading();
-}
-
-class ReportsByTypeLoaded extends ReportState {
-  final List<ReportEntity> reports;
-  final ReportType reportType;
-
-  const ReportsByTypeLoaded(this.reports, this.reportType);
-
-  @override
-  List<Object?> get props => [reports, reportType];
+  List<Object?> get props => [message];
 }

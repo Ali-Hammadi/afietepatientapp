@@ -25,12 +25,11 @@ class AssismentsRemoteDataSourceImpl implements AssismentsRemoteDataSource {
 
     if (data is Map<String, dynamic>) {
       return (data['results'] ??
-              data['data'] ??
-              data['questions'] ??
-              data['forms'] ??
-              data['items'] ??
-              const [])
-          as List<dynamic>;
+          data['data'] ??
+          data['questions'] ??
+          data['forms'] ??
+          data['items'] ??
+          const []) as List<dynamic>;
     }
 
     return const <dynamic>[];
@@ -100,7 +99,7 @@ class AssismentsRemoteDataSourceImpl implements AssismentsRemoteDataSource {
       rethrow;
     } catch (error) {
       throw DioException(
-        requestOptions: RequestOptions(path: ApiEndpoints.assismentQuestions),
+        requestOptions: RequestOptions(path: ApiEndpoints.assessmentsForm),
         error: error,
         type: DioExceptionType.unknown,
       );
@@ -115,11 +114,10 @@ class AssismentsRemoteDataSourceImpl implements AssismentsRemoteDataSource {
       final response = await _dio.post(
         ApiEndpoints.assessmentsFormSubmit,
         data: {
-          ApiEndpoints.keyAnswers: answers
+          ApiEndpoints.assessmentsFormSubmit: answers
               .map(
                 (answer) => {
-                  ApiEndpoints.keyQuestionId: answer.questionId,
-                  ApiEndpoints.keyAnswerId: answer.selectedOptionId,
+                  ApiEndpoints.assessmentsFormSubmit: answer.questionId,
                 },
               )
               .toList(),
@@ -129,10 +127,9 @@ class AssismentsRemoteDataSourceImpl implements AssismentsRemoteDataSource {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.data is Map<String, dynamic>
             ? (response.data['result'] ??
-                      response.data['score'] ??
-                      response.data['data'] ??
-                      response.data)
-                  as Map<String, dynamic>
+                response.data['score'] ??
+                response.data['data'] ??
+                response.data) as Map<String, dynamic>
             : <String, dynamic>{};
         return AssismentModel.fromResultJson(data);
       }
@@ -146,7 +143,8 @@ class AssismentsRemoteDataSourceImpl implements AssismentsRemoteDataSource {
       rethrow;
     } catch (error) {
       throw DioException(
-        requestOptions: RequestOptions(path: ApiEndpoints.assismentSubmit),
+        requestOptions:
+            RequestOptions(path: ApiEndpoints.assessmentsFormSubmit),
         error: error,
         type: DioExceptionType.unknown,
       );
