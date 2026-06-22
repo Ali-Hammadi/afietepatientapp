@@ -2,6 +2,7 @@ import 'package:afiete/feature/appoinments/data/models/appointment_model.dart';
 import 'package:afiete/feature/appoinments/domain/values/consultation_fee.dart';
 import 'package:afiete/core/network/api_endpoints.dart';
 import 'package:dio/dio.dart';
+import 'package:intl/intl.dart';
 
 abstract class AppointmentsRemoteDataSource {
   Future<List<AppointmentModel>> getAppointments();
@@ -15,6 +16,8 @@ abstract class AppointmentsRemoteDataSource {
     required ConsultationFee consultationFee,
     required String sessionType,
   });
+  Future<List<dynamic>> getAvailableSlots(
+      {required String doctorUsername, required String date});
 
   Future<void> cancelAppointment(String appointmentId);
 
@@ -75,6 +78,25 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
   }
 
   @override
+  Future<List<dynamic>> getAvailableSlots({
+    required String doctorUsername,
+    required String date,
+  }) async {
+    print('DATE => $date');
+
+    final response = await _dio.get(
+      '/api/patient/doctors/$doctorUsername/available_slots/',
+      queryParameters: {
+        'date': date,
+      },
+    );
+
+    print('FINAL URI => ${response.requestOptions.uri}');
+
+    return response.data;
+  }
+
+  @override
   Future<AppointmentModel> createAppointment({
     required String doctorUsername,
     required String patientUsername,
@@ -85,20 +107,21 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
     required String sessionType,
   }) async {
     try {
-      // حساب وقت النهاية بناءً على السلوتات (كل سلوت 30 دقيقة كما في الـ Entity)
-      final endAt = scheduledAt.add(Duration(minutes: durationSlots * 30));
+      String formattedDate = DateFormat('yyyy-MM-dd').format(scheduledAt);
+      String startTime = DateFormat('HH:mm').format(scheduledAt);
+      String endTime = DateFormat('HH:mm')
+          .format(scheduledAt.add(Duration(minutes: durationSlots)));
 
       // تشكيل الـ Payload المطلوب تماماً من الـ Django
       final Map<String, dynamic> djangoPayload = {
         "doctor_username":
             doctorUsername, // الـ Django يتوقع الـ doctorUsername هنا
         "type": sessionType, // مثل 'video'
-        "day_date":
-            "${scheduledAt.year}-${scheduledAt.month.toString().padLeft(2, '0')}-${scheduledAt.day.toString().padLeft(2, '0')}",
-        "slot": {
-          "start": scheduledAt.toIso8601String(),
-          "end": endAt.toIso8601String()
-        }
+        'day_date': formattedDate,
+        'slot': {
+          'start': startTime,
+          'end': endTime, // افتراض 30 دقيقة
+        },
       };
 
       final response = await _dio.post(

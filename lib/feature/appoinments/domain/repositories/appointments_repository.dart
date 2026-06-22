@@ -6,6 +6,11 @@ import 'package:dartz/dartz.dart';
 abstract class AppointmentsRepository {
   Future<Either<Failure, List<AppointmentEntity>>> getAppointments();
 
+  Future<Either<Failure, List<dynamic>>> getAvailableSlots({
+    required String doctorUsername,
+    required String date,
+  });
+
   Future<Either<Failure, AppointmentEntity>> createAppointment({
     required String doctorUsername,
     required String patientUsername,

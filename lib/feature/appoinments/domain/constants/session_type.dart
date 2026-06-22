@@ -3,20 +3,20 @@ import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:flutter/material.dart';
 
 abstract class SessionType {
-  static const String textChat = 'text_chat';
-  static const String videoCall = 'video_call';
-  static const String voiceCall = 'voice_call';
+  static const String textChat = 'chat';
+  static const String voiceCall = 'voice';
+  static const String videoCall = 'video';
 
-  static const List<String> all = [textChat, videoCall, voiceCall];
+  static const List<String> all = [textChat, voiceCall, videoCall];
 
   static String displayName(String type) {
     switch (type) {
       case textChat:
         return SettingsStrings.textChatTitle;
-      case videoCall:
-        return SettingsStrings.videoCallTitle;
       case voiceCall:
         return SettingsStrings.voiceCallTitle;
+      case videoCall:
+        return SettingsStrings.videoCallTitle;
       default:
         return type;
     }
@@ -26,10 +26,10 @@ abstract class SessionType {
     switch (type) {
       case textChat:
         return Icons.chat_bubble_outline;
-      case videoCall:
-        return Icons.videocam_outlined;
       case voiceCall:
         return Icons.call_outlined;
+      case videoCall:
+        return Icons.videocam_outlined;
       default:
         return Icons.info_outline;
     }

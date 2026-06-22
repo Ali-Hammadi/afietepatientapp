@@ -7,6 +7,19 @@ abstract class AppointmentsState extends Equatable {
   List<Object> get props => [];
 }
 
+class SlotsLoading extends AppointmentsState {
+  const SlotsLoading();
+}
+
+class SlotsLoaded extends AppointmentsState {
+  final List<dynamic> availableSlots;
+
+  const SlotsLoaded(this.availableSlots);
+
+  @override
+  List<Object> get props => [availableSlots];
+}
+
 class AppointmentsInitial extends AppointmentsState {
   const AppointmentsInitial();
 }

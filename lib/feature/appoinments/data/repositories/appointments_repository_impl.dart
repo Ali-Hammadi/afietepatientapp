@@ -27,6 +27,27 @@ class AppointmentsRepositoryImpl implements AppointmentsRepository {
     }
   }
 
+  Future<Either<Failure, List<dynamic>>> getAvailableSlots({
+    required String doctorUsername,
+    required String date,
+  }) async {
+    try {
+      final result = await dataSource.getAvailableSlots(
+        doctorUsername: doctorUsername,
+        date: date,
+      );
+      return Right<Failure, List<dynamic>>(result);
+    } on DioException catch (e) {
+      return Left<Failure, List<dynamic>>(
+        ServerFailure.fromDioError(e),
+      );
+    } catch (_) {
+      return Left<Failure, List<dynamic>>(
+        ServerFailure('Unable to load available slots right now.'),
+      );
+    }
+  }
+
   @override
   Future<Either<Failure, AppointmentEntity>> createAppointment({
     required String doctorName,

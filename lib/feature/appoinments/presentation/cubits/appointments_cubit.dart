@@ -1,15 +1,13 @@
 import 'package:afiete/core/usecases/usecase.dart';
 import 'package:afiete/feature/assisments/data/assisment_visibility_store.dart';
 import 'package:afiete/feature/appoinments/domain/entities/appointment_entity.dart';
-import 'package:afiete/feature/appoinments/domain/usecase/cancel_appointment_usecase.dart';
-import 'package:afiete/feature/appoinments/domain/usecase/create_appointment_usecase.dart';
-import 'package:afiete/feature/appoinments/domain/usecase/get_appointments_usecase.dart';
-import 'package:afiete/feature/appoinments/domain/usecase/reschedule_appointment_usecase.dart';
+import 'package:afiete/feature/appoinments/domain/usecase/appointments_usecase.dart';
 import 'package:afiete/feature/appoinments/domain/values/consultation_fee.dart';
 import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
 import 'package:afiete/feature/doctors/domain/usecase/get_doctors_usecase.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart'; // لتنسيق التاريخ
 
 part 'appointments_state.dart';
 
@@ -19,6 +17,8 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
   final GetAllDoctorsUseCase? getAllDoctorsUseCase;
   final CancelAppointmentUseCase cancelAppointmentUseCase;
   final RescheduleAppointmentUseCase rescheduleAppointmentUseCase;
+  // إضافة UseCase الجديد
+  final GetAvailableSlotsUseCase getAvailableSlotsUseCase;
 
   AppointmentsCubit(
     this.getAppointmentsUseCase,
@@ -26,7 +26,34 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
     this.getAllDoctorsUseCase,
     this.cancelAppointmentUseCase,
     this.rescheduleAppointmentUseCase,
+    this.getAvailableSlotsUseCase, // إضافة في الـ Constructor
   ) : super(const AppointmentsInitial());
+
+  // --- الدالة الجديدة لجلب الأوقات ---
+  Future<void> fetchAvailableSlots({
+    required String doctorUsername,
+    required DateTime date,
+  }) async {
+    // يجب إضافة SlotsLoading إلى ملف state
+    emit(const SlotsLoading());
+
+    // تحويل التاريخ للصيغة التي يقبلها Django
+    final String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+
+    final result = await getAvailableSlotsUseCase(
+      GetAvailableSlotsParams(
+        doctorUsername: doctorUsername,
+        date: formattedDate,
+      ),
+    );
+
+    result.fold(
+      (failure) => emit(AppointmentsError(failure.errorMessage)),
+      (slots) => emit(SlotsLoaded(slots)), // تأكد من وجود SlotsLoaded في state
+    );
+  }
+
+  // --- باقي الدوال كما هي ---
 
   Future<void> loadAppointments() async {
     emit(const AppointmentsLoading());

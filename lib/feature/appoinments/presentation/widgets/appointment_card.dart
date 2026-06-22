@@ -85,7 +85,7 @@ class CustomAppointmentCard extends StatelessWidget {
                     tooltip: SettingsStrings.cancelAction,
                   ),
               ],
-            ), //01142611737
+            ),
             const SizedBox(height: 8),
             Container(
               width: double.infinity,
@@ -110,7 +110,6 @@ class CustomAppointmentCard extends StatelessWidget {
                     appointment.sessionType,
                     textStyle: AppStyles.bodySmall,
                   ),
-
                   const SizedBox(height: 10),
                 ],
               ),
@@ -119,7 +118,6 @@ class CustomAppointmentCard extends StatelessWidget {
               padding: const EdgeInsets.all(AppStyles.padding),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
                 children: [
                   if (isPast) ...[
                     CustomButton(
