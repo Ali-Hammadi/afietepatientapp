@@ -1,12 +1,15 @@
+import 'package:afiete/feature/doctors/domain/entites/speciality_entity.dart';
 import 'package:dartz/dartz.dart';
 import 'package:afiete/core/error/failure.dart';
 import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
 
 abstract class DoctorsRepository {
   Future<Either<Failure, List<DoctorEntity>>> getAllDoctors();
+  Future<Either<Failure, List<String>>> getAllSpecialties();
   Future<Either<Failure, List<DoctorEntity>>> getDoctorsBySpecialty(
-    String specialty,
+    int specialtyId,
   );
+  Future<Either<Failure, List<SpecialtyEntity>>> getSpecialties();
   Future<Either<Failure, DoctorEntity>> getDoctorByUsername(String username);
   Future<Either<Failure, DoctorEntity>> getCurrentDoctorProfile();
   Future<Either<Failure, DoctorSchedule>> getDoctorScheduleById(String id);

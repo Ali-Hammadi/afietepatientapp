@@ -1,4 +1,3 @@
-import 'package:afiete/core/constants/psychology_specialties.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/feature/doctors/presentation/cubits/doctors_cubit.dart';
@@ -14,7 +13,7 @@ class DoctorsHomeScreen extends StatefulWidget {
 }
 
 class _DoctorsHomeScreenState extends State<DoctorsHomeScreen> {
-  String? selectedSpecialty;
+  int? selectedSpecialtyId; // تعديل: تتبع التخصص عبر الـ ID بدلاً من النص
   String searchQuery = '';
   late TextEditingController _searchController;
 
@@ -22,7 +21,8 @@ class _DoctorsHomeScreenState extends State<DoctorsHomeScreen> {
   void initState() {
     super.initState();
     _searchController = TextEditingController();
-    context.read<DoctorsCubit>().loadAllDoctors();
+    // جلب البيانات الأولية (التخصصات + الأطباء) عند فتح الشاشة
+    context.read<DoctorsCubit>().initializeData();
   }
 
   @override
@@ -31,15 +31,17 @@ class _DoctorsHomeScreenState extends State<DoctorsHomeScreen> {
     super.dispose();
   }
 
-  void _selectSpecialty(String? specialty) {
+  void _selectSpecialty(int? specialtyId) {
     setState(() {
-      selectedSpecialty = specialty;
+      selectedSpecialtyId = specialtyId;
     });
 
-    if (specialty == null || specialty == PsychologySpecialties.all) {
+    if (specialtyId == null) {
+      // إذا اختار "الكل" (null)، نطلب جلب كل الأطباء
       context.read<DoctorsCubit>().loadAllDoctors();
     } else {
-      context.read<DoctorsCubit>().loadDoctorsBySpecialty(specialty);
+      // تمرير الـ ID المباشر إلى الـ Cubit للفلترة في الباك اند
+      context.read<DoctorsCubit>().loadDoctorsBySpecialty(specialtyId);
     }
   }
 
@@ -50,10 +52,10 @@ class _DoctorsHomeScreenState extends State<DoctorsHomeScreen> {
 
     final query = _normalizeSearchText(searchQuery);
     return doctors.where((doctor) {
-      final name = _normalizeSearchText(doctor.name);
-      final specialization = _normalizeSearchText(doctor.specialization);
+      final name = _normalizeSearchText(doctor.name ?? '');
+      final specialization = _normalizeSearchText(doctor.specialization ?? '');
       final localizedSpecialization = _normalizeSearchText(
-        SettingsStrings.specialtyLabel(doctor.specialization),
+        SettingsStrings.specialtyLabel(doctor.specialization ?? ''),
       );
       return name.contains(query) ||
           specialization.contains(query) ||
@@ -133,9 +135,16 @@ class _DoctorsHomeScreenState extends State<DoctorsHomeScreen> {
         horizontal: AppStyles.padding,
         vertical: AppStyles.padding / 2,
       ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(children: [..._buildSpecialtyChips()]),
+      child: SizedBox(
+        height: 45, // تحديد ارتفاع ثابت ومناسب للـ Chips لمنع مشاكل الـ Layout
+        child: BlocBuilder<DoctorsCubit, DoctorsState>(
+          builder: (context, state) {
+            return ListView(
+              scrollDirection: Axis.horizontal,
+              children: _buildSpecialtyChips(state),
+            );
+          },
+        ),
       ),
     );
   }
@@ -164,6 +173,7 @@ class _DoctorsHomeScreenState extends State<DoctorsHomeScreen> {
 
       return ListView.builder(
         itemCount: filteredDoctors.length,
+        padding: const EdgeInsets.only(bottom: AppStyles.padding),
         itemBuilder: (context, index) {
           return CustomDoctorCard(doctor: filteredDoctors[index]);
         },
@@ -173,31 +183,35 @@ class _DoctorsHomeScreenState extends State<DoctorsHomeScreen> {
     return const SizedBox.shrink();
   }
 
-  List<Widget> _buildSpecialtyChips() {
-    final specialties = [
-      PsychologySpecialties.all,
-      PsychologySpecialties.psychiatrist,
-      PsychologySpecialties.clinicalPsychologist,
-      PsychologySpecialties.psychotherapist,
-      PsychologySpecialties.cbtTherapist,
-      PsychologySpecialties.psychoanalyst,
-      PsychologySpecialties.counselor,
-      PsychologySpecialties.traumaTherapist,
-      PsychologySpecialties.marriageFamilyTherapist,
-      PsychologySpecialties.psychiatricSocialWorker,
-      PsychologySpecialties.speechLanguagePathologist,
-      PsychologySpecialties.childPsychologist,
-    ];
+  List<Widget> _buildSpecialtyChips(DoctorsState state) {
+    final List<Widget> chips = [];
 
-    return specialties
-        .map(
-          (specialty) => SpecialtyChip(
-            label: SettingsStrings.specialtyLabel(specialty),
-            isSelected: selectedSpecialty == specialty,
-            onSelected: () => _selectSpecialty(specialty),
+    // 1. إضافة زر "الكل" الافتراضي دائماً في البداية
+    final isAllSelected = selectedSpecialtyId == null;
+    chips.add(
+      SpecialtyChip(
+        label: SettingsStrings.seeAll,
+        isSelected: isAllSelected,
+        onSelected: () => _selectSpecialty(null),
+      ),
+    );
+
+    // 2. بناء بقية الأزرار ديناميكياً إذا تم تحميل التخصصات بنجاح من السيرفر
+    if (state is DoctorsLoaded) {
+      for (final specialty in state.specialties) {
+        final isSelected = selectedSpecialtyId == specialty.id;
+        chips.add(
+          SpecialtyChip(
+            label: specialty.name, // النص الظاهر لليوزر (مثل: الاكتئاب، القلق)
+            isSelected: isSelected,
+            onSelected: () =>
+                _selectSpecialty(specialty.id), // التعامل الخلفي بالـ ID
           ),
-        )
-        .toList();
+        );
+      }
+    }
+
+    return chips;
   }
 }
 
@@ -218,24 +232,27 @@ class SpecialtyChip extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppStyles.padding * 0.5),
+      padding: const EdgeInsets.symmetric(horizontal: AppStyles.padding * 0.25),
       child: GestureDetector(
         onTap: isSelected ? null : onSelected,
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: AppStyles.padding),
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: AppStyles.padding),
           decoration: BoxDecoration(
             border: Border.all(color: colorScheme.primary, width: 1.5),
-            borderRadius: BorderRadius.all(
-              Radius.circular(AppStyles.borderRadius),
-            ),
+            borderRadius: BorderRadius.circular(AppStyles.borderRadius),
             color: isSelected
                 ? colorScheme.primary
-                : colorScheme.primaryContainer.withValues(alpha: 0.35),
+                : colorScheme.primaryContainer
+                    .withAlpha(90), // تعديل متوافق مع نسخ فلاتر الحديثة
           ),
           child: Text(
             label,
             style: AppStyles.bodyMedium.copyWith(
-              color: isSelected ? colorScheme.onPrimary : null,
+              color: isSelected
+                  ? colorScheme.onPrimary
+                  : colorScheme.onSurfaceVariant,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
           ),
         ),

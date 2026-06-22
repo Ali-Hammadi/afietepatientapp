@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:afiete/core/error/failure.dart';
 import 'package:afiete/core/usecases/usecase.dart';
 import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/entites/speciality_entity.dart';
 import 'package:afiete/feature/doctors/domain/repositories/doctors_repository.dart';
 
 class GetAllDoctorsUseCase implements UseCase<List<DoctorEntity>, NoParams> {
@@ -15,10 +16,11 @@ class GetAllDoctorsUseCase implements UseCase<List<DoctorEntity>, NoParams> {
   }
 }
 
+// تعديل الـ Params لتأخذ المعرّف الرقمي
 class GetDoctorsBySpecialtyParams {
-  final String specialty;
+  final int specialtyId;
 
-  const GetDoctorsBySpecialtyParams({required this.specialty});
+  const GetDoctorsBySpecialtyParams({required this.specialtyId});
 }
 
 class GetDoctorsBySpecialtyUseCase
@@ -31,7 +33,21 @@ class GetDoctorsBySpecialtyUseCase
   Future<Either<Failure, List<DoctorEntity>>> call(
     GetDoctorsBySpecialtyParams params,
   ) {
-    return repository.getDoctorsBySpecialty(params.specialty);
+    // تمرير الـ ID الجديد للـ repository
+    return repository.getDoctorsBySpecialty(params.specialtyId);
+  }
+}
+
+// إضافة الـ UseCase الخاص بجلب التخصصات والذي يستخدمه الـ Cubit
+class GetSpecialtiesUseCase
+    implements UseCase<List<SpecialtyEntity>, NoParams> {
+  final DoctorsRepository repository;
+
+  const GetSpecialtiesUseCase(this.repository);
+
+  @override
+  Future<Either<Failure, List<SpecialtyEntity>>> call(NoParams params) {
+    return repository.getSpecialties();
   }
 }
 

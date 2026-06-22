@@ -1,7 +1,6 @@
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/di/injection_container.dart';
-import 'package:afiete/feature/assisments/domain/entity/assisments_entity.dart';
 import 'package:afiete/feature/assisments/presentation/cubits/assisments_cubit.dart';
 import 'package:afiete/feature/articles/presentation/cubits/articles_cubit.dart';
 import 'package:afiete/feature/articles/presentation/widgets/articles_home_section.dart';
@@ -10,23 +9,43 @@ import 'package:afiete/feature/home/presentation/widgets/assisment_widget.dart';
 import 'package:afiete/feature/home/presentation/widgets/emotions_widget.dart';
 import 'package:afiete/feature/home/presentation/widgets/music_widget.dart';
 import 'package:afiete/feature/home/presentation/widgets/top_doctor.dart';
+import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
 import 'package:afiete/feature/music_and_breathing/domain/entities/music_entity.dart';
 import 'package:afiete/feature/music_and_breathing/presentation/cubit/music_cubit.dart';
-// تذكر استيراد الـ Cubit الخاص بالأطباء إذا لم يكن مستورداً داخل الـ CustomTopDoctorsWidget
-// import 'package:afiete/feature/doctors/presentation/cubits/doctors_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class FirstHomeScreen extends StatelessWidget {
+// تحويل إلى StatefulWidget لإدارة دورة حياة الشاشة بشكل سليم
+class FirstHomeScreen extends StatefulWidget {
   const FirstHomeScreen({super.key});
 
+  @override
+  State<FirstHomeScreen> createState() => _FirstHomeScreenState();
+}
+
+class _FirstHomeScreenState extends State<FirstHomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // 🔥 الحل السحري: استدعاء البيانات فور إقلاع الشاشة بعد بناء أول إطار (Frame) بأمان
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final articlesCubit = context.read<ArticlesCubit>();
+
+      // نطلب المقالات فقط إذا كانت في الحالة الابتدائية ولم يتم جلبها مسبقاً لمنع التكرار
+      if (articlesCubit.state is ArticlesInitial) {
+        final assignmentsState = context.read<AssismentsCubit>().state;
+        final currentDiagnosis = _resolveClosestDiagnosis(assignmentsState);
+
+        articlesCubit.getArticlesForHomeUseCase(
+          userDiagnosis: currentDiagnosis,
+        );
+      }
+    });
+  }
+
   FeelingType? _selectedFeelingFromState(FeelingState state) {
-    if (state is FeelingLoaded) {
-      return state.selectedFeeling;
-    }
-    if (state is FeelingError) {
-      return state.selectedFeeling;
-    }
+    if (state is FeelingLoaded) return state.selectedFeeling;
+    if (state is FeelingError) return state.selectedFeeling;
     return null;
   }
 
@@ -35,7 +54,7 @@ class FirstHomeScreen extends StatelessWidget {
       return null;
     }
 
-    final AssismentEntity result = assignmentsState.result;
+    final result = assignmentsState.result;
     if (result.recommendedSpecialties.isNotEmpty) {
       return result.recommendedSpecialties.first;
     }
@@ -54,12 +73,11 @@ class FirstHomeScreen extends StatelessWidget {
         providers: [
           BlocProvider<MusicCubit>(create: (_) => sl<MusicCubit>()..loadHub()),
           BlocProvider<FeelingCubit>(
-            create: (_) => sl<FeelingCubit>()..loadFeelingHub(),
-          ),
+              create: (_) => sl<FeelingCubit>()..loadFeelingHub()),
         ],
         child: MultiBlocListener(
           listeners: [
-            // 1. الـ Listener الخاص بالمشاعر والموسيقا
+            // 1. مراقبة المشاعر لتحديث الموسيقى
             BlocListener<FeelingCubit, FeelingState>(
               listenWhen: (previous, current) =>
                   _selectedFeelingFromState(previous) !=
@@ -77,20 +95,17 @@ class FirstHomeScreen extends StatelessWidget {
               },
             ),
 
-            // 2. 🔥 الحل السحري: الـ Listener المركزي المسؤول عن تحديث الأطباء والمقالات بناءً على التشخيص
-            // هذا يضمن أن يتم استدعاء الـ APIs مرة واحدة فقط عند تغير حالة التشخيص وليس مع كل Rebuild للـ UI
+            // 2. الـ Listener المركزي: يحدّث المقالات فوراً إذا قام المستخدم بعمل فحص جديد الآن
             BlocListener<AssismentsCubit, AssismentsState>(
+              listenWhen: (previous, current) =>
+                  previous is! AssismentsResultLoaded &&
+                  current is AssismentsResultLoaded,
               listener: (context, assignmentsState) {
                 final currentDiagnosis =
                     _resolveClosestDiagnosis(assignmentsState);
-
-                // نقوم بجلب المقالات بشكل آمن هنا خارج الـ Build Cycle
                 context.read<ArticlesCubit>().getArticlesForHomeUseCase(
                       userDiagnosis: currentDiagnosis,
                     );
-
-                // 💡 إذا كان الـ CustomTopDoctorsWidget يعتمد على تفعيل يدوي، يمكنك تحريضه هنا أيضاً:
-                // context.read<DoctorsCubit>().getRecommendedDoctors(specialty: currentDiagnosis);
               },
             ),
           ],
@@ -104,23 +119,28 @@ class FirstHomeScreen extends StatelessWidget {
                   Text(
                     SettingsStrings.howAreYouFeelingToday,
                     style: AppStyles.headingSmall,
-                    textAlign: TextAlign.start,
                   ),
-
                   const CustomEmotionsWidget(),
                   const CustomMusicWidget(),
                   const CustomAssignmentWidget(),
+                  const SizedBox(height: 12),
 
                   Text(
                     SettingsStrings.topDoctorsTitle,
                     style: AppStyles.headingMedium,
                   ),
 
-                  // عرض الأطباء بناءً على حالة التشخيص الحالية بسلامة
+                  // عرض الأطباء بناءً على نتيجة الفحص الحالية المباشرة
                   BlocBuilder<AssismentsCubit, AssismentsState>(
                     builder: (context, assignmentsState) {
+                      List<DoctorEntity>? recommendedDoctors;
+                      if (assignmentsState is AssismentsResultLoaded) {
+                        recommendedDoctors = assignmentsState.doctors;
+                      }
+
                       return CustomTopDoctorsWidget(
-                        specialty: _resolveClosestDiagnosis(assignmentsState),
+                        specialtyId: null,
+                        customDoctors: recommendedDoctors,
                       );
                     },
                   ),
@@ -130,51 +150,24 @@ class FirstHomeScreen extends StatelessWidget {
                     SettingsStrings.bestArticlesForYou,
                     style: AppStyles.headingMedium,
                   ),
-                  // سيكشن المقالات مستقر ومحمي تماماً الآن لأن البيانات تُطلب عبر الـ Listener في الأعلى
-                  BlocBuilder<AssismentsCubit, AssismentsState>(
-                    builder: (context, assignmentsState) {
-                      final currentDiagnosis =
-                          _resolveClosestDiagnosis(assignmentsState);
 
-                      return BlocConsumer<ArticlesCubit, ArticlesState>(
-                        listenWhen: (previous, current) =>
-                            current is ArticlesInitial,
-                        listener: (context, state) {
-                          if (state is ArticlesInitial) {
-                            context
-                                .read<ArticlesCubit>()
-                                .getArticlesForHomeUseCase(
-                                  userDiagnosis: currentDiagnosis,
-                                );
-                          }
-                        },
-                        buildWhen: (previous, current) {
-                          if (current is ArticlesInitial) {
-                            context
-                                .read<ArticlesCubit>()
-                                .getArticlesForHomeUseCase(
-                                  userDiagnosis: currentDiagnosis,
-                                );
-                            return false;
-                          }
-                          return true;
-                        },
-                        builder: (context, articlesState) {
-                          if (articlesState is ArticlesLoading ||
-                              articlesState is ArticlesInitial) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 24.0),
-                              child: Center(child: CircularProgressIndicator()),
-                            );
-                          }
-                          if (articlesState is ArticlesError) {
-                            return const SizedBox.shrink();
-                          }
-                          return const ArticlesHomeSection();
-                        },
-                      );
+                  // بناء سيكشن المقالات بشكل نقي ومستقر دون تدخل برمجي جانبي (Side effects)
+                  BlocBuilder<ArticlesCubit, ArticlesState>(
+                    builder: (context, articlesState) {
+                      if (articlesState is ArticlesLoading ||
+                          articlesState is ArticlesInitial) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24.0),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      if (articlesState is ArticlesError) {
+                        return const SizedBox.shrink();
+                      }
+                      return const ArticlesHomeSection();
                     },
                   ),
+                  const SizedBox(height: AppStyles.padding * 2),
                 ],
               ),
             ),

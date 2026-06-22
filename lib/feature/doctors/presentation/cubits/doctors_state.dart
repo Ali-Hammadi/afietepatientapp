@@ -15,14 +15,18 @@ class DoctorsLoading extends DoctorsState {
   const DoctorsLoading();
 }
 
+// داخل ملف doctors_state.dart
+
 class DoctorsLoaded extends DoctorsState {
   final List<DoctorEntity> doctors;
-  final String? selectedSpecialty;
+  final List<SpecialtyEntity> specialties; // إضافة قائمة التخصصات هنا
+  final int? selectedSpecialtyId; // تخزين الـ id المحدد حالياً بدلاً من النص
 
-  const DoctorsLoaded(this.doctors, this.selectedSpecialty);
+  const DoctorsLoaded(this.doctors, this.specialties,
+      {this.selectedSpecialtyId});
 
   @override
-  List<Object?> get props => [doctors, selectedSpecialty];
+  List<Object?> get props => [doctors, specialties, selectedSpecialtyId];
 }
 
 class DoctorsError extends DoctorsState {

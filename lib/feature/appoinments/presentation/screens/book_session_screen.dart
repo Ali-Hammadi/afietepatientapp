@@ -7,7 +7,7 @@ import 'package:afiete/feature/appoinments/domain/constants/session_type.dart';
 import 'package:afiete/feature/appoinments/presentation/cubits/appointments_cubit.dart';
 import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
 import 'package:afiete/feature/doctors/presentation/cubits/doctors_cubit.dart';
-import 'package:afiete/feature/payment/domain/entities/payment_entity.dart';
+import 'package:afiete/feature/payment/domain/entities/payment_request_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';

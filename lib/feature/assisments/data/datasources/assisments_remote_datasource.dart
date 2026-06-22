@@ -113,11 +113,15 @@ class AssismentsRemoteDataSourceImpl implements AssismentsRemoteDataSource {
     try {
       final response = await _dio.post(
         ApiEndpoints.assessmentsFormSubmit,
+        // ✅ تعديل الـ Keys لتطابق ما يتوقعه السيرفر تماماً
         data: {
-          ApiEndpoints.assessmentsFormSubmit: answers
+          "answers": answers
               .map(
                 (answer) => {
-                  ApiEndpoints.assessmentsFormSubmit: answer.questionId,
+                  "question_id":
+                      answer.questionId, // 👈 قم بتعديلها إلى question_id
+                  "answer_id":
+                      answer.selectedOptionId, // 👈 قم بتعديلها إلى answer_id
                 },
               )
               .toList(),

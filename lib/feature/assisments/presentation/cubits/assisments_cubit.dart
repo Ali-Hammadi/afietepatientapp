@@ -1,4 +1,3 @@
-import 'package:afiete/core/constants/psychology_specialties.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/usecases/usecase.dart';
 import 'package:afiete/feature/assisments/data/assisment_visibility_store.dart';
@@ -189,8 +188,16 @@ class AssismentsCubit extends Cubit<AssismentsState> {
         : [_severityFallbackSpecialty(result.severity)];
 
     for (final specialty in specialties) {
+      // ✅ معالجة آمنة للنصوص لمنع FormatException
+      final int? specialtyId = int.tryParse(specialty);
+
+      if (specialtyId == null) {
+        // إذا كان التخصص المرتجع عبارة عن نص (مثل اسم التخصص) وليس معرف رقمي
+        continue;
+      }
+
       final doctorsResult = await getDoctorsBySpecialtyUseCase(
-        GetDoctorsBySpecialtyParams(specialty: specialty),
+        GetDoctorsBySpecialtyParams(specialtyId: specialtyId),
       );
 
       doctorsResult.fold((_) {}, (doctors) {
@@ -203,18 +210,20 @@ class AssismentsCubit extends Cubit<AssismentsState> {
     return uniqueDoctors.values.toList();
   }
 
+  // ✅ تعديل الدالة لتعود بـ IDs نصية تطابق تخصصات قاعدة البيانات بدلاً من الكلمات الإنجليزية الثابتة
   String _severityFallbackSpecialty(String severity) {
     final normalized = severity.toLowerCase();
 
+    // ملاحظة: تأكد من مطابقة أرقام الـ IDs ('1', '2', '3') مع معرفات التخصصات الفعلية في Django لديك
     if (normalized.contains('severe') || normalized.contains('high')) {
-      return PsychologySpecialties.psychiatrist;
+      return '1'; // مثلاً: ID طبيب نفسي (Psychiatrist)
     }
 
     if (normalized.contains('moderate') || normalized.contains('medium')) {
-      return PsychologySpecialties.clinicalPsychologist;
+      return '2'; // مثلاً: ID أخصائي نفسي عيادي (Clinical Psychologist)
     }
 
-    return PsychologySpecialties.counselor;
+    return '3'; // مثلاً: ID مستشار نفسي (Counselor)
   }
 
   Future<void> loadLastScores() async {

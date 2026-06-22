@@ -1,3 +1,4 @@
+import 'package:afiete/feature/doctors/domain/entites/speciality_entity.dart'; // تأكد من صحة اسم الملف speciality أو specialty حسب مشروعك
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afiete/core/usecases/usecase.dart';
@@ -11,33 +12,70 @@ class DoctorsCubit extends Cubit<DoctorsState> {
   final GetAllDoctorsUseCase getAllDoctorsUseCase;
   final GetDoctorsBySpecialtyUseCase getDoctorsBySpecialtyUseCase;
   final GetDoctorByUsernameUseCase getDoctorByUsernameUseCase;
-  String? _lastSpecialty;
+  final GetSpecialtiesUseCase getSpecialtiesUseCase;
 
   DoctorsCubit(
     this.getAllDoctorsUseCase,
     this.getDoctorsBySpecialtyUseCase,
     this.getDoctorByUsernameUseCase,
+    this.getSpecialtiesUseCase,
   ) : super(const DoctorsInitial());
 
-  Future<void> loadAllDoctors() async {
+  List<SpecialtyEntity> _cachedSpecialties = [];
+  int?
+      _lastSpecialtyId; // إصلاح: تعريف المتغير لتخزين المعرّف الرقمي لآخر تخصص تم طلبه
+
+  Future<void> initializeData() async {
     emit(const DoctorsLoading());
-    _lastSpecialty = null;
-    final result = await getAllDoctorsUseCase(NoParams());
-    result.fold(
+
+    // 1. جلب التخصصات باستخدام الـ UseCase المخصص لها
+    final specialtiesResult = await getSpecialtiesUseCase(NoParams());
+    specialtiesResult.fold(
       (failure) => emit(DoctorsError(failure.errorMessage)),
-      (doctors) => emit(DoctorsLoaded(doctors, null)),
+      (specialties) {
+        _cachedSpecialties = specialties;
+      },
+    );
+
+    if (state is DoctorsError) return;
+
+    // 2. جلب كل الأطباء افتراضياً عند الإقلاع
+    final doctorsResult = await getAllDoctorsUseCase(NoParams());
+    doctorsResult.fold(
+      (failure) => emit(DoctorsError(failure.errorMessage)),
+      (doctors) {
+        _lastSpecialtyId = null;
+        emit(DoctorsLoaded(doctors, _cachedSpecialties,
+            selectedSpecialtyId: null));
+      },
     );
   }
 
-  Future<void> loadDoctorsBySpecialty(String specialty) async {
+  Future<void> loadAllDoctors() async {
     emit(const DoctorsLoading());
-    _lastSpecialty = specialty;
-    final result = await getDoctorsBySpecialtyUseCase(
-      GetDoctorsBySpecialtyParams(specialty: specialty),
-    );
+    _lastSpecialtyId = null; // إعادة التعيين عند طلب الجميع
+    final result = await getAllDoctorsUseCase(NoParams());
     result.fold(
       (failure) => emit(DoctorsError(failure.errorMessage)),
-      (doctors) => emit(DoctorsLoaded(doctors, specialty)),
+      (doctors) => emit(DoctorsLoaded(doctors, _cachedSpecialties,
+          selectedSpecialtyId: null)),
+    );
+  } // إصلاح: تم إغلاق الدالة هنا بنجاح وفصلها عن بقية الدوال الكلاسية
+
+  Future<void> loadDoctorsBySpecialty(int specialtyId) async {
+    emit(const DoctorsLoading());
+    _lastSpecialtyId = specialtyId; // حفظ الـ ID لإعادة التحميل لاحقاً
+
+    final result = await getDoctorsBySpecialtyUseCase(
+      GetDoctorsBySpecialtyParams(
+          specialtyId:
+              specialtyId), // تأكد أن الاسم مطابق لما في الـ UseCase لديك (specialtyid أو specialtyId)
+    );
+
+    result.fold(
+      (failure) => emit(DoctorsError(failure.errorMessage)),
+      (doctors) => emit(DoctorsLoaded(doctors, _cachedSpecialties,
+          selectedSpecialtyId: specialtyId)),
     );
   }
 
@@ -98,11 +136,11 @@ class DoctorsCubit extends Cubit<DoctorsState> {
   }
 
   Future<void> reloadCurrent() async {
-    if (_lastSpecialty == null) {
+    if (_lastSpecialtyId == null) {
       await loadAllDoctors();
       return;
     }
-
-    await loadDoctorsBySpecialty(_lastSpecialty!);
+    // إصلاح: التمرير الآمن باستخدام الـ id الجديد المجرّد من النصوص
+    await loadDoctorsBySpecialty(_lastSpecialtyId!);
   }
 }
