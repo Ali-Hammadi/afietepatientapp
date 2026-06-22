@@ -418,12 +418,6 @@ Future<void> init() async {
   sl.registerLazySingleton<GetBreathingExercisesUseCase>(
     () => GetBreathingExercisesUseCase(sl<RelaxRepository>()),
   );
-  sl.registerLazySingleton<SaveLastSelectedFeelingUseCase>(
-    () => SaveLastSelectedFeelingUseCase(sl<RelaxRepository>()),
-  );
-  sl.registerLazySingleton<GetLastSelectedFeelingUseCase>(
-    () => GetLastSelectedFeelingUseCase(sl<RelaxRepository>()),
-  );
 
   // Music cubit
   sl.registerFactory<MusicCubit>(
@@ -535,9 +529,6 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<CreateAppReportUseCase>(
     () => CreateAppReportUseCase(sl<ReportsRepositoryImpl>()),
-  );
-  sl.registerLazySingleton<GetReportConfigUseCase>(
-    () => GetReportConfigUseCase(sl<ReportsRepositoryImpl>()),
   );
 
   // Report cubit

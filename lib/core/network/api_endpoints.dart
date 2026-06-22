@@ -82,8 +82,8 @@ abstract class ApiEndpoints {
 
   static const String allDoctors = '/api/patient/doctors/';
 
-  static String getDoctorsBySpecialty(String specialty) =>
-      '/api/patient/doctors/specialties/';
+  static String getDoctorsBySpecialty(String specialties) =>
+      '/api/patient/doctors/$specialties/';
 
   static String doctorByUsername(String doctor_username) =>
       '/api/patient/doctors/{$doctor_username}/';
@@ -91,9 +91,10 @@ abstract class ApiEndpoints {
   static String doctorPublicProfile(String doctor_username) =>
       '/api/patient/doctors/{$doctor_username}/profile/public/';
 
-  static String doctorAvailableSlots(String doctor_username, {String? date}) {
-    final base = '/api/patient/doctors/{$doctor_username}/available-slots/';
-    return date != null ? '$base?date=$date' : base;
+  static String doctorAvailableSlots(
+    String doctor_username,
+  ) {
+    return '/api/patient/doctors/{$doctor_username}/available-slots/';
   }
 
   // ===============================================================================================

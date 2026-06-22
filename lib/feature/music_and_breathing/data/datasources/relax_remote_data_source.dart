@@ -7,7 +7,7 @@ import '../models/music_model.dart';
 
 abstract class RelaxRemoteDataSource {
   Future<FeelingType> getLastSelectedFeeling();
-  Future<void> saveLastSelectedFeeling(FeelingType feeling);
+  Future<FeelingType> saveLastSelectedFeeling(FeelingType feeling);
   Future<List<MusicModel>> getRecommendedTracks(RecommendedMusicParams params);
   Future<List<BreathingExerciseModel>> getBreathingExercises();
 }
@@ -35,7 +35,7 @@ class RelaxRemoteDataSourceImpl implements RelaxRemoteDataSource {
   }
 
   @override
-  Future<void> saveLastSelectedFeeling(FeelingType feeling) async {
+  Future<FeelingType> saveLastSelectedFeeling(FeelingType feeling) async {
     final response = await dio.post(
       ApiEndpoints.relaxFeelingLast,
       data: {'feeling': feeling.name},
@@ -48,6 +48,7 @@ class RelaxRemoteDataSourceImpl implements RelaxRemoteDataSource {
         type: DioExceptionType.badResponse,
       );
     }
+    return feeling;
   }
 
   @override

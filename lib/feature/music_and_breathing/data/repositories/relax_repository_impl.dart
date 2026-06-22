@@ -25,11 +25,11 @@ class RelaxRepositoryImpl implements RelaxRepository {
   }
 
   @override
-  Future<Either<Failure, void>> saveLastSelectedFeeling(
+  Future<Either<Failure, FeelingType>> saveLastSelectedFeeling(
       FeelingType feeling) async {
     try {
-      await remoteDataSource.saveLastSelectedFeeling(feeling);
-      return const Right(null);
+      final result = await remoteDataSource.saveLastSelectedFeeling(feeling);
+      return Right(result);
     } on DioException catch (e) {
       return Left(ServerFailure.fromDioError(e));
     } catch (e) {

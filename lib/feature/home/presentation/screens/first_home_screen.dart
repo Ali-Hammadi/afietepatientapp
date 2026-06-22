@@ -108,8 +108,8 @@ class FirstHomeScreen extends StatelessWidget {
                   ),
 
                   const CustomEmotionsWidget(),
-                  const CustomAssignmentWidget(),
                   const CustomMusicWidget(),
+                  const CustomAssignmentWidget(),
 
                   Text(
                     SettingsStrings.topDoctorsTitle,

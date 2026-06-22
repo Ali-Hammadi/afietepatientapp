@@ -99,7 +99,9 @@ class DoctorsRemoteDataSourceImpl implements DoctorsRemoteDataSource {
   @override
   Future<List<DoctorTimeSlot>> getDoctorAvailableSlots(
       String username, String? date) async {
-    final path = ApiEndpoints.doctorAvailableSlots(username, date: date);
+    final path = ApiEndpoints.doctorAvailableSlots(
+      username,
+    );
     try {
       final response = await _dio.get(path);
       if (response.statusCode == 200) {

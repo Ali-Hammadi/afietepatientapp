@@ -6,7 +6,8 @@ import '../usecase/get_recommended_music_usecase.dart';
 
 abstract class RelaxRepository {
   Future<Either<Failure, FeelingType>> getLastSelectedFeeling();
-  Future<Either<Failure, void>> saveLastSelectedFeeling(FeelingType feeling);
+  Future<Either<Failure, FeelingType>> saveLastSelectedFeeling(
+      FeelingType feeling);
   Future<Either<Failure, List<MusicEntity>>> getRecommendedTracks(
       RecommendedMusicParams params);
   Future<Either<Failure, List<BreathingExerciseEntity>>>

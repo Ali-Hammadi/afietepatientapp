@@ -8,7 +8,8 @@ import 'package:afiete/core/utils/logger.dart';
 import 'package:afiete/core/reset/nuclear_reset_helper.dart';
 
 abstract class DioFactory {
-  static const String baseUrl = 'https://workserveys.pythonanywhere.com';
+  // static const String baseUrl = 'https://alihammadi.pythonanywhere.com/';
+  static const String baseUrl = 'http://127.0.0.1:8000/';
   static Completer<bool>? _refreshCompleter;
 
   static Dio create() {
@@ -425,14 +426,19 @@ abstract class DioFactory {
     if (normalized.contains('already verified')) {
       return 'Your account is already verified. Please sign in directly.';
     }
-    if (normalized.contains('already exists') ||
-        normalized.contains('user with this email')) {
-      return 'This email is already registered. Please sign in or use another email.';
-    }
+
+    // ✅ 1. فحص "عدم الوجود" أولاً لحل مشكلة التداخل في النصوص
     if (normalized.contains('does not exist') ||
         normalized.contains('not found')) {
       return 'No account was found for this data. Please check your input or create a new account.';
     }
+
+    // ✅ 2. فحص "الحساب مسجل مسبقاً" يميّز الآن الحالات الصحيحة فقط
+    if (normalized.contains('already exists') ||
+        normalized.contains('user with this email')) {
+      return 'This email is already registered. Please sign in or use another email.';
+    }
+
     if (normalized.contains('invalid otp') ||
         normalized.contains('invalid code')) {
       return 'The verification code is incorrect or expired. Please request a new code.';
