@@ -21,10 +21,8 @@ import 'package:afiete/feature/auth/domain/usecase/update_profile_info_usecase.d
 import 'package:afiete/feature/appoinments/data/datasources/appointments_remote_datasource.dart';
 import 'package:afiete/feature/appoinments/data/repositories/appointments_repository_impl.dart';
 import 'package:afiete/feature/articles/data/datasources/articles_remote_datasource.dart';
-import 'package:afiete/feature/appoinments/domain/usecase/cancel_appointment_usecase.dart';
-import 'package:afiete/feature/appoinments/domain/usecase/create_appointment_usecase.dart';
-import 'package:afiete/feature/appoinments/domain/usecase/get_appointments_usecase.dart';
-import 'package:afiete/feature/appoinments/domain/usecase/reschedule_appointment_usecase.dart';
+
+import 'package:afiete/feature/appoinments/domain/usecase/appointments_usecase.dart';
 import 'package:afiete/feature/appoinments/presentation/cubits/appointments_cubit.dart';
 import 'package:afiete/feature/chat/domain/repositories/chat_repository.dart';
 import 'package:afiete/feature/chat/domain/usecases/get_chat_messages_usecase.dart';
@@ -45,7 +43,6 @@ import 'package:afiete/feature/music_and_breathing/data/repositories/relax_repos
 import 'package:afiete/feature/music_and_breathing/domain/repositories/music_repository.dart';
 import 'package:afiete/feature/music_and_breathing/domain/usecase/get_recommended_music_usecase.dart';
 import 'package:afiete/feature/music_and_breathing/presentation/cubit/music_cubit.dart';
-import 'package:afiete/feature/payment/data/datasources/payment_mock_datasource.dart';
 import 'package:afiete/feature/payment/data/datasources/payment_remote_datasource.dart';
 import 'package:afiete/feature/payment/data/repositories/payment_repository_impl.dart';
 import 'package:afiete/feature/payment/domain/repositories/payment_repository.dart';
@@ -271,6 +268,9 @@ Future<void> init() async {
   sl.registerLazySingleton<RescheduleAppointmentUseCase>(
     () => RescheduleAppointmentUseCase(sl<AppointmentsRepository>()),
   );
+  sl.registerLazySingleton<GetAvailableSlotsUseCase>(
+    () => GetAvailableSlotsUseCase(sl<AppointmentsRepository>()),
+  );
 
   // Booking Assisment cubits
   sl.registerFactory<AppointmentsCubit>(
@@ -280,14 +280,13 @@ Future<void> init() async {
       sl<GetAllDoctorsUseCase>(),
       sl<CancelAppointmentUseCase>(),
       sl<RescheduleAppointmentUseCase>(),
+      sl<GetAvailableSlotsUseCase>(), // تأكد من تسجيل UseCase الخاص بجلب الأوقات في الأعلى
     ),
   );
 
   // Payment data sources
   sl.registerLazySingleton<PaymentRemoteDataSource>(
-    () => useMockDataSources
-        ? PaymentMockDataSourceImpl()
-        : PaymentRemoteDataSourceImpl(dio: sl<Dio>()),
+    () => PaymentRemoteDataSourceImpl(dio: sl<Dio>()),
   );
 
   // Payment repositories
@@ -363,6 +362,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<GetDoctorByUsernameUseCase>(
     () => GetDoctorByUsernameUseCase(sl<DoctorsRepository>()),
+  );
+  sl.registerLazySingleton<GetSpecialtiesUseCase>(
+    () => GetSpecialtiesUseCase(sl<DoctorsRepository>()),
   );
 
   // Feeling data sources
@@ -466,10 +468,10 @@ Future<void> init() async {
   // Doctors cubits
   sl.registerFactory<DoctorsCubit>(
     () => DoctorsCubit(
-      sl<GetAllDoctorsUseCase>(),
-      sl<GetDoctorsBySpecialtyUseCase>(),
-      sl<GetDoctorByUsernameUseCase>(),
-    ),
+        sl<GetAllDoctorsUseCase>(),
+        sl<GetDoctorsBySpecialtyUseCase>(),
+        sl<GetDoctorByUsernameUseCase>(),
+        sl<GetSpecialtiesUseCase>()),
   );
   // Settings data sources
   sl.registerLazySingleton<SettingsRemoteDataSource>(

@@ -27,26 +27,49 @@ abstract class ApiEndpoints {
   static const String refreshToken = '/api/auth/token/refresh/';
   static const String accessToken = '/api/auth/token/verify/';
   // ===============================================================================================
-  // === Appointments ===
+  // === Appointments (المواعيد) ===
+
+  // حجز موعد جديد (POST)
   static const String createAppointment = '/api/patient/appointments/book/';
+
+  // عرض قائمة المواعيد الحالية (GET)
+  static const String myAppointments = '/api/patient/appointments/my-list/';
+
+  // عرض تاريخ المواعيد المنتهية (GET)
   static const String historyAppointments =
       '/api/patient/appointments/history/';
+
+  // عرض المواعيد الفائتة (GET)
   static const String missedAppointments = '/api/patient/appointments/missed/';
-  static String reschedualAppointment(String id) =>
-      '/api/patient/appointments/{$id}/reschedule/';
-  static String myAppointment(String id) => '/api/patient/appointments/{$id}/';
-  static const String myAppointments = '/api/patient/appointments/my-list/';
+
+  // تفاصيل موعد معين (GET)
+  static String myAppointment(String id) => '/api/patient/appointments/$id/';
+
+  // إلغاء موعد (POST أو DELETE حسب إعداد الـ View في Django)
   static String cancelAppointment(String id) =>
-      '/api/patient/appointments/{$id}/cancel/';
+      '/api/patient/appointments/$id/cancel/';
+
+  // إعادة جدولة موعد (POST)
+  static String reschedualAppointment(String id) =>
+      '/api/patient/appointments/$id/reschedule/';
+
+  // تحديث حالة الجلسة القادمة (POST)
   static String hasNextAppointment(String id) =>
-      '/api/patient/appointments/{$id}/next-session/';
-  static String appointmentRefund(String appointment_id) =>
-      '/api/patient/appointments/{$appointment_id}/refund/';
-  // === Appointments Payments ===
+      '/api/patient/appointments/$id/next-session/';
+
+  // طلب استرداد مالي (POST)
+  static String appointmentRefund(String id) =>
+      '/api/patient/appointments/$id/refund/';
+  // === Appointments Payments (المدفوعات) ===
+
+  // إنشاء عملية دفع (POST)
   static const String appointmentPayment =
       '/api/patient/appointments/payments/create/';
+
+  // عرض تاريخ الدفع (GET)
   static const String oldAppointmentPayment =
       '/api/patient/appointments/payments/history/';
+
   // ===============================================================================================
   // === Reports ===
   static const String reportsConfig = '/api/reports/config/';
@@ -82,20 +105,21 @@ abstract class ApiEndpoints {
 
   static const String allDoctors = '/api/patient/doctors/';
 
+  // الرابط الجديد الذي سنستخدمه الآن:
+  static const String allSpecialties = '/api/patient/doctors/specialties/';
+
   static String getDoctorsBySpecialty(String specialties) =>
       '/api/patient/doctors/$specialties/';
 
-  static String doctorByUsername(String doctor_username) =>
-      '/api/patient/doctors/{$doctor_username}/';
+  static String doctorByUsername(String doctorUsername) =>
+      '/api/patient/doctors/$doctorUsername/';
 
-  static String doctorPublicProfile(String doctor_username) =>
-      '/api/patient/doctors/{$doctor_username}/profile/public/';
+  static String doctorPublicProfile(String doctorUsername) =>
+      '/api/patient/doctors/$doctorUsername/profile/public/';
 
-  static String doctorAvailableSlots(
-    String doctor_username,
-  ) {
-    return '/api/patient/doctors/{$doctor_username}/available-slots/';
-  }
+  // لاحظ التعديل هنا ليتوافق مع الـ URL في دجانغو (available_slots)
+  static String doctorAvailableSlots(String doctorUsername) =>
+      '/api/patient/doctors/$doctorUsername/available_slots/';
 
   // ===============================================================================================
   // === Articles ===

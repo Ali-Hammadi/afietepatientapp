@@ -9,7 +9,7 @@ import 'package:afiete/core/reset/nuclear_reset_helper.dart';
 
 abstract class DioFactory {
   // static const String baseUrl = 'https://alihammadi.pythonanywhere.com/';
-  static const String baseUrl = 'http://127.0.0.1:8000/';
+  static const String baseUrl = "http://127.0.0.1:8000/";
   static Completer<bool>? _refreshCompleter;
 
   static Dio create() {

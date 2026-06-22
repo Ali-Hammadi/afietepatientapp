@@ -20,7 +20,7 @@ import 'package:afiete/feature/doctors/presentation/screens/doctor_info.dart';
 import 'package:afiete/feature/doctors/presentation/screens/doctors_home_screen.dart';
 import 'package:afiete/feature/home/presentation/screens/first_home_screen.dart';
 import 'package:afiete/feature/home/presentation/screens/global_home_screen.dart';
-import 'package:afiete/feature/payment/domain/entities/payment_entity.dart';
+import 'package:afiete/feature/payment/domain/entities/payment_request_entity.dart';
 import 'package:afiete/feature/payment/presentation/screens/payment_screen.dart';
 import 'package:afiete/feature/report/presentation/cubits/report_cubit.dart';
 import 'package:afiete/feature/report/presentation/screens/report_history_screen.dart';
