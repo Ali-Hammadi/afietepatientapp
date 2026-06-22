@@ -1,6 +1,6 @@
 import 'package:afiete/core/network/api_endpoints.dart';
 import 'package:afiete/feature/payment/data/models/payment_model.dart';
-import 'package:afiete/feature/payment/domain/entities/payment_entity.dart';
+import 'package:afiete/feature/payment/domain/entities/payment_request_entity.dart';
 import 'package:dio/dio.dart';
 
 abstract class PaymentRemoteDataSource {
@@ -16,14 +16,9 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
   Future<PaymentModel> processPayment(PaymentRequestEntity request) async {
     try {
       final response = await _dio.post(
-        ApiEndpoints.createAppointment,
+        ApiEndpoints.appointmentPayment,
         data: {
-          'doctorUsername': request.doctorUsername,
-          'patientId': request.patientId,
-          'doctorName': request.doctorName,
-          'scheduledAt': request.scheduledAt.toIso8601String(),
-          'durationSlots': request.durationSlots,
-          'sessionType': request.sessionType,
+          'appointment_id': request.appointmentId,
           'amount': request.amount,
           'currency': request.currency,
           'method': request.method.name,
@@ -48,7 +43,7 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
       rethrow;
     } catch (e) {
       throw DioException(
-        requestOptions: RequestOptions(path: ApiEndpoints.createAppointment),
+        requestOptions: RequestOptions(path: ApiEndpoints.appointmentPayment),
         error: e,
         type: DioExceptionType.unknown,
       );

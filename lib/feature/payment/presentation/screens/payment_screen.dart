@@ -1,8 +1,9 @@
+import 'package:afiete/core/constants/payment_methods.dart';
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/routes/app_route.dart';
 import 'package:afiete/core/widget/custom_button.dart';
-import 'package:afiete/feature/payment/domain/entities/payment_entity.dart';
+import 'package:afiete/feature/payment/domain/entities/payment_request_entity.dart';
 import 'package:afiete/feature/payment/presentation/cubit/payment_cubit.dart';
 import 'package:afiete/feature/payment/presentation/widgets/payment_input_field.dart';
 import 'package:afiete/feature/payment/presentation/widgets/payment_method_tile.dart';
@@ -71,7 +72,12 @@ class PaymentScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CustomPaymentSummaryCard(request: request),
+                          CustomPaymentSummaryCard(
+                            sessionType: request.sessionType,
+                            doctorName: request.doctorName,
+                            scheduledAt: request.scheduledAt,
+                            amount: request.amount,
+                          ),
                           const SizedBox(height: 28),
                           Text(
                             SettingsStrings.paymentMethodTitle,
@@ -159,16 +165,13 @@ class PaymentScreen extends StatelessWidget {
                             ? null
                             : () {
                                 final finalRequest = PaymentRequestEntity(
-                                  doctorUsername: request.doctorUsername,
-                                  patientId: request.patientId,
-                                  doctorName: request.doctorName,
-                                  scheduledAt: request.scheduledAt,
-                                  durationSlots: request.durationSlots,
-                                  sessionType: request.sessionType,
+                                  appointmentId: request
+                                      .appointmentId, // أو لازم يكون موجود
                                   amount: request.amount,
                                   currency: request.currency,
                                   method: selectedMethod,
                                 );
+
                                 cubit.processPayment(finalRequest);
                               },
                       ),

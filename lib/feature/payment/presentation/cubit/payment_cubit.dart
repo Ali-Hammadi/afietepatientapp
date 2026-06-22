@@ -1,4 +1,6 @@
+import 'package:afiete/core/constants/payment_methods.dart';
 import 'package:afiete/feature/payment/domain/entities/payment_entity.dart';
+import 'package:afiete/feature/payment/domain/entities/payment_request_entity.dart';
 import 'package:afiete/feature/payment/domain/usecases/process_payment_usecase.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -9,7 +11,7 @@ class PaymentCubit extends Cubit<PaymentState> {
   final ProcessPaymentUseCase processPaymentUseCase;
 
   PaymentCubit(this.processPaymentUseCase)
-    : super(const PaymentInitial(selectedMethod: PaymentMethod.card));
+      : super(const PaymentInitial(selectedMethod: PaymentMethod.card));
 
   PaymentMethod get selectedMethod {
     final current = state;

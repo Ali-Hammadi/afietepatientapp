@@ -1,3 +1,4 @@
+import 'package:afiete/core/constants/payment_methods.dart';
 import 'package:afiete/feature/payment/domain/entities/payment_entity.dart';
 
 class PaymentModel extends PaymentEntity {
@@ -14,14 +15,13 @@ class PaymentModel extends PaymentEntity {
   factory PaymentModel.fromJson(Map<String, dynamic> json) {
     return PaymentModel(
       id: (json['id'] ?? '').toString(),
-      transactionRef: (json['transactionRef'] ?? json['reference'] ?? '')
-          .toString(),
+      transactionRef: (json['transaction_ref'] ?? '').toString(),
       amount: (json['amount'] as num?)?.toDouble() ?? 0,
       currency: (json['currency'] ?? 'USD').toString(),
-      method: _methodFromRaw((json['method'] ?? 'card').toString()),
-      status: _statusFromRaw((json['status'] ?? 'pending').toString()),
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'].toString())
+      method: _methodFromRaw(json['method'] ?? 'card'),
+      status: _statusFromRaw(json['status'] ?? 'pending'),
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
           : DateTime.now(),
     );
   }
@@ -32,7 +32,6 @@ class PaymentModel extends PaymentEntity {
         return PaymentMethod.wallet;
       case 'cash':
         return PaymentMethod.cash;
-      case 'card':
       default:
         return PaymentMethod.card;
     }
@@ -44,9 +43,7 @@ class PaymentModel extends PaymentEntity {
       case 'paid':
         return PaymentStatus.success;
       case 'failed':
-      case 'error':
         return PaymentStatus.failed;
-      case 'pending':
       default:
         return PaymentStatus.pending;
     }

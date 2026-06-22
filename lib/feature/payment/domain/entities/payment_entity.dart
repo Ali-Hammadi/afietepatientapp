@@ -1,45 +1,5 @@
+import 'package:afiete/core/constants/payment_methods.dart';
 import 'package:equatable/equatable.dart';
-
-enum PaymentMethod { card, wallet, cash }
-
-enum PaymentStatus { pending, success, failed }
-
-class PaymentRequestEntity extends Equatable {
-  final String doctorUsername;
-  final String patientId;
-  final String doctorName;
-  final DateTime scheduledAt;
-  final int durationSlots;
-  final String sessionType;
-  final double amount;
-  final String currency;
-  final PaymentMethod method;
-
-  const PaymentRequestEntity({
-    required this.doctorUsername,
-    required this.patientId,
-    required this.doctorName,
-    required this.scheduledAt,
-    required this.durationSlots,
-    required this.sessionType,
-    required this.amount,
-    this.currency = 'USD',
-    required this.method,
-  });
-
-  @override
-  List<Object?> get props => [
-        doctorUsername,
-        patientId,
-        doctorName,
-        scheduledAt,
-        durationSlots,
-        sessionType,
-        amount,
-        currency,
-        method,
-      ];
-}
 
 class PaymentEntity extends Equatable {
   final String id;
@@ -59,8 +19,6 @@ class PaymentEntity extends Equatable {
     required this.status,
     required this.createdAt,
   });
-
-  bool get isSuccessful => status == PaymentStatus.success;
 
   @override
   List<Object?> get props => [

@@ -1,6 +1,7 @@
 import 'package:afiete/core/error/failure.dart';
 import 'package:afiete/feature/payment/data/datasources/payment_remote_datasource.dart';
 import 'package:afiete/feature/payment/domain/entities/payment_entity.dart';
+import 'package:afiete/feature/payment/domain/entities/payment_request_entity.dart';
 import 'package:afiete/feature/payment/domain/repositories/payment_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
@@ -20,7 +21,7 @@ class PaymentRepositoryImpl implements PaymentRepository {
     } on DioException catch (e) {
       return Left(ServerFailure.fromDioError(e));
     } catch (_) {
-      return Left(ServerFailure('Unable to complete payment right now.'));
+      return Left(ServerFailure('Payment failed'));
     }
   }
 }
