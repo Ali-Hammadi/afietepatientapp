@@ -1,3 +1,4 @@
+import 'package:afiete/core/constants/payment_methods.dart';
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/routes/app_route.dart';
@@ -151,11 +152,15 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
       patientUsername = authState.user.patientUsername;
     }
 
+    final generatedAppointmentId =
+        DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
     final cubit = context.read<AppointmentsCubit>();
-    await cubit.createBookingDraft(
+    await cubit.createAppointmentDraft(
+      appointmentId: generatedAppointmentId,
       doctorUsername: widget.doctor.doctorUsername,
       patientUsername: patientUsername,
-      doctorName: widget.doctor.name!,
+      doctorName: widget.doctor.name ?? 'Doctor',
       scheduledAt: scheduledAt,
       durationSlots: _selectedDurationSlots!,
       consultationFee: widget.doctor.consultationFee,
@@ -185,11 +190,9 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
       context,
       MyRoutes.paymentScreen,
       arguments: PaymentRequestEntity(
-        doctorUsername: widget.doctor.doctorUsername,
-        patientId: patientUsername,
-        doctorName: widget.doctor.name!,
+        appointmentId: generatedAppointmentId,
+        doctorName: widget.doctor.name ?? 'Doctor',
         scheduledAt: scheduledAt,
-        durationSlots: _selectedDurationSlots!,
         sessionType: _selectedSessionType!,
         amount: amount,
         currency: 'USD',

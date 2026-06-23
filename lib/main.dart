@@ -11,7 +11,7 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/language_cubit.dart';
 import 'core/theme/theme_cubit.dart';
 import 'feature/articles/presentation/cubits/articles_cubit.dart';
-import 'feature/assisments/presentation/cubits/assisments_cubit.dart';
+import 'feature/assessments/presentation/cubits/assessments_cubit.dart';
 import 'feature/auth/presentation/cubits/auth_cubit.dart';
 import 'feature/appoinments/presentation/cubits/appointments_cubit.dart';
 import 'feature/chat/presentation/cubit/chat_cubit.dart';
@@ -89,7 +89,7 @@ class _MyAppState extends State<MyApp> {
           BlocProvider<ThemeCubit>.value(value: widget.themeCubit),
           BlocProvider<LanguageCubit>.value(value: widget.languageCubit),
           BlocProvider<AuthCubit>(create: (_) => sl<AuthCubit>()),
-          BlocProvider<AssismentsCubit>(create: (_) => sl<AssismentsCubit>()),
+          BlocProvider<AssessmentsCubit>(create: (_) => sl<AssessmentsCubit>()),
           BlocProvider<AppointmentsCubit>(
             create: (_) => sl<AppointmentsCubit>(),
           ),

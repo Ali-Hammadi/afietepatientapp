@@ -5,37 +5,8 @@ import 'package:afiete/feature/appoinments/domain/repositories/appointments_repo
 import 'package:afiete/feature/appoinments/domain/values/consultation_fee.dart';
 import 'package:dartz/dartz.dart';
 
-class GetAppointmentsUseCase
-    implements UseCase<List<AppointmentEntity>, NoParams> {
-  final AppointmentsRepository repository;
-
-  const GetAppointmentsUseCase(this.repository);
-
-  @override
-  Future<Either<Failure, List<AppointmentEntity>>> call(NoParams params) {
-    return repository.getAppointments();
-  }
-}
-
-class CancelAppointmentParams {
-  final String appointmentId;
-
-  const CancelAppointmentParams({required this.appointmentId});
-}
-
-class CancelAppointmentUseCase
-    implements UseCase<void, CancelAppointmentParams> {
-  final AppointmentsRepository repository;
-
-  const CancelAppointmentUseCase(this.repository);
-
-  @override
-  Future<Either<Failure, void>> call(CancelAppointmentParams params) {
-    return repository.cancelAppointment(params.appointmentId);
-  }
-}
-
 class CreateAppointmentParams {
+  final int appointmentId;
   final String doctorUsername;
   final String patientUsername;
   final String doctorName;
@@ -45,6 +16,7 @@ class CreateAppointmentParams {
   final String sessionType;
 
   const CreateAppointmentParams({
+    required this.appointmentId,
     required this.doctorUsername,
     required this.patientUsername,
     required this.doctorName,
@@ -63,9 +35,9 @@ class CreateAppointmentUseCase
 
   @override
   Future<Either<Failure, AppointmentEntity>> call(
-    CreateAppointmentParams params,
-  ) {
+      CreateAppointmentParams params) {
     return repository.createAppointment(
+      appointmentId: params.appointmentId,
       doctorUsername: params.doctorUsername,
       patientUsername: params.patientUsername,
       doctorName: params.doctorName,
@@ -77,22 +49,53 @@ class CreateAppointmentUseCase
   }
 }
 
-class RescheduleAppointmentParams {
-  final String appointmentId;
-  final DateTime newScheduledAt;
+//==================================================================================================
+class GetAppointmentsUseCase
+    implements UseCase<List<AppointmentEntity>, NoParams> {
+  final AppointmentsRepository repository;
 
+  const GetAppointmentsUseCase(this.repository);
+
+  @override
+  Future<Either<Failure, List<AppointmentEntity>>> call(NoParams params) {
+    return repository.getAppointments();
+  }
+}
+
+//==================================================================================================
+class CancelAppointmentParams {
+  final int appointmentId;
+  const CancelAppointmentParams({required this.appointmentId});
+}
+//==================================================================================================
+
+class CancelAppointmentUseCase
+    implements UseCase<void, CancelAppointmentParams> {
+  final AppointmentsRepository repository;
+  const CancelAppointmentUseCase(this.repository);
+  @override
+  Future<Either<Failure, void>> call(CancelAppointmentParams params) {
+    return repository.cancelAppointment(
+      params.appointmentId,
+    );
+  }
+}
+
+//==================================================================================================
+class RescheduleAppointmentParams {
+  final int appointmentId;
+  final DateTime newScheduledAt;
   const RescheduleAppointmentParams({
     required this.appointmentId,
     required this.newScheduledAt,
   });
 }
 
+//==================================================================================================
 class RescheduleAppointmentUseCase
     implements UseCase<AppointmentEntity, RescheduleAppointmentParams> {
   final AppointmentsRepository repository;
-
   const RescheduleAppointmentUseCase(this.repository);
-
   @override
   Future<Either<Failure, AppointmentEntity>> call(
     RescheduleAppointmentParams params,
@@ -104,22 +107,21 @@ class RescheduleAppointmentUseCase
   }
 }
 
+//==================================================================================================
 class GetAvailableSlotsParams {
   final String doctorUsername;
   final String date;
-
   const GetAvailableSlotsParams({
     required this.doctorUsername,
     required this.date,
   });
 }
 
+//==================================================================================================
 class GetAvailableSlotsUseCase
     implements UseCase<List<dynamic>, GetAvailableSlotsParams> {
   final AppointmentsRepository repository;
-
   const GetAvailableSlotsUseCase(this.repository);
-
   @override
   Future<Either<Failure, List<dynamic>>> call(
     GetAvailableSlotsParams params,
@@ -130,3 +132,4 @@ class GetAvailableSlotsUseCase
     );
   }
 }
+//==================================================================================================

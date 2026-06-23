@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CustomReviewBottomSheet extends StatefulWidget {
-  final String sessionId;
+  final dynamic sessionId;
   final String username;
 
   const CustomReviewBottomSheet({

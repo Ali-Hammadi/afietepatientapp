@@ -8,39 +8,26 @@ abstract class PaymentRemoteDataSource {
 }
 
 class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
-  final Dio _dio;
-
-  PaymentRemoteDataSourceImpl({required Dio dio}) : _dio = dio;
+  PaymentRemoteDataSourceImpl({required Dio dio});
 
   @override
   Future<PaymentModel> processPayment(PaymentRequestEntity request) async {
     try {
-      final response = await _dio.post(
-        ApiEndpoints.appointmentPayment,
-        data: {
-          'appointment_id': request.appointmentId,
-          'amount': request.amount,
-          'currency': request.currency,
-          'method': request.method.name,
-        },
-      );
+      // محاكاة تأخير بسيط كأنها شبكة حقيقية (مثلاً نصف ثانية)
+      await Future.delayed(const Duration(milliseconds: 500));
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final body = response.data;
-        if (body is Map<String, dynamic>) {
-          return PaymentModel.fromJson(
-            (body['payment'] as Map<String, dynamic>?) ?? body,
-          );
-        }
-      }
+      // توليد بيانات دفع وهمية ناجحة ومكتملة بشكل نظامي بعمولة صفر
+      final mockResponse = {
+        'id': 'mock_pay_${DateTime.now().millisecondsSinceEpoch}',
+        'transaction_ref': 'REF-${DateTime.now().microsecondsSinceEpoch}',
+        'amount': request.amount, // القيمة المطلوبة بدون عمولات
+        'currency': request.currency,
+        'method': request.method.name,
+        'status': 'success', // حالة الدفع ناجحة دائماً لتكمل الحجز
+        'created_at': DateTime.now().toIso8601String(),
+      };
 
-      throw DioException(
-        requestOptions: response.requestOptions,
-        response: response,
-        type: DioExceptionType.badResponse,
-      );
-    } on DioException {
-      rethrow;
+      return PaymentModel.fromJson(mockResponse);
     } catch (e) {
       throw DioException(
         requestOptions: RequestOptions(path: ApiEndpoints.appointmentPayment),

@@ -1,12 +1,13 @@
 import 'package:afiete/core/network/dio_factory.dart';
 import 'package:afiete/feature/appoinments/domain/repositories/appointments_repository.dart';
-import 'package:afiete/feature/assisments/data/datasources/assisments_remote_datasource.dart';
-import 'package:afiete/feature/assisments/data/repositories/assisments_repository_impl.dart';
-import 'package:afiete/feature/assisments/domain/repositories/assisments_repository.dart';
-import 'package:afiete/feature/assisments/domain/usecase/get_assisment_questions_usecase.dart';
-import 'package:afiete/feature/assisments/domain/usecase/get_assessment_scores_usecase.dart';
-import 'package:afiete/feature/assisments/domain/usecase/submit_assisment_usecase.dart';
-import 'package:afiete/feature/assisments/presentation/cubits/assisments_cubit.dart';
+
+import 'package:afiete/feature/assessments/data/datasources/assisments_remote_datasource.dart';
+import 'package:afiete/feature/assessments/data/repositories/assisments_repository_impl.dart';
+import 'package:afiete/feature/assessments/domain/repositories/assisments_repository.dart';
+import 'package:afiete/feature/assessments/domain/usecase/get_assessment_scores_usecase.dart';
+import 'package:afiete/feature/assessments/domain/usecase/get_assisment_questions_usecase.dart';
+import 'package:afiete/feature/assessments/domain/usecase/submit_assisment_usecase.dart';
+import 'package:afiete/feature/assessments/presentation/cubits/assessments_cubit.dart';
 import 'package:afiete/feature/auth/domain/usecase/delete_account_usecase.dart';
 
 import 'package:afiete/feature/auth/domain/usecase/fetch_profile_usecase.dart';
@@ -243,19 +244,19 @@ Future<void> init() async {
     () => EndVideoCallUseCase(sl<VideoRepository>()),
   );
 
-  // Booking Assisment data sources
+  // Booking Assessments data sources
   sl.registerLazySingleton<AppointmentsRemoteDataSource>(
     () => AppointmentsRemoteDataSourceImpl(dio: sl<Dio>()),
   );
 
-  // Booking Assisment repositories
+  // Booking Assessments repositories
   sl.registerLazySingleton<AppointmentsRepository>(
     () => AppointmentsRepositoryImpl(
       dataSource: sl<AppointmentsRemoteDataSource>(),
     ),
   );
 
-  // Booking Assisment use cases
+  // Booking Assessments use cases
   sl.registerLazySingleton<GetAppointmentsUseCase>(
     () => GetAppointmentsUseCase(sl<AppointmentsRepository>()),
   );
@@ -272,16 +273,15 @@ Future<void> init() async {
     () => GetAvailableSlotsUseCase(sl<AppointmentsRepository>()),
   );
 
-  // Booking Assisment cubits
+  // Booking Assessments cubits
   sl.registerFactory<AppointmentsCubit>(
     () => AppointmentsCubit(
-      sl<GetAppointmentsUseCase>(),
-      sl<CreateAppointmentUseCase>(),
-      sl<GetAllDoctorsUseCase>(),
-      sl<CancelAppointmentUseCase>(),
-      sl<RescheduleAppointmentUseCase>(),
-      sl<GetAvailableSlotsUseCase>(), // تأكد من تسجيل UseCase الخاص بجلب الأوقات في الأعلى
-    ),
+        getAppointmentsUseCase: sl<GetAppointmentsUseCase>(),
+        createAppointmentDraftUseCase: sl<CreateAppointmentUseCase>(),
+        getAllDoctorsUseCase: sl<GetAllDoctorsUseCase>(),
+        cancelAppointmentUseCase: sl<CancelAppointmentUseCase>(),
+        rescheduleAppointmentUseCase: sl<RescheduleAppointmentUseCase>(),
+        getAvailableSlotsUseCase: sl<GetAvailableSlotsUseCase>()),
   );
 
   // Payment data sources
@@ -431,34 +431,34 @@ Future<void> init() async {
     ),
   );
 
-  // Assisment data sources
-  sl.registerLazySingleton<AssismentsRemoteDataSource>(
-    () => AssismentsRemoteDataSourceImpl(dio: sl<Dio>()),
+  // Assessments data sources
+  sl.registerLazySingleton<AssessmentsRemoteDataSource>(
+    () => AssessmentsRemoteDataSourceImpl(dio: sl<Dio>()),
   );
 
-  // Assisment repositories
-  sl.registerLazySingleton<AssismentsRepository>(
-    () => AssismentsRepositoryImpl(
-      remoteDataSource: sl<AssismentsRemoteDataSource>(),
+  // Assessments repositories
+  sl.registerLazySingleton<AssessmentsRepository>(
+    () => AssessmentsRepositoryImpl(
+      remoteDataSource: sl<AssessmentsRemoteDataSource>(),
     ),
   );
 
-  // Assisment use cases
-  sl.registerLazySingleton<GetAssismentQuestionsUseCase>(
-    () => GetAssismentQuestionsUseCase(sl<AssismentsRepository>()),
+  // Assessments use cases
+  sl.registerLazySingleton<GetAssessmentsQuestionsUseCase>(
+    () => GetAssessmentsQuestionsUseCase(sl<AssessmentsRepository>()),
   );
-  sl.registerLazySingleton<SubmitAssismentUseCase>(
-    () => SubmitAssismentUseCase(sl<AssismentsRepository>()),
+  sl.registerLazySingleton<SubmitAssessmentsUseCase>(
+    () => SubmitAssessmentsUseCase(sl<AssessmentsRepository>()),
   );
   sl.registerLazySingleton<GetAssessmentScoresUseCase>(
-    () => GetAssessmentScoresUseCase(sl<AssismentsRepository>()),
+    () => GetAssessmentScoresUseCase(sl<AssessmentsRepository>()),
   );
 
-  // Assisment cubit
-  sl.registerFactory<AssismentsCubit>(
-    () => AssismentsCubit(
-      sl<GetAssismentQuestionsUseCase>(),
-      sl<SubmitAssismentUseCase>(),
+  // Assessments cubit
+  sl.registerFactory<AssessmentsCubit>(
+    () => AssessmentsCubit(
+      sl<GetAssessmentsQuestionsUseCase>(),
+      sl<SubmitAssessmentsUseCase>(),
       sl<GetAllDoctorsUseCase>(),
       sl<GetDoctorsBySpecialtyUseCase>(),
       sl<GetAssessmentScoresUseCase>(),

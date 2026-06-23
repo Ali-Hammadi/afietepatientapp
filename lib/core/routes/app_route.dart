@@ -1,9 +1,11 @@
 import 'package:afiete/core/constants/report_types.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/di/injection_container.dart';
-import 'package:afiete/feature/assisments/presentation/cubits/assisments_cubit.dart';
-import 'package:afiete/feature/assisments/presentation/screens/assisment_result_screen.dart';
-import 'package:afiete/feature/assisments/presentation/screens/assisment_test_screen.dart';
+import 'package:afiete/feature/assessments/presentation/cubits/assessments_cubit.dart';
+import 'package:afiete/feature/assessments/presentation/cubits/assessments_state.dart';
+import 'package:afiete/feature/assessments/presentation/screens/assisment_result_screen.dart';
+import 'package:afiete/feature/assessments/presentation/screens/assisment_test_screen.dart';
+
 import 'package:afiete/feature/auth/presentation/views/auth_info_screen.dart';
 import 'package:afiete/feature/auth/presentation/views/delete_account_screen.dart';
 
@@ -189,16 +191,16 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const PrivacyScreen());
       case MyRoutes.contactUsScreen:
         return MaterialPageRoute(builder: (_) => const ContactUsScreen());
-      case MyRoutes.assismentTestScreen:
+      case MyRoutes.AssessmentsTestScreen:
         return MaterialPageRoute(
-          builder: (_) => BlocProvider<AssismentsCubit>(
-            create: (_) => sl<AssismentsCubit>()..loadQuestions(),
-            child: const AssismentTestScreen(),
+          builder: (_) => BlocProvider<AssessmentsCubit>(
+            create: (_) => sl<AssessmentsCubit>()..loadQuestions(),
+            child: const AssessmentsTestScreen(),
           ),
         );
-      case MyRoutes.assismentResultScreen:
+      case MyRoutes.AssessmentsResultScreen:
         final args = settings.arguments;
-        if (args is! AssismentsResultLoaded) {
+        if (args is! AssessmentsResultLoaded) {
           return MaterialPageRoute(
             builder: (context) => Scaffold(
               body: Center(
@@ -211,7 +213,7 @@ class AppRouter {
           );
         }
         return MaterialPageRoute(
-          builder: (_) => AssismentResultScreen(state: args),
+          builder: (_) => AssessmentsResultScreen(state: args),
         );
 
       case MyRoutes.reportScreen:
@@ -346,8 +348,8 @@ class MyRoutes {
   static const String reportIssueScreen = "/reportIssueScreen";
   static const String privacyScreen = "/privacyScreen";
   static const String contactUsScreen = "/contactUsScreen";
-  static const String assismentTestScreen = "/assismentTestScreen";
-  static const String assismentResultScreen = "/assismentResultScreen";
+  static const String AssessmentsTestScreen = "/AssessmentsTestScreen";
+  static const String AssessmentsResultScreen = "/AssessmentsResultScreen";
   // Report Screens
   static const String reportScreen = "/reportScreen";
   static const String reportHistoryScreen = "/reportHistoryScreen";

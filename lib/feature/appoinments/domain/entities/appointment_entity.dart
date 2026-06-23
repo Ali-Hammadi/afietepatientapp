@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:afiete/feature/appoinments/domain/values/consultation_fee.dart';
 
 class AppointmentEntity extends Equatable {
-  final String id;
+  final int appointmentId; // تعديل إلى int
   final String doctorUsername;
   final String patientId;
   final String doctorName;
@@ -14,7 +14,7 @@ class AppointmentEntity extends Equatable {
   final bool requiresPayment;
 
   const AppointmentEntity({
-    required this.id,
+    required this.appointmentId,
     required this.doctorUsername,
     required this.patientId,
     required this.doctorName,
@@ -31,8 +31,8 @@ class AppointmentEntity extends Equatable {
   double get totalFee => consultationFee.getFeeBySType(sessionType);
 
   @override
-  List<Object> get props => [
-        id,
+  List<Object?> get props => [
+        appointmentId,
         doctorUsername,
         patientId,
         doctorName,

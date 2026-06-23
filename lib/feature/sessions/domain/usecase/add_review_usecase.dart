@@ -5,7 +5,7 @@ import 'package:afiete/feature/sessions/domain/repositories/sessions_repository.
 import 'package:dartz/dartz.dart';
 
 class AddReviewParams {
-  final String sessionId;
+  final dynamic sessionId;
   final int rating;
   final String comment;
 

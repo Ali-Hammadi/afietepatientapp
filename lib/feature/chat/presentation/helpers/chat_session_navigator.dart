@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 class ChatSessionNavigator {
   static void openIfChatSession({
     required BuildContext context,
-    required String sessionId,
+    required dynamic sessionId,
     required String username,
     required String patientId,
     required String doctorName,
@@ -72,7 +72,7 @@ class ChatSessionNavigator {
   }) {
     openIfChatSession(
       context: context,
-      sessionId: appointment.id,
+      sessionId: appointment.appointmentId,
       username: appointment.doctorUsername,
       patientId: appointment.patientId,
       doctorName: doctorName,

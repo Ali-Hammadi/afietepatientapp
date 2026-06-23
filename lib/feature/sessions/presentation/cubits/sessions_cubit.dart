@@ -86,7 +86,7 @@ class SessionsCubit extends Cubit<SessionsState> {
   }
 
   Future<void> submitReview({
-    required String sessionId,
+    required dynamic sessionId,
     required String doctorId,
     required int rating,
     required String comment,

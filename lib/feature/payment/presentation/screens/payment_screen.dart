@@ -41,6 +41,7 @@ class PaymentScreen extends StatelessWidget {
                     state.payment.transactionRef,
                   ),
                 ),
+                backgroundColor: Colors.green,
               ),
             );
             Navigator.pushNamedAndRemoveUntil(
@@ -51,9 +52,12 @@ class PaymentScreen extends StatelessWidget {
           }
 
           if (state is PaymentFailure) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
+            );
           }
         },
         builder: (context, state) {
@@ -72,6 +76,7 @@ class PaymentScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // بطاقة ملخص الحجز المالي - تعمل الآن بشكل صحيح بعد إضافة الحقول لـ Entity
                           CustomPaymentSummaryCard(
                             sessionType: request.sessionType,
                             doctorName: request.doctorName,
@@ -84,6 +89,8 @@ class PaymentScreen extends StatelessWidget {
                             style: AppStyles.headingMedium,
                           ),
                           const SizedBox(height: 12),
+
+                          // خيار الدفع عبر البطاقة (شكلي)
                           CustomPaymentMethodTile(
                             title: SettingsStrings.creditDebitCard,
                             icon: Icons.credit_card_outlined,
@@ -93,6 +100,8 @@ class PaymentScreen extends StatelessWidget {
                                 : () => cubit.selectMethod(PaymentMethod.card),
                           ),
                           const SizedBox(height: 10),
+
+                          // خيار الدفع عبر المحفظة / Apple Pay (شكلي)
                           CustomPaymentMethodTile(
                             title: SettingsStrings.applePay,
                             icon: Icons.apple,
@@ -103,38 +112,54 @@ class PaymentScreen extends StatelessWidget {
                                     cubit.selectMethod(PaymentMethod.wallet),
                           ),
                           const SizedBox(height: 18),
-                          Text(
-                            SettingsStrings.cardInformationTitle,
-                            style: AppStyles.headingSmall,
-                          ),
-                          const SizedBox(height: 8),
-                          CustomPaymentInputField(
-                            hint: '0000 0000 0000 0000',
-                            prefixIcon: Icons.credit_card,
-                          ),
-                          const SizedBox(height: 14),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: CustomPaymentInputField(
-                                  label: SettingsStrings.expiryDateLabel,
-                                  hint: 'MM/YY',
+
+                          // عرض واجهة إدخال بيانات البطاقة فقط إذا تم اختيار نوع البطاقة
+                          if (selectedMethod == PaymentMethod.card) ...[
+                            Text(
+                              SettingsStrings.cardInformationTitle,
+                              style: AppStyles.headingSmall,
+                            ),
+                            const SizedBox(height: 8),
+                            CustomPaymentInputField(
+                              hint: '0000 0000 0000 0000',
+                              prefixIcon: Icons.credit_card,
+                            ),
+                            const SizedBox(height: 14),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: CustomPaymentInputField(
+                                    label: SettingsStrings.expiryDateLabel,
+                                    hint: 'MM/YY',
+                                  ),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: CustomPaymentInputField(
+                                    label: SettingsStrings.cvvLabel,
+                                    hint: '123',
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+                            CustomPaymentInputField(
+                              label: SettingsStrings.cardholderNameLabel,
+                              hint: SettingsStrings.nameOnCardHint,
+                            ),
+                          ] else ...[
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              child: Center(
+                                child: Text(
+                                  "سيتم الدفع السريع والآمن مباشرة عبر حسابك",
+                                  style: AppStyles.bodyMedium.copyWith(
+                                    color: theme.hintColor,
+                                  ),
                                 ),
                               ),
-                              SizedBox(width: 14),
-                              Expanded(
-                                child: CustomPaymentInputField(
-                                  label: SettingsStrings.cvvLabel,
-                                  hint: '123',
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 14),
-                          CustomPaymentInputField(
-                            label: SettingsStrings.cardholderNameLabel,
-                            hint: SettingsStrings.nameOnCardHint,
-                          ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -144,6 +169,21 @@ class PaymentScreen extends StatelessWidget {
                     child: SizedBox(
                       width: 180,
                       child: CustomButton(
+                        onPressed: isProcessing
+                            ? null
+                            : () {
+                                final finalRequest = PaymentRequestEntity(
+                                  appointmentId: request.appointmentId,
+                                  amount: request.amount,
+                                  currency: request.currency,
+                                  method: selectedMethod,
+                                  sessionType: request.sessionType,
+                                  doctorName: request.doctorName,
+                                  scheduledAt: request.scheduledAt,
+                                );
+
+                                cubit.processPayment(finalRequest);
+                              },
                         widget: isProcessing
                             ? SizedBox(
                                 height: 20,
@@ -161,19 +201,6 @@ class PaymentScreen extends StatelessWidget {
                                   color: colorScheme.onPrimary,
                                 ),
                               ),
-                        onPressed: isProcessing
-                            ? null
-                            : () {
-                                final finalRequest = PaymentRequestEntity(
-                                  appointmentId: request
-                                      .appointmentId, // أو لازم يكون موجود
-                                  amount: request.amount,
-                                  currency: request.currency,
-                                  method: selectedMethod,
-                                );
-
-                                cubit.processPayment(finalRequest);
-                              },
                       ),
                     ),
                   ),

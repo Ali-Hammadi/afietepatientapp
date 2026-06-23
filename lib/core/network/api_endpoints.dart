@@ -27,7 +27,7 @@ abstract class ApiEndpoints {
   static const String refreshToken = '/api/auth/token/refresh/';
   static const String accessToken = '/api/auth/token/verify/';
   // ===============================================================================================
-  // === Appointments (المواعيد) ===
+  // === Appointments  ===
 
   // حجز موعد جديد (POST)
   static const String createAppointment = '/api/patient/appointments/book/';
@@ -91,7 +91,7 @@ abstract class ApiEndpoints {
   static const String assessmentsForm = '/api/patient/assessment/form/';
   static const String assessmentsFormSubmit =
       '/api/patient/assessment/form/submit/';
-  static const String assessmentsScores = '/api/patient/assessment/scores/';
+  static const String Assessmentscores = '/api/patient/assessment/scores/';
 
   // ===============================================================================================
   // === Notes ===

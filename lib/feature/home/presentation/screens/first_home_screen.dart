@@ -1,9 +1,10 @@
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/di/injection_container.dart';
-import 'package:afiete/feature/assisments/presentation/cubits/assisments_cubit.dart';
 import 'package:afiete/feature/articles/presentation/cubits/articles_cubit.dart';
 import 'package:afiete/feature/articles/presentation/widgets/articles_home_section.dart';
+import 'package:afiete/feature/assessments/presentation/cubits/assessments_cubit.dart';
+import 'package:afiete/feature/assessments/presentation/cubits/assessments_state.dart';
 import 'package:afiete/feature/feeling/presentation/cubit/feeling_cubit.dart';
 import 'package:afiete/feature/home/presentation/widgets/assisment_widget.dart';
 import 'package:afiete/feature/home/presentation/widgets/emotions_widget.dart';
@@ -33,7 +34,7 @@ class _FirstHomeScreenState extends State<FirstHomeScreen> {
 
       // نطلب المقالات فقط إذا كانت في الحالة الابتدائية ولم يتم جلبها مسبقاً لمنع التكرار
       if (articlesCubit.state is ArticlesInitial) {
-        final assignmentsState = context.read<AssismentsCubit>().state;
+        final assignmentsState = context.read<AssessmentsCubit>().state;
         final currentDiagnosis = _resolveClosestDiagnosis(assignmentsState);
 
         articlesCubit.getArticlesForHomeUseCase(
@@ -49,8 +50,8 @@ class _FirstHomeScreenState extends State<FirstHomeScreen> {
     return null;
   }
 
-  String? _resolveClosestDiagnosis(AssismentsState assignmentsState) {
-    if (assignmentsState is! AssismentsResultLoaded) {
+  String? _resolveClosestDiagnosis(AssessmentsState assignmentsState) {
+    if (assignmentsState is! AssessmentsResultLoaded) {
       return null;
     }
 
@@ -95,11 +96,10 @@ class _FirstHomeScreenState extends State<FirstHomeScreen> {
               },
             ),
 
-            // 2. الـ Listener المركزي: يحدّث المقالات فوراً إذا قام المستخدم بعمل فحص جديد الآن
-            BlocListener<AssismentsCubit, AssismentsState>(
+            BlocListener<AssessmentsCubit, AssessmentsState>(
               listenWhen: (previous, current) =>
-                  previous is! AssismentsResultLoaded &&
-                  current is AssismentsResultLoaded,
+                  previous is! AssessmentsResultLoaded &&
+                  current is AssessmentsResultLoaded,
               listener: (context, assignmentsState) {
                 final currentDiagnosis =
                     _resolveClosestDiagnosis(assignmentsState);
@@ -130,11 +130,10 @@ class _FirstHomeScreenState extends State<FirstHomeScreen> {
                     style: AppStyles.headingMedium,
                   ),
 
-                  // عرض الأطباء بناءً على نتيجة الفحص الحالية المباشرة
-                  BlocBuilder<AssismentsCubit, AssismentsState>(
+                  BlocBuilder<AssessmentsCubit, AssessmentsState>(
                     builder: (context, assignmentsState) {
                       List<DoctorEntity>? recommendedDoctors;
-                      if (assignmentsState is AssismentsResultLoaded) {
+                      if (assignmentsState is AssessmentsResultLoaded) {
                         recommendedDoctors = assignmentsState.doctors;
                       }
 

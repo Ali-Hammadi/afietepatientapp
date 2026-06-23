@@ -1,13 +1,12 @@
 import 'package:afiete/core/usecases/usecase.dart';
-import 'package:afiete/feature/assisments/data/assisment_visibility_store.dart';
 import 'package:afiete/feature/appoinments/domain/entities/appointment_entity.dart';
 import 'package:afiete/feature/appoinments/domain/usecase/appointments_usecase.dart';
 import 'package:afiete/feature/appoinments/domain/values/consultation_fee.dart';
+import 'package:afiete/feature/assessments/data/assisment_visibility_store.dart';
 import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
 import 'package:afiete/feature/doctors/domain/usecase/get_doctors_usecase.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart'; // لتنسيق التاريخ
 
 part 'appointments_state.dart';
 
@@ -17,73 +16,39 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
   final GetAllDoctorsUseCase? getAllDoctorsUseCase;
   final CancelAppointmentUseCase cancelAppointmentUseCase;
   final RescheduleAppointmentUseCase rescheduleAppointmentUseCase;
-  // إضافة UseCase الجديد
   final GetAvailableSlotsUseCase getAvailableSlotsUseCase;
 
-  AppointmentsCubit(
-    this.getAppointmentsUseCase,
-    this.createAppointmentDraftUseCase,
+  AppointmentsCubit({
+    required this.getAppointmentsUseCase,
+    required this.createAppointmentDraftUseCase,
     this.getAllDoctorsUseCase,
-    this.cancelAppointmentUseCase,
-    this.rescheduleAppointmentUseCase,
-    this.getAvailableSlotsUseCase, // إضافة في الـ Constructor
-  ) : super(const AppointmentsInitial());
-
-  // --- الدالة الجديدة لجلب الأوقات ---
-  Future<void> fetchAvailableSlots({
-    required String doctorUsername,
-    required DateTime date,
-  }) async {
-    // يجب إضافة SlotsLoading إلى ملف state
-    emit(const SlotsLoading());
-
-    // تحويل التاريخ للصيغة التي يقبلها Django
-    final String formattedDate = DateFormat('yyyy-MM-dd').format(date);
-
-    final result = await getAvailableSlotsUseCase(
-      GetAvailableSlotsParams(
-        doctorUsername: doctorUsername,
-        date: formattedDate,
-      ),
-    );
-
-    result.fold(
-      (failure) => emit(AppointmentsError(failure.errorMessage)),
-      (slots) => emit(SlotsLoaded(slots)), // تأكد من وجود SlotsLoaded في state
-    );
-  }
-
-  // --- باقي الدوال كما هي ---
+    required this.cancelAppointmentUseCase,
+    required this.rescheduleAppointmentUseCase,
+    required this.getAvailableSlotsUseCase,
+  }) : super(AppointmentsInitial());
 
   Future<void> loadAppointments() async {
-    emit(const AppointmentsLoading());
-    final appointmentsResult = await getAppointmentsUseCase(NoParams());
-    final doctorsUseCase = getAllDoctorsUseCase;
+    emit(AppointmentsLoading());
+    final appointmentResult = await getAppointmentsUseCase(NoParams());
 
-    final appointments = appointmentsResult.fold<List<AppointmentEntity>?>((
-      failure,
-    ) {
-      emit(AppointmentsError(failure.errorMessage));
-      return null;
-    }, (appointments) => appointments);
-
-    if (appointments == null) {
-      return;
+    List<DoctorEntity> doctorsList = const [];
+    if (getAllDoctorsUseCase != null) {
+      final doctorResult = await getAllDoctorsUseCase!(NoParams());
+      doctorResult.fold((_) {}, (doctors) => doctorsList = doctors);
     }
 
-    if (doctorsUseCase == null) {
-      emit(AppointmentsLoaded(appointments, doctors: const []));
-      return;
-    }
-
-    final doctorsResult = await doctorsUseCase(NoParams());
-    doctorsResult.fold(
-      (_) => emit(AppointmentsLoaded(appointments, doctors: const [])),
-      (doctors) => emit(AppointmentsLoaded(appointments, doctors: doctors)),
+    appointmentResult.fold(
+      (failure) => emit(AppointmentsError(failure.errorMessage)),
+      (appointments) {
+        final sorted = List<AppointmentEntity>.from(appointments)
+          ..sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
+        emit(AppointmentsLoaded(sorted, doctors: doctorsList));
+      },
     );
   }
 
-  Future<void> createBookingDraft({
+  Future<void> createAppointmentDraft({
+    required int appointmentId,
     required String doctorUsername,
     required String patientUsername,
     required String doctorName,
@@ -92,8 +57,10 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
     required ConsultationFee consultationFee,
     required String sessionType,
   }) async {
+    emit(AppointmentsLoading());
     final result = await createAppointmentDraftUseCase(
       CreateAppointmentParams(
+        appointmentId: appointmentId,
         doctorUsername: doctorUsername,
         patientUsername: patientUsername,
         doctorName: doctorName,
@@ -104,12 +71,10 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
       ),
     );
 
-    await result.fold<Future<void>>(
-      (failure) async {
-        emit(AppointmentsError(failure.errorMessage));
-      },
-      (created) async {
-        await AssismentVisibilityStore.markAssismentBooked();
+    result.fold(
+      (failure) => emit(AppointmentsError(failure.errorMessage)),
+      (created) {
+        AssessmentsVisibilityStore.markAssessmentsBooked();
         final currentState = state;
         if (currentState is AppointmentsLoaded) {
           final updated = [created, ...currentState.appointments]
@@ -122,10 +87,10 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
     );
   }
 
-  Future<bool> cancelAppointment(String appointmentId) async {
+  Future<bool> cancelAppointment(int appointmentId) async {
+    emit(AppointmentsLoading());
     final result = await cancelAppointmentUseCase(
-      CancelAppointmentParams(appointmentId: appointmentId),
-    );
+        CancelAppointmentParams(appointmentId: appointmentId));
 
     return result.fold<Future<bool>>(
       (failure) {
@@ -140,9 +105,10 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
   }
 
   Future<bool> rescheduleAppointment({
-    required String appointmentId,
+    required int appointmentId,
     required DateTime newScheduledAt,
   }) async {
+    emit(AppointmentsLoading());
     final result = await rescheduleAppointmentUseCase(
       RescheduleAppointmentParams(
         appointmentId: appointmentId,

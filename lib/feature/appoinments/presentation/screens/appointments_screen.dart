@@ -248,7 +248,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             onAddReview: matchedDoctor == null
                 ? null
                 : () => _showReviewSheet(
-                      appointmentId: appointment.id,
+                      appointmentId: appointment.appointmentId,
                       doctorUsername: matchedDoctor.doctorUsername,
                     ),
             onBookAgain: matchedDoctor == null
@@ -257,11 +257,11 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             onReschedule: matchedDoctor == null
                 ? null
                 : () => _handleReschedule(
-                      appointmentId: appointment.id,
+                      appointmentId: appointment.appointmentId,
                       doctor: matchedDoctor,
                     ),
-            onCancel: () =>
-                _confirmCancel(context, appointmentId: appointment.id),
+            onCancel: () => _confirmCancel(context,
+                appointmentId: appointment.appointmentId),
             onJoinSession: () => _handleJoinSession(appointment),
           );
         },
@@ -285,7 +285,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   }
 
   Future<void> _handleReschedule({
-    required String appointmentId,
+    required dynamic appointmentId,
     required DoctorEntity doctor,
   }) async {
     final selectedTime = await Navigator.pushNamed<DateTime?>(
@@ -327,7 +327,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   }
 
   void _showReviewSheet({
-    required String appointmentId,
+    required int appointmentId,
     required String doctorUsername,
   }) {
     showModalBottomSheet<void>(
@@ -344,7 +344,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     );
   }
 
-  void _confirmCancel(BuildContext context, {required String appointmentId}) {
+  void _confirmCancel(BuildContext context, {required dynamic appointmentId}) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(

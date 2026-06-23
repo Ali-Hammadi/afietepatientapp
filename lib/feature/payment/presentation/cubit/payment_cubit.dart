@@ -38,7 +38,7 @@ class PaymentCubit extends Cubit<PaymentState> {
       (failure) => emit(
         PaymentFailure(failure.errorMessage, selectedMethod: request.method),
       ),
-      (payment) => emit(PaymentSuccess(payment)),
+      (payment) => emit(PaymentSuccess(payment)), // ستنجح العملية دائماً هنا
     );
   }
 

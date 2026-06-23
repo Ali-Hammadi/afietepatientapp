@@ -1,7 +1,7 @@
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/routes/app_route.dart';
-import 'package:afiete/feature/assisments/data/assisment_visibility_store.dart';
+import 'package:afiete/feature/assessments/data/assisment_visibility_store.dart';
 import 'package:flutter/material.dart';
 
 class CustomAssignmentWidget extends StatelessWidget {
@@ -10,7 +10,7 @@ class CustomAssignmentWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
-      future: AssismentVisibilityStore.shouldShowAssisment(),
+      future: AssessmentsVisibilityStore.shouldShowAssessments(),
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return const SizedBox(
@@ -38,14 +38,14 @@ class CustomAssignmentWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                SettingsStrings.takeAssismentTitle,
+                SettingsStrings.takeAssessmentsTitle,
                 style: AppStyles.bodyMedium.copyWith(
                   color: colorScheme.onPrimary,
                 ),
                 textAlign: TextAlign.start,
               ),
               Text(
-                SettingsStrings.takeAssismentDescription,
+                SettingsStrings.takeAssessmentsDescription,
                 style: AppStyles.bodyMedium.copyWith(
                   color: colorScheme.onPrimary,
                 ),
@@ -53,7 +53,7 @@ class CustomAssignmentWidget extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, MyRoutes.assismentTestScreen);
+                  Navigator.pushNamed(context, MyRoutes.AssessmentsTestScreen);
                 },
                 child: Container(
                   padding: const EdgeInsets.all(3),
@@ -64,7 +64,7 @@ class CustomAssignmentWidget extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    SettingsStrings.takeAssismentButton,
+                    SettingsStrings.takeAssessmentsButton,
                     style: AppStyles.bodyMedium.copyWith(
                       color: colorScheme.primary,
                     ),

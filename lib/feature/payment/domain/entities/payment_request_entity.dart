@@ -7,11 +7,19 @@ class PaymentRequestEntity extends Equatable {
   final String currency;
   final PaymentMethod method;
 
+  // الحقول الجديدة التي تحتاجها شاشة ملخص الدفع
+  final String sessionType;
+  final String doctorName;
+  final DateTime scheduledAt;
+
   const PaymentRequestEntity({
     required this.appointmentId,
     required this.amount,
     this.currency = 'USD',
     required this.method,
+    required this.sessionType,
+    required this.doctorName,
+    required this.scheduledAt,
   });
 
   @override
@@ -20,5 +28,8 @@ class PaymentRequestEntity extends Equatable {
         amount,
         currency,
         method,
+        sessionType,
+        doctorName,
+        scheduledAt,
       ];
 }

@@ -400,14 +400,14 @@ abstract class SettingsStrings {
   static String get resonanceStep3 =>
       _t('Stay relaxed and steady', 'ابقَ متسترخيًا ومستقرًا');
 
-  static String get takeAssismentTitle =>
+  static String get takeAssessmentsTitle =>
       _t('Not sure where to start?', 'لست متأكدًا من أين تبدأ؟');
-  static String get takeAssismentDescription => _t(
-        'Take a short mental health Assisment so we can understand your state and suggest the best doctors for you',
+  static String get takeAssessmentsDescription => _t(
+        'Take a short mental health Assessments so we can understand your state and suggest the best doctors for you',
         'أكمل تقييمًا قصيرًا للصحة النفسية حتى نفهم حالتك ونقترح أفضل الأطباء لك',
       );
-  static String get takeAssismentButton =>
-      _t('Take an Assisment', 'ابدأ التقييم');
+  static String get takeAssessmentsButton =>
+      _t('Take an Assessments', 'ابدأ التقييم');
   static String get todayLabel => _t('Today', 'اليوم');
   static String get viewProfile => _t('View Profile', 'عرض الملف الشخصي');
   static String get typeMessageHint => _t('Type a message...', 'اكتب رسالة...');
@@ -635,7 +635,8 @@ abstract class SettingsStrings {
   static String get totalNotesLabel => _t('Total notes:', 'إجمالي الملاحظات:');
   static String get editNote => _t('Edit', 'تعديل');
   static String get shareNote => _t('Share', 'مشاركة');
-  static String assismentProgressLabel(int questionIndex, int totalQuestions) =>
+  static String AssessmentsProgressLabel(
+          int questionIndex, int totalQuestions) =>
       _t(
         'Question $questionIndex of $totalQuestions',
         'السؤال $questionIndex من $totalQuestions',
@@ -852,12 +853,12 @@ abstract class SettingsStrings {
         'Please answer all questions before submitting.',
         'يرجى الإجابة عن جميع الأسئلة قبل الإرسال.',
       );
-  static String get assismentRecommendedSpecialistSummary => _t(
+  static String get AssessmentsRecommendedSpecialistSummary => _t(
         'Based on your answers, we recommend speaking with a specialist that matches your current mental health state.',
         'بناءً على إجاباتك، نوصي بالتحدث مع متخصص يناسب حالتك النفسية الحالية.',
       );
 
-  static String assismentSeverityLabel(String severity) {
+  static String AssessmentseverityLabel(String severity) {
     final normalized = severity.trim().toLowerCase();
     switch (normalized) {
       case 'low':
@@ -882,7 +883,7 @@ abstract class SettingsStrings {
     }
   }
 
-  static String assismentSummaryLabel(String severity, String backendSummary) {
+  static String AssessmentsummaryLabel(String severity, String backendSummary) {
     if (!isArabic) {
       if (backendSummary.trim().isNotEmpty) {
         return backendSummary;
