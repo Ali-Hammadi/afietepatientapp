@@ -54,7 +54,7 @@ class CustomAppointmentCard extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundImage: AssetImage(ImageLinks.man1),
+                  backgroundImage: const AssetImage(ImageLinks.man1),
                   radius: 30,
                   backgroundColor: colorScheme.primaryContainer.withValues(
                     alpha: 0.35,
@@ -116,8 +116,11 @@ class CustomAppointmentCard extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(AppStyles.padding),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              // استخدام Wrap يحمي الشاشة من الـ Overflow في حال كانت الأزرار كثيرة
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.start,
                 children: [
                   if (isPast) ...[
                     CustomButton(
@@ -129,7 +132,15 @@ class CustomAppointmentCard extends StatelessWidget {
                       ),
                       onPressed: onAddReview,
                     ),
-                    const SizedBox(width: 12),
+                    CustomButton(
+                      widget: Text(
+                        SettingsStrings.reschedule,
+                        style: AppStyles.bodySmall.copyWith(
+                          color: colorScheme.onPrimary,
+                        ),
+                      ),
+                      onPressed: onReschedule,
+                    ),
                     CustomButton(
                       widget: Text(
                         SettingsStrings.bookAgain,
@@ -150,7 +161,6 @@ class CustomAppointmentCard extends StatelessWidget {
                       onPressed:
                           onJoinSession ?? () => _handleJoinSession(context),
                     ),
-                    const SizedBox(width: 12),
                     CustomButton(
                       widget: Text(
                         SettingsStrings.reschedule,

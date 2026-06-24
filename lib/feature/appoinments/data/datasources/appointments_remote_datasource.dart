@@ -15,6 +15,8 @@ abstract class AppointmentsRemoteDataSource {
     required int durationSlots,
     required ConsultationFee consultationFee,
     required String sessionType,
+    required String slotStart,
+    required String slotEnd,
   });
 
   Future<List<dynamic>> getAvailableSlots({
@@ -26,7 +28,15 @@ abstract class AppointmentsRemoteDataSource {
 
   Future<AppointmentModel> rescheduleAppointment({
     required int appointmentId,
-    required DateTime newScheduledAt,
+    required String doctorUsername,
+    required DateTime newDate,
+    required String slotStart,
+    required String slotEnd,
+  });
+
+  Future<void> updateNextSession({
+    required int appointmentId,
+    required bool hasNextSession,
   });
 }
 
@@ -38,22 +48,40 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
   @override
   Future<List<AppointmentModel>> getAppointments() async {
     try {
-      final response = await _dio.get(ApiEndpoints.myAppointments);
-      if (response.statusCode == 200) {
-        final body = response.data;
-        if (body is List) {
-          return body
-              .map((e) => AppointmentModel.fromJson(e as Map<String, dynamic>))
-              .toList();
-        } else if (body is Map<String, dynamic> &&
-            body['appointments'] is List) {
-          final list = body['appointments'] as List;
-          return list
-              .map((e) => AppointmentModel.fromJson(e as Map<String, dynamic>))
-              .toList();
+      final responses = await Future.wait([
+        _dio.get(ApiEndpoints.myAppointments),
+        _dio.get(ApiEndpoints.historyAppointments),
+        _dio.get(ApiEndpoints.missedAppointments),
+      ].map((future) => future.catchError((_) => Response(
+            requestOptions: RequestOptions(path: ''),
+            statusCode: 500,
+          ))));
+
+      final List<AppointmentModel> allAppointments = [];
+
+      for (var response in responses) {
+        if (response.statusCode == 200) {
+          final data = response.data;
+          List<dynamic> list = [];
+
+          if (data is List) {
+            list = data;
+          } else if (data is Map<String, dynamic> && data['results'] is List) {
+            list = data['results'] as List;
+          } else if (data is Map<String, dynamic> &&
+              data['appointments'] is List) {
+            list = data['appointments'] as List;
+          }
+
+          allAppointments.addAll(
+            list
+                .map((json) =>
+                    AppointmentModel.fromJson(json as Map<String, dynamic>))
+                .toList(),
+          );
         }
       }
-      return [];
+      return allAppointments;
     } on DioException {
       rethrow;
     } catch (e) {
@@ -74,18 +102,24 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
     required int durationSlots,
     required ConsultationFee consultationFee,
     required String sessionType,
+    required String slotStart,
+    required String slotEnd,
   }) async {
     try {
       final response = await _dio.post(
         ApiEndpoints.createAppointment,
         data: {
-          'appointment_id': appointmentId,
           'doctor_username': doctorUsername,
+          'type': sessionType,
+          'day_date': scheduledAt.toIso8601String().split('T')[0],
+          'slot': {
+            'start': slotStart,
+            'end': slotEnd,
+          },
+          'appointment_id': appointmentId,
           'patient_username': patientUsername,
           'doctor_name': doctorName,
-          'date': scheduledAt.toIso8601String(),
           'duration_slots': durationSlots,
-          'session_type': sessionType,
           'consultation_fee': {
             'textChat': consultationFee.textChat,
             'videoCall': consultationFee.videoCall,
@@ -120,18 +154,20 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
   }
 
   @override
-  Future<List<dynamic>> getAvailableSlots(
-      {required String doctorUsername, required String date}) async {
+  Future<List<dynamic>> getAvailableSlots({
+    required String doctorUsername,
+    required String date,
+  }) async {
     try {
       final response = await _dio.get(
         ApiEndpoints.doctorAvailableSlots(doctorUsername),
-        queryParameters: {'doctor_username': doctorUsername, 'date': date},
+        queryParameters: {'date': date},
       );
       if (response.statusCode == 200) {
         final body = response.data;
         if (body is List) return body;
-        if (body is Map<String, dynamic> && body['slots'] is List) {
-          return body['slots'] as List;
+        if (body is Map<String, dynamic> && body['available_slots'] is List) {
+          return body['available_slots'] as List;
         }
       }
       return [];
@@ -149,7 +185,8 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
   @override
   Future<void> cancelAppointment(int appointmentId) async {
     try {
-      await _dio.post(ApiEndpoints.cancelAppointment(appointmentId.toString()));
+      await _dio
+          .patch(ApiEndpoints.cancelAppointment(appointmentId.toString()));
     } on DioException {
       rethrow;
     } catch (e) {
@@ -164,14 +201,21 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
   @override
   Future<AppointmentModel> rescheduleAppointment({
     required int appointmentId,
-    required DateTime newScheduledAt,
+    required String doctorUsername,
+    required DateTime newDate,
+    required String slotStart,
+    required String slotEnd,
   }) async {
     try {
       final response = await _dio.post(
         ApiEndpoints.reschedualAppointment(appointmentId.toString()),
         data: {
-          'appointmentId': appointmentId,
-          'newScheduledAt': newScheduledAt.toIso8601String(),
+          'doctor_username': doctorUsername,
+          'day_date': newDate.toIso8601String().split('T')[0],
+          'slot': {
+            'start': slotStart,
+            'end': slotEnd,
+          },
         },
       );
       if (response.statusCode == 200) {
@@ -195,6 +239,28 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
       throw DioException(
         requestOptions: RequestOptions(
             path: ApiEndpoints.reschedualAppointment(appointmentId.toString())),
+        error: e,
+      );
+    }
+  }
+
+  @override
+  Future<void> updateNextSession({
+    required int appointmentId,
+    required bool hasNextSession,
+  }) async {
+    try {
+      // نستخدم الاند بوينت الصحيح من ملفك
+      await _dio.patch(
+        ApiEndpoints.hasNextAppointment(appointmentId.toString()),
+        data: {'has_next_session': hasNextSession},
+      );
+    } on DioException {
+      rethrow;
+    } catch (e) {
+      throw DioException(
+        requestOptions: RequestOptions(
+            path: ApiEndpoints.hasNextAppointment(appointmentId.toString())),
         error: e,
       );
     }

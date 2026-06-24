@@ -13,36 +13,63 @@ class AppointmentModel extends AppointmentEntity {
     required super.sessionType,
     required super.status,
     required super.requiresPayment,
+    required super.hasNextSession,
   });
 
   factory AppointmentModel.fromJson(Map<String, dynamic> json) {
+    String extractedUsername = 'unknown_doctor';
+    String extractedDoctorName = 'Doctor';
+
+    if (json['doctor_username'] != null) {
+      extractedUsername = json['doctor_username'] as String;
+    } else if (json['doctor'] is Map<String, dynamic>) {
+      extractedUsername =
+          json['doctor']['username'] as String? ?? 'unknown_doctor';
+    }
+
+    if (json['doctor_name'] != null) {
+      extractedDoctorName = json['doctor_name'] as String;
+    } else if (json['doctor'] is Map<String, dynamic>) {
+      extractedDoctorName = json['doctor']['username'] as String? ?? 'Doctor';
+    }
+
     return AppointmentModel(
-      appointmentId: json['id'] as int? ?? json['appointmentId'] as int? ?? 0,
-      doctorUsername: json['doctor_username'] as String? ?? 'unknown_doctor',
+      appointmentId:
+          json['id'] as dynamic ?? json['appointmentId'] as dynamic ?? 0,
+      doctorUsername: extractedUsername,
       patientId: json['patient_username'] as String? ??
           json['patientId'] as String? ??
           'unknown_patient',
-      doctorName: (json['doctor_name'] ?? json['doctor_username'] ?? 'Doctor')
-          as String,
+      doctorName: extractedDoctorName,
       scheduledAt: json['date'] != null
-          ? DateTime.parse(json['date'] as String)
+          ? DateTime.parse(json['date'] as String).toLocal()
           : json['scheduledAt'] != null
-              ? DateTime.parse(json['scheduledAt'] as String)
+              ? DateTime.parse(json['scheduledAt'] as String).toLocal()
               : DateTime.now(),
       durationSlots:
-          json['durationSlots'] as int? ?? json['duration_slots'] as int? ?? 1,
-      consultationFee: json['consultationFee'] != null
-          ? ConsultationFee(
-              textChat: (json['consultationFee']['textChat'] as num).toDouble(),
-              videoCall:
-                  (json['consultationFee']['videoCall'] as num).toDouble(),
-              voiceCall:
-                  (json['consultationFee']['voiceCall'] as num).toDouble(),
-            )
-          : const ConsultationFee(textChat: 0, videoCall: 0, voiceCall: 0),
+          json['duration_slots'] as int? ?? json['durationSlots'] as int? ?? 1,
+      consultationFee:
+          json['consultation_fee'] != null || json['consultationFee'] != null
+              ? ConsultationFee(
+                  textChat: ((json['consultation_fee']?['textChat'] ??
+                          json['consultationFee']?['textChat'] ??
+                          0) as num)
+                      .toDouble(),
+                  videoCall: ((json['consultation_fee']?['videoCall'] ??
+                          json['consultationFee']?['videoCall'] ??
+                          0) as num)
+                      .toDouble(),
+                  voiceCall: ((json['consultation_fee']?['voiceCall'] ??
+                          json['consultationFee']?['voiceCall'] ??
+                          0) as num)
+                      .toDouble(),
+                )
+              : const ConsultationFee(textChat: 0, videoCall: 0, voiceCall: 0),
       sessionType: (json['type'] ?? json['sessionType'] ?? 'video') as String,
       status: (json['status'] ?? 'pending') as String,
       requiresPayment: json['requiresPayment'] as bool? ?? false,
+      hasNextSession:
+          json['has_next_session'] as bool? ?? false, // تم استخراج القيمة
     );
   }
 
@@ -58,25 +85,7 @@ class AppointmentModel extends AppointmentEntity {
       sessionType: entity.sessionType,
       status: entity.status,
       requiresPayment: entity.requiresPayment,
+      hasNextSession: entity.hasNextSession,
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': appointmentId,
-      'doctor_username': doctorUsername,
-      'patient_username': patientId,
-      'doctor_name': doctorName,
-      'date': scheduledAt.toIso8601String(),
-      'duration_slots': durationSlots,
-      'consultation_fee': {
-        'textChat': consultationFee.textChat,
-        'videoCall': consultationFee.videoCall,
-        'voiceCall': consultationFee.voiceCall,
-      },
-      'type': sessionType,
-      'status': status,
-      'requiresPayment': requiresPayment,
-    };
   }
 }

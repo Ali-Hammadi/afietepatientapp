@@ -106,13 +106,19 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
 
   Future<bool> rescheduleAppointment({
     required int appointmentId,
-    required DateTime newScheduledAt,
+    required String doctorUsername,
+    required DateTime newDate,
+    required String slotStart,
+    required String slotEnd,
   }) async {
     emit(AppointmentsLoading());
     final result = await rescheduleAppointmentUseCase(
       RescheduleAppointmentParams(
         appointmentId: appointmentId,
-        newScheduledAt: newScheduledAt,
+        newScheduledAt: newDate,
+        doctorUsername: doctorUsername,
+        slotStart: slotStart,
+        slotEnd: slotEnd,
       ),
     );
 

@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:afiete/feature/appoinments/domain/values/consultation_fee.dart';
 
 class AppointmentEntity extends Equatable {
-  final int appointmentId; // تعديل إلى int
+  final dynamic appointmentId;
   final String doctorUsername;
   final String patientId;
   final String doctorName;
@@ -12,6 +12,7 @@ class AppointmentEntity extends Equatable {
   final String sessionType;
   final String status;
   final bool requiresPayment;
+  final bool hasNextSession; // تم الإضافة هنا
 
   const AppointmentEntity({
     required this.appointmentId,
@@ -24,6 +25,7 @@ class AppointmentEntity extends Equatable {
     required this.sessionType,
     required this.status,
     required this.requiresPayment,
+    required this.hasNextSession, // تم الإضافة هنا
   });
 
   DateTime get endAt => scheduledAt.add(Duration(minutes: durationSlots * 30));
@@ -42,5 +44,6 @@ class AppointmentEntity extends Equatable {
         sessionType,
         status,
         requiresPayment,
+        hasNextSession, // تم الإضافة هنا
       ];
 }

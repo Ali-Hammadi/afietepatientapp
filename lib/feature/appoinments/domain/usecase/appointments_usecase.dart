@@ -6,7 +6,7 @@ import 'package:afiete/feature/appoinments/domain/values/consultation_fee.dart';
 import 'package:dartz/dartz.dart';
 
 class CreateAppointmentParams {
-  final int appointmentId;
+  final dynamic appointmentId;
   final String doctorUsername;
   final String patientUsername;
   final String doctorName;
@@ -64,7 +64,7 @@ class GetAppointmentsUseCase
 
 //==================================================================================================
 class CancelAppointmentParams {
-  final int appointmentId;
+  final dynamic appointmentId;
   const CancelAppointmentParams({required this.appointmentId});
 }
 //==================================================================================================
@@ -83,11 +83,17 @@ class CancelAppointmentUseCase
 
 //==================================================================================================
 class RescheduleAppointmentParams {
-  final int appointmentId;
+  final dynamic appointmentId;
   final DateTime newScheduledAt;
+  final String doctorUsername;
+  final String slotStart;
+  final String slotEnd;
   const RescheduleAppointmentParams({
     required this.appointmentId,
     required this.newScheduledAt,
+    required this.doctorUsername,
+    required this.slotStart,
+    required this.slotEnd,
   });
 }
 
@@ -102,7 +108,10 @@ class RescheduleAppointmentUseCase
   ) {
     return repository.rescheduleAppointment(
       appointmentId: params.appointmentId,
-      newScheduledAt: params.newScheduledAt,
+      newDate: params.newScheduledAt,
+      doctorUsername: params.doctorUsername,
+      slotStart: params.slotStart,
+      slotEnd: params.slotEnd,
     );
   }
 }

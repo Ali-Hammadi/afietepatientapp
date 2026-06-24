@@ -12,7 +12,7 @@ abstract class AppointmentsRepository {
   });
 
   Future<Either<Failure, AppointmentEntity>> createAppointment({
-    required int appointmentId,
+    required dynamic appointmentId,
     required String doctorUsername,
     required String patientUsername,
     required String doctorName,
@@ -22,10 +22,13 @@ abstract class AppointmentsRepository {
     required String sessionType,
   });
 
-  Future<Either<Failure, void>> cancelAppointment(int appointmentId);
+  Future<Either<Failure, void>> cancelAppointment(dynamic appointmentId);
 
   Future<Either<Failure, AppointmentEntity>> rescheduleAppointment({
     required int appointmentId,
-    required DateTime newScheduledAt,
+    required String doctorUsername,
+    required DateTime newDate,
+    required String slotStart,
+    required String slotEnd,
   });
 }

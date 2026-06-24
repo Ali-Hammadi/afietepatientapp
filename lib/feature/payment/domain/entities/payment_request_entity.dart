@@ -2,7 +2,7 @@ import 'package:afiete/core/constants/payment_methods.dart';
 import 'package:equatable/equatable.dart';
 
 class PaymentRequestEntity extends Equatable {
-  final int appointmentId;
+  final dynamic appointmentId;
   final double amount;
   final String currency;
   final PaymentMethod method;

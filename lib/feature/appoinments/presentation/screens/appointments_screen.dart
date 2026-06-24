@@ -202,10 +202,25 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     required BuildContext context,
     required AppointmentsLoaded state,
   }) {
-    final now = DateTime.now();
     final filteredAppointments = state.appointments.where((appointment) {
-      final isUpcomingAppointment = appointment.scheduledAt.isAfter(now);
-      return isUpcoming ? isUpcomingAppointment : !isUpcomingAppointment;
+      final statusLower = appointment.status.toLowerCase();
+      // الحالات التي تعتبر ماضية/منتهية
+      final pastStatuses = [
+        'completed',
+        'cancelled',
+        'expired',
+        'missed',
+        'refunded'
+      ];
+      bool isPastRecord = pastStatuses.contains(statusLower);
+
+      // الشرط الخاص بك: إذا كان لديه جلسة قادمة، يظهر في upcoming حتى لو كان ماضياً
+      if (appointment.hasNextSession) {
+        isPastRecord = false;
+      }
+
+      // إذا كنا في تبويب Upcoming نعرض ما هو ليس ماضياً، والعكس صحيح
+      return isUpcoming ? !isPastRecord : isPastRecord;
     }).toList();
 
     if (filteredAppointments.isEmpty) {
@@ -214,6 +229,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           return context.read<AppointmentsCubit>().loadAppointments();
         },
         child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
           children: [
             const SizedBox(height: 120),
             Center(
@@ -233,6 +249,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         return context.read<AppointmentsCubit>().loadAppointments();
       },
       child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
         itemCount: filteredAppointments.length,
         itemBuilder: (context, index) {
           final appointment = filteredAppointments[index];
@@ -254,6 +271,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             onBookAgain: matchedDoctor == null
                 ? null
                 : () => _handleBookAgain(doctor: matchedDoctor),
+            // تفعيل زر إعادة الجدولة دائماً بناءً على طلبك
             onReschedule: matchedDoctor == null
                 ? null
                 : () => _handleReschedule(
@@ -298,11 +316,19 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
       return;
     }
 
-    final success =
-        await context.read<AppointmentsCubit>().rescheduleAppointment(
-              appointmentId: appointmentId,
-              newScheduledAt: selectedTime,
-            );
+    final success = await context
+        .read<AppointmentsCubit>()
+        .rescheduleAppointment(
+            appointmentId: appointmentId,
+            doctorUsername: doctor.doctorUsername,
+            newDate: selectedTime,
+            slotStart:
+                selectedTime.toIso8601String().split('T')[1].substring(0, 5),
+            slotEnd: selectedTime
+                .add(Duration(minutes: 30))
+                .toIso8601String()
+                .split('T')[1]
+                .substring(0, 5));
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(SettingsStrings.sessionRescheduledSuccessfully)),

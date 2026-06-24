@@ -6,7 +6,7 @@ import 'package:afiete/feature/chat/presentation/widgets/chat_message_item.dart'
 import 'package:flutter/material.dart';
 
 class ChatConversationArgs {
-  final String sessionId;
+  final dynamic sessionId;
   final String doctorId;
   final String patientId;
   final String doctorName;

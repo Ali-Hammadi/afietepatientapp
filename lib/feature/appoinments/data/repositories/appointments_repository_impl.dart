@@ -47,7 +47,7 @@ class AppointmentsRepositoryImpl implements AppointmentsRepository {
 
   @override
   Future<Either<Failure, AppointmentEntity>> createAppointment({
-    required int appointmentId,
+    required dynamic appointmentId,
     required String doctorUsername,
     required String patientUsername,
     required String doctorName,
@@ -58,6 +58,12 @@ class AppointmentsRepositoryImpl implements AppointmentsRepository {
   }) async {
     try {
       final result = await dataSource.createAppointment(
+        slotStart: scheduledAt.toIso8601String().split('T')[1].substring(0, 5),
+        slotEnd: scheduledAt
+            .add(Duration(minutes: durationSlots))
+            .toIso8601String()
+            .split('T')[1]
+            .substring(0, 5),
         appointmentId: appointmentId,
         doctorUsername: doctorUsername,
         patientUsername: patientUsername,
@@ -78,7 +84,7 @@ class AppointmentsRepositoryImpl implements AppointmentsRepository {
   }
 
   @override
-  Future<Either<Failure, void>> cancelAppointment(int appointmentId) async {
+  Future<Either<Failure, void>> cancelAppointment(dynamic appointmentId) async {
     try {
       await dataSource.cancelAppointment(appointmentId);
       return Right<Failure, void>(null);
@@ -93,12 +99,18 @@ class AppointmentsRepositoryImpl implements AppointmentsRepository {
   @override
   Future<Either<Failure, AppointmentEntity>> rescheduleAppointment({
     required int appointmentId,
-    required DateTime newScheduledAt,
+    required String doctorUsername,
+    required DateTime newDate,
+    required String slotStart,
+    required String slotEnd,
   }) async {
     try {
       final result = await dataSource.rescheduleAppointment(
         appointmentId: appointmentId,
-        newScheduledAt: newScheduledAt,
+        doctorUsername: doctorUsername,
+        newDate: newDate,
+        slotStart: slotStart,
+        slotEnd: slotEnd,
       );
       return Right<Failure, AppointmentEntity>(result);
     } on DioException catch (e) {
