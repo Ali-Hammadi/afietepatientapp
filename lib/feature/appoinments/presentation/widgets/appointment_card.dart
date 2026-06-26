@@ -5,7 +5,7 @@ import 'package:afiete/core/widget/custom_button.dart';
 import 'package:afiete/feature/appoinments/domain/constants/session_type.dart';
 import 'package:afiete/feature/appoinments/domain/entities/appointment_entity.dart';
 import 'package:afiete/feature/chat/presentation/helpers/chat_session_navigator.dart';
-import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 

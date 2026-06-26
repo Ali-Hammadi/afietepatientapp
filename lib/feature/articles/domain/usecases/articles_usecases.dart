@@ -44,8 +44,8 @@ class GetArticlesByDoctorUseCase {
 
   GetArticlesByDoctorUseCase(this.repository);
 
-  Future<Either<Failure, List<ArticleEntity>>> call(String doctorId) {
-    return repository.getArticlesByDoctor(doctorId);
+  Future<Either<Failure, List<ArticleEntity>>> call(String doctorUsername) {
+    return repository.getArticlesByDoctor(doctorUsername);
   }
 }
 

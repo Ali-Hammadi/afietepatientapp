@@ -1,8 +1,8 @@
-import 'package:afiete/feature/doctors/domain/entites/speciality_entity.dart'; // تأكد من صحة اسم الملف speciality أو specialty حسب مشروعك
+import 'package:afiete/feature/doctors/domain/entities/speciality_entity.dart'; // تأكد من صحة اسم الملف speciality أو specialty حسب مشروعك
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afiete/core/usecases/usecase.dart';
-import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:afiete/feature/doctors/domain/usecase/get_doctors_usecase.dart';
 import 'package:intl/intl.dart';
 
@@ -22,13 +22,11 @@ class DoctorsCubit extends Cubit<DoctorsState> {
   ) : super(const DoctorsInitial());
 
   List<SpecialtyEntity> _cachedSpecialties = [];
-  int?
-      _lastSpecialtyId; // إصلاح: تعريف المتغير لتخزين المعرّف الرقمي لآخر تخصص تم طلبه
+  int? _lastSpecialtyId;
 
   Future<void> initializeData() async {
     emit(const DoctorsLoading());
 
-    // 1. جلب التخصصات باستخدام الـ UseCase المخصص لها
     final specialtiesResult = await getSpecialtiesUseCase(NoParams());
     specialtiesResult.fold(
       (failure) => emit(DoctorsError(failure.errorMessage)),
@@ -39,7 +37,6 @@ class DoctorsCubit extends Cubit<DoctorsState> {
 
     if (state is DoctorsError) return;
 
-    // 2. جلب كل الأطباء افتراضياً عند الإقلاع
     final doctorsResult = await getAllDoctorsUseCase(NoParams());
     doctorsResult.fold(
       (failure) => emit(DoctorsError(failure.errorMessage)),
@@ -140,7 +137,6 @@ class DoctorsCubit extends Cubit<DoctorsState> {
       await loadAllDoctors();
       return;
     }
-    // إصلاح: التمرير الآمن باستخدام الـ id الجديد المجرّد من النصوص
     await loadDoctorsBySpecialty(_lastSpecialtyId!);
   }
 }

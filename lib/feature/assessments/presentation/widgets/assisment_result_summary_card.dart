@@ -48,13 +48,13 @@ class CustomAssessmentsResultSummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            SettingsStrings.AssessmentseverityLabel(result.severity),
+            SettingsStrings.assessmentseverityLabel(result.severity),
             style: AppStyles.headingMedium,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            SettingsStrings.AssessmentsummaryLabel(
+            SettingsStrings.assessmentsummaryLabel(
               result.severity,
               result.summary,
             ),

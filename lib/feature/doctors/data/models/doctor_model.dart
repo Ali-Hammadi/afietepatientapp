@@ -1,5 +1,5 @@
+import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:equatable/equatable.dart';
-import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
 
 class DoctorSessionPriceModel extends Equatable {
   final int duration;
@@ -82,21 +82,25 @@ class DoctorModel extends DoctorEntity {
     required super.imageUrl,
     required super.sessionPrices,
     required super.schedules,
+    super.ratingValue,
+    super.experienceYears,
+    super.jobTitle,
+    super.specialization,
+    super.experience,
+    super.rating,
+    super.patients_count,
   });
 
   factory DoctorModel.fromJson(Map<String, dynamic> json) {
-    // قراءة البيانات المتداخلة من كائن الـ user إن وجد
     final userMap = json['user'] is Map<String, dynamic>
         ? json['user'] as Map<String, dynamic>
         : null;
 
-    // استخراج الـ username بأي صيغة متوقعة من الباك-أند
     final username = _readString(json['username'] ??
             json['doctor_username'] ??
             userMap?['username']) ??
         '';
 
-    // استخراج الاسم أو دمجه من الاسم الأول والأخير للـ user
     String name = _readString(json['name']) ?? '';
     if (name.isEmpty && userMap != null) {
       final firstName = _readString(userMap['first_name']) ?? '';
@@ -107,7 +111,9 @@ class DoctorModel extends DoctorEntity {
       name = username;
     }
 
-    // معالجة أسعار الجلسات بشكل آمن ضد الأخطاء
+    final patientsCountStr =
+        _readString(json['patients_count'] ?? json['patients']) ?? '0';
+
     final rawPrices = json['session_prices'] ?? json['prices'] ?? const [];
     final prices = rawPrices is List
         ? rawPrices
@@ -117,7 +123,6 @@ class DoctorModel extends DoctorEntity {
             .toList()
         : const <DoctorSessionPrice>[];
 
-    // معالجة مواعيد عمل الطبيب بشكل آمن ضد الأخطاء
     final rawSchedules = json['schedules'] ?? json['schedule'] ?? const [];
     final schedules = rawSchedules is List
         ? rawSchedules
@@ -126,17 +131,55 @@ class DoctorModel extends DoctorEntity {
             .toList()
         : const <DoctorSchedule>[];
 
+    final ratingVal = _readDouble(json['average_rating']) ?? 0.0;
+    final expYears = _readInt(json['experience']) ?? 0;
+
+    final jobTitleMap = json['job_title'] is Map<String, dynamic>
+        ? json['job_title'] as Map<String, dynamic>
+        : null;
+    final title = _readString(jobTitleMap?['title']) ?? '';
+
+    final rawSpecialties = json['specialties'] as List?;
+    final List<String> specialtiesList = [];
+    String firstSpecialtyId = '';
+
+    if (rawSpecialties != null) {
+      for (final item in rawSpecialties) {
+        if (item is Map<String, dynamic>) {
+          final sName = _readString(item['name']);
+          if (sName != null && sName.isNotEmpty) {
+            specialtiesList.add(sName);
+          }
+          if (firstSpecialtyId.isEmpty) {
+            final sId = item['id'];
+            if (sId != null) {
+              firstSpecialtyId = sId.toString();
+            }
+          }
+        } else {
+          final sStr = _readString(item);
+          if (sStr != null && sStr.isNotEmpty) {
+            specialtiesList.add(sStr);
+          }
+        }
+      }
+    }
+
     return DoctorModel(
-      doctorUsername: username,
-      name: name,
-      specialties:
-          (json['specialties'] as List?)?.map((e) => e.toString()).toList() ??
-              const [],
-      bio: _readString(json['bio'] ?? json['description']) ?? '',
-      imageUrl: _readString(json['profile_picture'] ?? json['image']) ?? '',
-      sessionPrices: prices,
-      schedules: schedules,
-    );
+        doctorUsername: username,
+        name: name,
+        specialties: specialtiesList,
+        bio: _readString(json['bio'] ?? json['description']) ?? '',
+        imageUrl: _readString(json['image_path'] ?? json['photo']) ?? '',
+        sessionPrices: prices,
+        schedules: schedules,
+        ratingValue: ratingVal,
+        experienceYears: expYears,
+        jobTitle: title,
+        specialization: firstSpecialtyId,
+        experience: '$expYears years',
+        rating: ratingVal.toStringAsFixed(1),
+        patients_count: patientsCountStr);
   }
 
   Map<String, dynamic> toJson() {
@@ -146,6 +189,9 @@ class DoctorModel extends DoctorEntity {
       'specialties': specialties,
       'bio': bio,
       'profile_picture': imageUrl,
+      'average_rating': ratingValue,
+      'patients_count': patients_count,
+      'experience': experienceYears,
       'session_prices': sessionPrices
           .map((e) => {
                 'duration': e.duration,
@@ -164,7 +210,7 @@ class DoctorModel extends DoctorEntity {
   }
 }
 
-// دالات مساعدة (Helper Utilities) لضمان استقرار قراءة البيانات وحمايتها من الـ Null:
+// دالات المساعدة (Helpers)
 String _normalizeSessionType(String value) {
   switch (value.trim().toLowerCase()) {
     case 'video':

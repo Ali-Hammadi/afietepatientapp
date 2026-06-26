@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:afiete/core/error/failure.dart';
 import 'package:afiete/core/usecases/usecase.dart';
-import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
-import 'package:afiete/feature/doctors/domain/entites/speciality_entity.dart';
+import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/entities/speciality_entity.dart';
 import 'package:afiete/feature/doctors/domain/repositories/doctors_repository.dart';
 
 class GetAllDoctorsUseCase implements UseCase<List<DoctorEntity>, NoParams> {

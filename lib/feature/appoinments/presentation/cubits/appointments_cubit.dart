@@ -3,7 +3,7 @@ import 'package:afiete/feature/appoinments/domain/entities/appointment_entity.da
 import 'package:afiete/feature/appoinments/domain/usecase/appointments_usecase.dart';
 import 'package:afiete/feature/appoinments/domain/values/consultation_fee.dart';
 import 'package:afiete/feature/assessments/data/assisment_visibility_store.dart';
-import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:afiete/feature/doctors/domain/usecase/get_doctors_usecase.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,7 +39,7 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
 
     appointmentResult.fold(
       (failure) => emit(AppointmentsError(failure.errorMessage)),
-      (appointments) {
+      (appointments) async {
         final sorted = List<AppointmentEntity>.from(appointments)
           ..sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
         emit(AppointmentsLoaded(sorted, doctors: doctorsList));

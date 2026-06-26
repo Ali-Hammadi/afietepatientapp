@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 abstract class ArticlesRemoteDataSource {
   Future<List<ArticleModel>> getRecommendedArticles();
   Future<List<ArticleModel>> getTrendingArticles();
-  Future<List<ArticleModel>> getArticlesByDoctor(String doctorId);
+  Future<List<ArticleModel>> getArticlesByDoctor(String doctorUsername);
   Future<List<ArticleModel>> getAllArticles(
       {required int page, int pageSize = 10});
   Future<ArticleModel> getArticleById(String articleId);
@@ -30,10 +30,9 @@ class ArticlesRemoteDataSourceImpl implements ArticlesRemoteDataSource {
   }
 
   @override
-  Future<List<ArticleModel>> getArticlesByDoctor(String doctorId) async {
-    // جلب مقالات طبيب معين (تصفية عبر Query parameters أو endpoint مخصصة)
-    final response = await _dio.get(ApiEndpoints.articleById(doctorId),
-        queryParameters: {'author': doctorId});
+  Future<List<ArticleModel>> getArticlesByDoctor(String doctorUsername) async {
+    final response =
+        await _dio.get(ApiEndpoints.articlesByDoctor(doctorUsername));
     return _parseArticleList(response.data);
   }
 
@@ -62,25 +61,43 @@ class ArticlesRemoteDataSourceImpl implements ArticlesRemoteDataSource {
   }
 
   List<ArticleModel> _parseArticleList(dynamic data) {
-    final rawList = data is Map<String, dynamic>
-        ? (data['results'] ?? data['articles'] ?? data['data'] ?? const [])
-        : (data as List? ?? const []);
+    Iterable? rawList;
 
-    return rawList
-        .whereType<Map<String, dynamic>>()
-        .map(ArticleModel.fromJson)
-        .where((article) => article.id.isNotEmpty)
-        .toList(growable: false);
+    if (data is Map) {
+      rawList = data['results'] ?? data['articles'] ?? data['data'];
+    } else if (data is List) {
+      rawList = data;
+    }
+
+    if (rawList == null) return const [];
+
+    final List<ArticleModel> articles = [];
+
+    for (var item in rawList) {
+      try {
+        final json = Map<String, dynamic>.from(item);
+        print("Parsing article: ${json['title']}");
+        articles.add(ArticleModel.fromJson(json));
+      } catch (e, s) {
+        print("❌ Article Parsing Error");
+        print(e);
+        print(s);
+      }
+    }
+
+    print("Articles parsed = ${articles.length}");
+
+    return articles;
   }
 
   Map<String, dynamic> _parseArticleMap(dynamic data) {
-    if (data is Map<String, dynamic>) {
+    if (data is Map) {
       final nested = data['data'] ?? data['article'] ?? data['result'];
-      if (nested is Map<String, dynamic>) return nested;
-      return data;
+      if (nested is Map) return Map<String, dynamic>.from(nested);
+      return Map<String, dynamic>.from(data);
     }
-    if (data is List && data.isNotEmpty && data.first is Map<String, dynamic>) {
-      return data.first as Map<String, dynamic>;
+    if (data is List && data.isNotEmpty && data.first is Map) {
+      return Map<String, dynamic>.from(data.first as Map);
     }
     throw DioException(
       requestOptions: RequestOptions(path: 'article_parsing'),

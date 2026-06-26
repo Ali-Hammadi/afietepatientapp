@@ -1,8 +1,9 @@
+import 'package:afiete/core/constants/app_colors.dart';
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/routes/app_route.dart';
 import 'package:afiete/core/widget/custom_button.dart';
-import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:afiete/feature/doctors/presentation/widgets/doctor_profile_image.dart';
 import 'package:flutter/material.dart';
 
@@ -35,8 +36,7 @@ class CustomDoctorCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                CustomDoctorProfileImage(
-                    height: 100, imageUrl: doctor.imageUrl),
+                CustomDoctorProfileImage(height: 100, doctor: doctor),
                 Expanded(
                   child: ListTile(
                     title: Text(doctor.name!, style: AppStyles.bodyMedium),
@@ -48,7 +48,7 @@ class CustomDoctorCard extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.star_outline, color: colorScheme.primary),
+                          Icon(Icons.star, color: AppColors.ratingColor),
                           Text(
                             doctor.ratingValue.toString(),
                             style: AppStyles.bodySmall,

@@ -1,188 +1,284 @@
-import 'package:equatable/equatable.dart';
+import 'package:afiete/feature/articles/presentation/cubits/articles_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afiete/feature/articles/domain/entities/article_entities.dart';
 import 'package:afiete/feature/articles/domain/usecases/articles_usecases.dart';
 
-part 'articles_state.dart';
-
 class ArticlesCubit extends Cubit<ArticlesState> {
-  final GetArticlesForHomeUseCase getArticlesForHomeUseCase;
   final GetRecommendedArticlesUseCase getRecommendedArticlesUseCase;
   final GetTrendingArticlesUseCase getTrendingArticlesUseCase;
-  final GetArticlesByDoctorUseCase getArticlesByDoctorUseCase;
   final GetAllArticlesUseCase getAllArticlesUseCase;
+  final GetArticlesByDoctorUseCase getArticlesByDoctorUseCase;
   final GetArticleByIdUseCase getArticleByIdUseCase;
-  final LikeArticleUseCase likeArticleUseCase;
   final ReactToArticleUseCase reactToArticleUseCase;
-  final DislikeArticleUseCase dislikeArticleUseCase;
-
-  List<ArticleEntity>? _currentArticles;
-  bool _currentIsForHome = false;
-  bool _loadedAllArticles = false;
-
-  // مؤشرات ترقيم الصفحات والتحكم بالتسلسل للمريض
-  int _generalPage = 1;
-  final int _pageSize = 10;
-  bool _isFetchingMore = false;
 
   ArticlesCubit({
-    required this.getArticlesForHomeUseCase,
     required this.getRecommendedArticlesUseCase,
     required this.getTrendingArticlesUseCase,
-    required this.getArticlesByDoctorUseCase,
     required this.getAllArticlesUseCase,
+    required this.getArticlesByDoctorUseCase,
     required this.getArticleByIdUseCase,
-    required this.likeArticleUseCase,
     required this.reactToArticleUseCase,
-    required this.dislikeArticleUseCase,
   }) : super(const ArticlesInitial());
 
-  /// 🚀 جلب مقالات الصفحة الرئيسية بالتسلسل: أول 5 مقترحة -> أول 5 رائجة
+  // =========================
+  // Internal cache/state
+  // =========================
+  List<ArticleEntity>? _currentArticles;
+  String _currentSource = "home";
+
+  int _page = 1;
+  final int _pageSize = 10;
+  bool _isFetchingMore = false;
+  bool _hasLoadedAll = false;
+
+  // =========================
+  // HOME PIPELINE
+  // recommended → trending → all
+  // =========================
   Future<void> loadArticlesForHome() async {
-    emit(const ArticlesLoading());
-    _currentIsForHome = true;
-    _loadedAllArticles = false;
-    _generalPage = 1;
+    emit(const ArticlesLoading(step: "recommended"));
+    _currentSource = "home";
 
-    final List<ArticleEntity> compiledArticles = [];
-    final Set<String> uniqueIds = {};
+    final List<ArticleEntity> compiled = [];
+    final Set<String> ids = {};
 
-    // 1. جلب أول 5 مقالات مقترحة
+// =========================
+// 1️⃣ Recommended
+// =========================
     final recommendedResult = await getRecommendedArticlesUseCase();
+
     recommendedResult.fold(
-      (failure) => null, // تجاوز الفشل بهدوء لحماية الواجهة
+      (failure) {
+        print("Recommended error: ${failure.errorMessage}");
+      },
       (articles) {
-        final limited = articles.take(5);
-        for (var a in limited) {
-          if (uniqueIds.add(a.id)) compiledArticles.add(a);
+        if (articles.isNotEmpty) {
+          for (var a in articles.take(5)) {
+            if (ids.add(a.id)) {
+              compiled.add(a);
+            }
+          }
         }
       },
     );
 
-    // 2. جلب أول 5 مقالات رائجة
-    final trendingResult = await getTrendingArticlesUseCase();
-    trendingResult.fold(
-      (failure) => null,
-      (articles) {
-        final limited = articles.take(5);
-        for (var a in limited) {
-          if (uniqueIds.add(a.id)) compiledArticles.add(a);
-        }
-      },
-    );
+    if (compiled.isEmpty) {
+      emit(const ArticlesLoading(step: "trending"));
 
-    _currentArticles = compiledArticles;
-    emit(
-        ArticlesLoaded(articles: List.from(compiledArticles), isForHome: true));
+      final trendingResult = await getTrendingArticlesUseCase();
+
+      trendingResult.fold(
+        (failure) {
+          print("Trending error: ${failure.errorMessage}");
+        },
+        (articles) {
+          if (articles.isNotEmpty) {
+            for (var a in articles.take(5)) {
+              if (ids.add(a.id)) {
+                compiled.add(a);
+              }
+            }
+          }
+        },
+      );
+
+      // 3️⃣ Final fallback → All
+      if (compiled.isEmpty) {
+        emit(const ArticlesLoading(step: "all"));
+
+        final allResult = await getAllArticlesUseCase(
+          page: 1,
+          pageSize: 10,
+        );
+
+        allResult.fold(
+          (failure) {
+            emit(ArticlesError(
+              message: failure.errorMessage,
+              step: "all",
+            ));
+          },
+          (articles) {
+            if (articles.isNotEmpty) {
+              for (var a in articles) {
+                if (ids.add(a.id)) {
+                  compiled.add(a);
+                }
+              }
+            }
+          },
+        );
+      }
+    }
+
+    // Empty check
+    if (compiled.isEmpty) {
+      emit(const ArticlesEmpty(source: "home"));
+      return;
+    }
+
+    emit(ArticlesLoaded(
+      articles: List.from(compiled),
+      source: "home",
+    ));
   }
 
-  /// 🔄 جلب المجموعة الثالثة (المقالات العامة) وتطبيق الـ Pagination عند النزول لأسفل القائمة
+  // =========================
+  // PAGINATION (ALL ARTICLES)
+  // =========================
   Future<void> loadMoreArticles() async {
-    if (_isFetchingMore || _loadedAllArticles || !_currentIsForHome) return;
+    if (_isFetchingMore || _hasLoadedAll || _currentSource != "home") return;
 
     _isFetchingMore = true;
-    final result =
-        await getAllArticlesUseCase(page: _generalPage, pageSize: _pageSize);
+
+    final result = await getAllArticlesUseCase(
+      page: _page,
+      pageSize: _pageSize,
+    );
 
     result.fold(
       (failure) {
         _isFetchingMore = false;
-        emit(ArticlesError(failure.errorMessage));
+        emit(ArticlesError(
+          message: failure.errorMessage,
+          step: "all",
+        ));
       },
       (newArticles) {
         _isFetchingMore = false;
+
         if (newArticles.isEmpty) {
-          _loadedAllArticles = true;
+          _hasLoadedAll = true;
           return;
         }
 
-        final List<ArticleEntity> currentList =
-            List.from(_currentArticles ?? []);
-        final Set<String> existingIds = currentList.map((a) => a.id).toSet();
+        final current = List<ArticleEntity>.from(_currentArticles ?? []);
+        final existingIds = current.map((e) => e.id).toSet();
 
-        bool hasAddedNew = false;
-        for (var article in newArticles) {
-          if (existingIds.add(article.id)) {
-            currentList.add(article);
-            hasAddedNew = true;
+        bool added = false;
+
+        for (var a in newArticles) {
+          if (existingIds.add(a.id)) {
+            current.add(a);
+            added = true;
           }
         }
 
-        if (!hasAddedNew) {
-          _loadedAllArticles = true;
+        if (added) {
+          _page++;
         } else {
-          _generalPage++;
+          _hasLoadedAll = true;
         }
 
-        _currentArticles = currentList;
-        emit(ArticlesLoaded(articles: currentList, isForHome: true));
+        _currentArticles = current;
+
+        emit(ArticlesLoaded(
+          articles: List.from(current),
+          source: "home",
+        ));
       },
     );
   }
 
-  /// 🏥 جلب مقالات طبيب محدد بشكل منفصل تماماً
-  Future<void> loadArticlesByDoctor(String doctorId) async {
-    emit(const ArticlesLoading());
-    _currentIsForHome = false;
-    _loadedAllArticles = true; // لا نقوم بعمل pagination هنا منعاً للتداخل
+  // =========================
+  // DOCTOR ARTICLES
+  // =========================
+  Future<void> loadArticlesByDoctor(String doctorUsername) async {
+    emit(const ArticlesLoading(step: "doctor"));
+    _currentSource = "doctor";
 
-    final result = await getArticlesByDoctorUseCase(doctorId);
+    final result = await getArticlesByDoctorUseCase(doctorUsername);
+
     result.fold(
-      (failure) => emit(ArticlesError(failure.errorMessage)),
+      (failure) {
+        emit(ArticlesError(
+          message: failure.errorMessage,
+          step: "doctor",
+        ));
+      },
       (articles) {
         _currentArticles = articles;
-        emit(ArticlesLoaded(articles: articles, isForHome: false));
+
+        emit(ArticlesLoaded(
+          articles: articles,
+          source: "doctor",
+        ));
       },
     );
   }
 
-  /// 📄 جلب مقالة مفردة بكامل تفاصيلها من السيرفر
+  // =========================
+  // ARTICLE DETAILS
+  // =========================
   Future<void> loadArticleById(String articleId) async {
-    emit(const ArticlesLoading());
+    emit(const ArticleDetailsLoading());
+
     final result = await getArticleByIdUseCase(articleId);
+
     result.fold(
-      (failure) => emit(ArticlesError(failure.errorMessage)),
+      (failure) => emit(ArticlesError(
+        message: failure.errorMessage,
+        step: "details",
+      )),
       (article) => emit(ArticleDetailsLoaded(article)),
     );
   }
 
-  /// ❤️ التفاعل مع المقال (Like / Dislike / None) مع جلب النسخة المحدثة فوراً من السيرفر
+  // =========================
+  // REACTIONS (LIKE / DISLIKE)
+  // =========================
   Future<void> reactToArticle(String articleId, String reaction) async {
     final result = await reactToArticleUseCase(articleId, reaction);
+
     result.fold(
-      (failure) => emit(ArticlesError(failure.errorMessage)),
+      (failure) => emit(ArticlesError(
+        message: failure.errorMessage,
+        step: "reaction",
+      )),
       (_) async {
-        final fetchResult = await getArticleByIdUseCase(articleId);
-        fetchResult.fold(
-          (failure) => emit(ArticlesError(failure.errorMessage)),
-          (updatedArticle) {
-            _emitUpdatedArticle(updatedArticle);
-          },
+        final updated = await getArticleByIdUseCase(articleId);
+
+        updated.fold(
+          (failure) => emit(ArticlesError(
+            message: failure.errorMessage,
+            step: "reaction-refresh",
+          )),
+          (article) => _updateLocal(article),
         );
       },
     );
   }
 
-  void _emitUpdatedArticle(ArticleEntity updatedArticle) {
-    if (_currentArticles != null && _currentArticles!.isNotEmpty) {
+  // =========================
+  // INTERNAL UPDATE
+  // =========================
+  void _updateLocal(ArticleEntity updated) {
+    if (_currentArticles != null) {
       _currentArticles = _currentArticles!
-          .map((a) => a.id == updatedArticle.id ? updatedArticle : a)
+          .map((a) => a.id == updated.id ? updated : a)
           .toList();
+
       emit(ArticlesLoaded(
-          articles: List.from(_currentArticles!),
-          isForHome: _currentIsForHome));
+        articles: List.from(_currentArticles!),
+        source: _currentSource,
+      ));
     }
 
     if (state is ArticleDetailsLoaded) {
-      emit(ArticleDetailsLoaded(updatedArticle));
+      emit(ArticleDetailsLoaded(updated));
     }
   }
 
-  void resetArticles() {
+  // =========================
+  // RESET
+  // =========================
+  void reset() {
     _currentArticles = null;
-    _currentIsForHome = false;
-    _loadedAllArticles = false;
-    _generalPage = 1;
+    _currentSource = "home";
+    _page = 1;
+    _isFetchingMore = false;
+    _hasLoadedAll = false;
+
     emit(const ArticlesInitial());
   }
 }

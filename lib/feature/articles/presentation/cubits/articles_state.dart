@@ -1,4 +1,5 @@
-part of 'articles_cubit.dart';
+import 'package:afiete/feature/articles/domain/entities/article_entities.dart';
+import 'package:equatable/equatable.dart';
 
 abstract class ArticlesState extends Equatable {
   const ArticlesState();
@@ -12,26 +13,53 @@ class ArticlesInitial extends ArticlesState {
 }
 
 class ArticlesLoading extends ArticlesState {
-  const ArticlesLoading();
+  final String step;
+
+  /// recommended | trending | all | doctor | details | reaction
+  const ArticlesLoading({required this.step});
+
+  @override
+  List<Object?> get props => [step];
 }
 
 class ArticlesLoaded extends ArticlesState {
   final List<ArticleEntity> articles;
-  final bool isForHome;
+  final String source;
 
-  const ArticlesLoaded({required this.articles, this.isForHome = false});
+  /// source: home | doctor | all
+  const ArticlesLoaded({
+    required this.articles,
+    required this.source,
+  });
 
   @override
-  List<Object?> get props => [articles, isForHome];
+  List<Object?> get props => [articles, source];
+}
+
+class ArticlesEmpty extends ArticlesState {
+  final String source;
+
+  const ArticlesEmpty({required this.source});
+
+  @override
+  List<Object?> get props => [source];
 }
 
 class ArticlesError extends ArticlesState {
   final String message;
+  final String step;
 
-  const ArticlesError(this.message);
+  const ArticlesError({
+    required this.message,
+    required this.step,
+  });
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, step];
+}
+
+class ArticleDetailsLoading extends ArticlesState {
+  const ArticleDetailsLoading();
 }
 
 class ArticleDetailsLoaded extends ArticlesState {
@@ -43,12 +71,11 @@ class ArticleDetailsLoaded extends ArticlesState {
   List<Object?> get props => [article];
 }
 
-class ArticleLikeToggled extends ArticlesState {
+class ArticleReactionUpdated extends ArticlesState {
   final ArticleEntity article;
-  final bool liked;
 
-  const ArticleLikeToggled({required this.article, required this.liked});
+  const ArticleReactionUpdated(this.article);
 
   @override
-  List<Object?> get props => [article, liked];
+  List<Object?> get props => [article];
 }

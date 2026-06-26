@@ -1,7 +1,7 @@
-import 'package:afiete/feature/doctors/domain/entites/speciality_entity.dart';
+import 'package:afiete/feature/doctors/domain/entities/speciality_entity.dart';
 import 'package:dartz/dartz.dart';
 import 'package:afiete/core/error/failure.dart';
-import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 
 abstract class DoctorsRepository {
   Future<Either<Failure, List<DoctorEntity>>> getAllDoctors();

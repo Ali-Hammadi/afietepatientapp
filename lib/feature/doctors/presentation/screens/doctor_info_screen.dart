@@ -1,4 +1,5 @@
 import 'package:afiete/core/constants/report_types.dart';
+import 'package:afiete/feature/articles/presentation/cubits/articles_state.dart';
 import 'package:afiete/feature/doctors/presentation/widgets/doctor_profile_image.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/constants/styles.dart';
@@ -8,7 +9,7 @@ import 'package:afiete/core/widget/error_custom_button.dart';
 import 'package:afiete/feature/articles/presentation/cubits/articles_cubit.dart';
 import 'package:afiete/feature/articles/presentation/widgets/article_card_widget.dart';
 import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
-import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:afiete/feature/doctors/presentation/cubits/doctors_cubit.dart';
 
 import 'package:afiete/feature/home/presentation/widgets/custom_container.dart';
@@ -226,8 +227,7 @@ class _DoctorInfoState extends State<DoctorInfo> {
   }
 
   Widget _buildDoctorPhoto(DoctorEntity? doctor) {
-    final imageUrl = doctor?.imageUrl;
-    return CustomDoctorProfileImage(height: 100, imageUrl: imageUrl);
+    return CustomDoctorProfileImage(height: 100, doctor: doctor!);
   }
 
   String _doctorTitle(DoctorEntity? doctor) {
@@ -307,7 +307,7 @@ class _DoctorInfoState extends State<DoctorInfo> {
                 Text(
                   doctor?.experienceYears != null
                       ? '${doctor!.experienceYears} years'
-                      : '+ 5 years',
+                      : '+ 8 years',
                 ),
                 Text(
                   SettingsStrings.experienceLabel,
@@ -320,7 +320,7 @@ class _DoctorInfoState extends State<DoctorInfo> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('+1.2K'),
+                Text(doctor?.patients_count ?? '0'),
                 Text(SettingsStrings.patientsLabel, style: AppStyles.bodySmall),
               ],
             ),
@@ -410,7 +410,7 @@ class _DoctorInfoState extends State<DoctorInfo> {
             (item) => _buildPriceServiceTile(
               title: _sessionTypeLabel(item.type),
               price:
-                  '${item.price.toStringAsFixed(item.price.truncateToDouble() == item.price ? 0 : 2)} / ${SettingsStrings.minuteAbbreviation}',
+                  '${item.price.toStringAsFixed(item.price.truncateToDouble() == item.price ? 0 : 2)} \$ / ${SettingsStrings.minuteAbbreviation}',
               icon: _sessionTypeIcon(item.type),
               colorScheme: colorScheme,
             ),
@@ -482,13 +482,18 @@ class _DoctorInfoState extends State<DoctorInfo> {
             builder: (context, state) {
               if (state is ArticlesLoading) {
                 return const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
+                  padding: EdgeInsets.symmetric(vertical: 24.0),
                   child: Center(child: CircularProgressIndicator()),
                 );
               }
 
               if (state is ArticlesLoaded) {
-                final articles = state.articles;
+                final articles = state.articles
+                    .where((article) =>
+                        article.doctor.doctorUsername ==
+                        widget.doctor?.doctorUsername)
+                    .toList();
+
                 if (articles.isEmpty) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -507,7 +512,13 @@ class _DoctorInfoState extends State<DoctorInfo> {
                         (article) => ArticleCardWidget(
                           article: article,
                           flatMode: true,
-                          onReadMore: () {},
+                          onReadMore: () {
+                            Navigator.pushNamed(
+                              context,
+                              MyRoutes.articleDetailsScreen,
+                              arguments: article,
+                            );
+                          },
                         ),
                       )
                       .toList(),
@@ -528,7 +539,7 @@ class _DoctorInfoState extends State<DoctorInfo> {
 
               return const SizedBox.shrink();
             },
-          ),
+          )
         ],
       ),
     );

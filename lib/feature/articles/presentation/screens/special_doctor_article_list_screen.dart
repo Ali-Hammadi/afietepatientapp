@@ -8,12 +8,12 @@ import 'package:afiete/feature/articles/presentation/widgets/article_card_widget
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ArticlesListScreen extends StatefulWidget {
+class SpecialDoctorArticleListScreen extends StatefulWidget {
   final String? doctorUsername;
   final String? doctorName;
   final String? userDiagnosis;
 
-  const ArticlesListScreen({
+  const SpecialDoctorArticleListScreen({
     super.key,
     this.doctorUsername,
     this.doctorName,
@@ -21,10 +21,12 @@ class ArticlesListScreen extends StatefulWidget {
   });
 
   @override
-  State<ArticlesListScreen> createState() => _ArticlesListScreenState();
+  State<SpecialDoctorArticleListScreen> createState() =>
+      _SpecialDoctorArticleListScreenState();
 }
 
-class _ArticlesListScreenState extends State<ArticlesListScreen> {
+class _SpecialDoctorArticleListScreenState
+    extends State<SpecialDoctorArticleListScreen> {
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -35,7 +37,11 @@ class _ArticlesListScreenState extends State<ArticlesListScreen> {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
-        if (widget.doctorUsername == null) {
+        // إذا أردت جلب المزيد من مقالات الطبيب عند النزول لأسفل، يمكنك استدعاء دالة pagination مخصصة هنا
+        // لكن الشرط التالي يمنع تداخلها مع حالات التصفح العادية
+        if (widget.doctorUsername != null) {
+          // context.read<ArticlesCubit>().loadMoreArticlesByDoctor(widget.doctorUsername!);
+        } else {
           context.read<ArticlesCubit>().loadMoreArticles();
         }
       }
@@ -44,10 +50,10 @@ class _ArticlesListScreenState extends State<ArticlesListScreen> {
 
   void _loadArticles() {
     final cubit = context.read<ArticlesCubit>();
-    if (widget.doctorUsername != null) {
+    // جلب مقالات الطبيب المختار فقط بناءً على الـ username الخاص به
+    if (widget.doctorUsername != null &&
+        widget.doctorUsername!.trim().isNotEmpty) {
       cubit.loadArticlesByDoctor(widget.doctorUsername!);
-    } else {
-      return;
     }
   }
 
@@ -76,6 +82,7 @@ class _ArticlesListScreenState extends State<ArticlesListScreen> {
       ),
       body: BlocBuilder<ArticlesCubit, ArticlesState>(
         builder: (context, state) {
+          // في حال كانت المقالات لا تزال قيد التحميل
           if (state is ArticlesLoading &&
               (_scrollController.hasClients == false ||
                   _scrollController.position.pixels == 0)) {
@@ -109,6 +116,7 @@ class _ArticlesListScreenState extends State<ArticlesListScreen> {
               itemCount: state.articles.length,
               itemBuilder: (context, index) {
                 final article = state.articles[index];
+
                 return ArticleCardWidget(
                   article: article,
                   onDoctorTap: article.doctor.doctorUsername.trim().isNotEmpty

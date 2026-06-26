@@ -1,5 +1,5 @@
 import 'package:afiete/feature/articles/domain/entities/article_entities.dart';
-import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 
 class ArticleModel {
   final String id;
@@ -31,9 +31,14 @@ class ArticleModel {
   });
 
   factory ArticleModel.fromJson(Map<String, dynamic> json) {
-    // 1. استخراج وتفكيك بيانات الطبيب المتداخلة من الباك اند (author -> user)
-    final authorJson = json['author'] as Map<String, dynamic>? ?? const {};
-    final userJson = authorJson['user'] as Map<String, dynamic>? ?? const {};
+    // 1. استخراج وتفكيك بيانات الطبيب المتداخلة بمرونة (استخدام Map.from بدلاً من الـ cast المباشر)
+    final authorJson = json['author'] is Map
+        ? Map<String, dynamic>.from(json['author'] as Map)
+        : const <String, dynamic>{};
+
+    final userJson = authorJson['user'] is Map
+        ? Map<String, dynamic>.from(authorJson['user'] as Map)
+        : const <String, dynamic>{};
 
     // 2. معالجة قائمة التخصصات بدقة كما تتوقعها الـ Entity (List<String>)
     List<String> specialtiesList = const [];
@@ -69,8 +74,8 @@ class ArticleModel {
               authorJson['experience']?.toString() ??
               '0'),
       bio: authorJson['bio']?.toString() ?? '',
-      sessionPrices: const [], // مصفوفات فارغة افتراضية لأن حقول المقالات لا تعيد أسعار الجلسات
-      schedules: const [], // مصفوفات فارغة افتراضية لجدول المواعيد منعاً للـ Crash
+      sessionPrices: const [],
+      schedules: const [],
     );
 
     final rawContent = json['content']?.toString() ?? '';

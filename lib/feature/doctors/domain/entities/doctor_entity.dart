@@ -64,8 +64,7 @@ class DoctorSchedule extends Equatable {
 }
 
 class DoctorEntity extends Equatable {
-  final String
-      doctorUsername; // الـ username هو المعرّف الفريد والأساسي للطبيب لمطابقة نظام الحجوزات
+  final String doctorUsername;
   final String? email;
   final String? gender;
   final String? imageUrl;
@@ -79,6 +78,13 @@ class DoctorEntity extends Equatable {
   final String? bio;
   final List<DoctorSessionPrice> sessionPrices;
   final List<DoctorSchedule> schedules;
+
+  // الحقول الجديدة المضافة لدعم الـ Model والـ JSON القادم من السيرفر
+  final String? patients_count;
+  final double? _ratingValue;
+  final String? _rating;
+  final String? _specialization;
+  final String? _experience;
 
   const DoctorEntity({
     required this.doctorUsername,
@@ -95,21 +101,34 @@ class DoctorEntity extends Equatable {
     this.bio,
     this.sessionPrices = const [],
     this.schedules = const [],
-  });
+    this.patients_count,
+    double? ratingValue,
+    String? rating,
+    String? specialization,
+    String? experience,
+  })  : _ratingValue = ratingValue,
+        _rating = rating,
+        _specialization = specialization,
+        _experience = experience;
 
+  // الـ Getters أصبحت تدعم القيم الممررة من المودل مع الحفاظ على القيم الافتراضية السابقة (Fallback) في حال كانت null
   String get specialization =>
-      jobTitle ?? (specialties.isNotEmpty ? specialties.first : '');
+      _specialization ??
+      jobTitle ??
+      (specialties.isNotEmpty ? specialties.first : '');
 
   String get experience =>
-      experienceYears != null ? '$experienceYears years' : '';
+      _experience ?? (experienceYears != null ? '$experienceYears years' : '');
 
-  String get rating => '5.0';
+  String get rating =>
+      _rating ??
+      (_ratingValue != null ? _ratingValue.toStringAsFixed(1) : '5.0');
 
   String get description => bio ?? '';
 
   bool get isOnline => false;
 
-  double get ratingValue => 5.0;
+  double get ratingValue => _ratingValue ?? 5.0;
 
   DateTime get createdAt => DateTime.now();
 
@@ -140,9 +159,14 @@ class DoctorEntity extends Equatable {
     String? bio,
     List<DoctorSessionPrice>? sessionPrices,
     List<DoctorSchedule>? schedules,
+    String? patients_count,
+    double? ratingValue,
+    String? rating,
+    String? specialization,
+    String? experience,
   }) {
     return DoctorEntity(
-      doctorUsername: doctorUsername,
+      doctorUsername: username ?? this.doctorUsername,
       email: email ?? this.email,
       gender: gender ?? this.gender,
       imageUrl: imageUrl ?? this.imageUrl,
@@ -156,6 +180,11 @@ class DoctorEntity extends Equatable {
       bio: bio ?? this.bio,
       sessionPrices: sessionPrices ?? this.sessionPrices,
       schedules: schedules ?? this.schedules,
+      patients_count: patients_count ?? this.patients_count,
+      ratingValue: ratingValue ?? this._ratingValue,
+      rating: rating ?? this._rating,
+      specialization: specialization ?? this._specialization,
+      experience: experience ?? this._experience,
     );
   }
 
@@ -175,6 +204,11 @@ class DoctorEntity extends Equatable {
         bio,
         sessionPrices,
         schedules,
+        patients_count,
+        _ratingValue,
+        _rating,
+        _specialization,
+        _experience,
       ];
 }
 

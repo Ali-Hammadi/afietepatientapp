@@ -2,7 +2,9 @@ import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/routes/app_route.dart';
 import 'package:afiete/feature/articles/domain/entities/article_entities.dart';
+import 'package:afiete/feature/articles/presentation/cubits/articles_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 class ArticleCardWidget extends StatefulWidget {
@@ -57,37 +59,6 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (widget.article.status.trim().isNotEmpty ||
-              widget.article.reaction.trim().isNotEmpty) ...[
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                if (widget.article.status.trim().isNotEmpty)
-                  _StatusChip(
-                    label: widget.article.status,
-                    backgroundColor: colorScheme.primaryContainer,
-                    foregroundColor: colorScheme.onPrimaryContainer,
-                  ),
-                if (widget.article.reaction.trim().isNotEmpty)
-                  _StatusChip(
-                    label: widget.article.reaction,
-                    backgroundColor: colorScheme.secondaryContainer,
-                    foregroundColor: colorScheme.onSecondaryContainer,
-                  ),
-              ],
-            ),
-            const SizedBox(height: 10),
-          ],
-          Text(
-            widget.article.title,
-            style: (widget.compactMode
-                    ? AppStyles.bodyLarge
-                    : AppStyles.headingSmall)
-                .copyWith(fontWeight: FontWeight.w700),
-            maxLines: widget.compactMode ? 2 : 3,
-            overflow: TextOverflow.ellipsis,
-          ),
           const SizedBox(height: 12),
           _buildDoctorHeader(
             colorScheme: colorScheme,
@@ -103,25 +74,14 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
               imageUrl: widget.article.imageUrl,
             ),
           ],
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Icon(
-                Icons.thumb_up_outlined,
-                size: 18,
-                color: colorScheme.primary,
-              ),
-              const SizedBox(width: 4),
-              Text('${widget.article.likesCount}'),
-              const SizedBox(width: 12),
-              Icon(
-                Icons.thumb_down_outlined,
-                size: 18,
-                color: colorScheme.error,
-              ),
-              const SizedBox(width: 4),
-              Text('${widget.article.dislikesCount}'),
-            ],
+          Text(
+            widget.article.title,
+            style: (widget.compactMode
+                    ? AppStyles.bodyLarge
+                    : AppStyles.headingSmall)
+                .copyWith(fontWeight: FontWeight.w700),
+            maxLines: widget.compactMode ? 2 : 3,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 12),
           Text(
@@ -136,6 +96,44 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
             overflow:
                 _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
           ),
+          const SizedBox(height: 12),
+          Builder(builder: (context) {
+            return Row(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    context.read<ArticlesCubit>().reactToArticle(
+                          widget.article.id,
+                          'like',
+                        );
+                  },
+                  icon: Icon(
+                    Icons.thumb_up_outlined,
+                    size: 18,
+                    color: colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text('${widget.article.likesCount}'),
+                const SizedBox(width: 12),
+                IconButton(
+                  onPressed: () {
+                    context.read<ArticlesCubit>().reactToArticle(
+                          widget.article.id,
+                          'dislike',
+                        );
+                  },
+                  icon: Icon(
+                    Icons.thumb_down_outlined,
+                    size: 18,
+                    color: colorScheme.error,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text('${widget.article.dislikesCount}'),
+              ],
+            );
+          }),
           const SizedBox(height: 12),
           GestureDetector(
             onTap: () {
@@ -334,36 +332,6 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
                       },
                     ))
               : Icon(Icons.image_outlined, color: colorScheme.primary),
-        ),
-      ),
-    );
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  final String label;
-  final Color backgroundColor;
-  final Color foregroundColor;
-
-  const _StatusChip({
-    required this.label,
-    required this.backgroundColor,
-    required this.foregroundColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        label,
-        style: AppStyles.bodySmall.copyWith(
-          color: foregroundColor,
-          fontWeight: FontWeight.w600,
         ),
       ),
     );

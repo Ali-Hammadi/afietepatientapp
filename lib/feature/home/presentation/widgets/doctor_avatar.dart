@@ -14,8 +14,8 @@ class CustomDoctorAvatar extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppStyles.borderRadius),
       child: SizedBox(
-        height: 90,
-        width: 90,
+        height: 100,
+        width: double.infinity,
         child: hasNetworkImage
             ? Image.network(
                 imageUrl!,

@@ -1,5 +1,5 @@
 import 'package:afiete/feature/assessments/domain/entity/assisments_entity.dart';
-import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class AssessmentsState extends Equatable {

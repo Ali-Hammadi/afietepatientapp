@@ -32,7 +32,7 @@ class CustomAssessmentsProgressHeader extends StatelessWidget {
         Align(
           alignment: AlignmentDirectional.centerEnd,
           child: Text(
-            SettingsStrings.AssessmentsProgressLabel(
+            SettingsStrings.assessmentsProgressLabel(
               questionIndex,
               totalQuestions,
             ),

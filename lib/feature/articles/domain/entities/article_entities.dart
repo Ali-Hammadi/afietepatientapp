@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 
 class ArticleEntity extends Equatable {
   final String id;
@@ -36,21 +36,21 @@ class ArticleEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    title,
-    content,
-    summary,
-    imageUrl,
-    status,
-    reaction,
-    doctor,
-    createdAt,
-    likesCount,
-    dislikesCount,
-    isLikedByUser,
-    isDislikedByUser,
-    relatedConditions,
-  ];
+        id,
+        title,
+        content,
+        summary,
+        imageUrl,
+        status,
+        reaction,
+        doctor,
+        createdAt,
+        likesCount,
+        dislikesCount,
+        isLikedByUser,
+        isDislikedByUser,
+        relatedConditions,
+      ];
 
   ArticleEntity copyWith({
     String? id,

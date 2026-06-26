@@ -191,7 +191,7 @@ class _SignupScreenState extends State<SignupScreen> {
                               ),
                             )
                           : Text(
-                              "Signup",
+                              SettingsStrings.signUp,
                               style: AppStyles.bodyMedium.copyWith(
                                 color: colorScheme.onPrimary,
                               ),
@@ -204,20 +204,20 @@ class _SignupScreenState extends State<SignupScreen> {
                                 final email = emailController.text.trim();
                                 final password = passwordController.text;
                                 context.read<AuthCubit>().signup(
-                                  nickname,
-                                  email,
-                                  password,
-                                );
+                                      nickname,
+                                      email,
+                                      password,
+                                    );
                               }
                             },
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 15),
                     CustomAuthGoogleButton(
                       onPressed: () {
                         context.read<AuthCubit>().googleSignIn();
                       },
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 15),
                     CustomAuthSwitchPrompt(
                       promptText: 'Already have an account?',
                       actionText: 'Login',

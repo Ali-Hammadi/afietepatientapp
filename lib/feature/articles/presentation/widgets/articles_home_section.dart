@@ -2,6 +2,7 @@ import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/routes/app_route.dart';
 import 'package:afiete/feature/articles/presentation/cubits/articles_cubit.dart';
+import 'package:afiete/feature/articles/presentation/cubits/articles_state.dart';
 import 'package:afiete/feature/articles/presentation/widgets/article_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,16 +27,6 @@ class ArticlesHomeSection extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    SettingsStrings.bestArticlesForYou,
-                    style: AppStyles.headingMedium,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
               Column(
                 children: state.articles
                     .map(

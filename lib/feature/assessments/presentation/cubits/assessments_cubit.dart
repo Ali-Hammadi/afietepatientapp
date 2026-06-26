@@ -7,7 +7,7 @@ import 'package:afiete/feature/assessments/domain/usecase/get_assisment_question
 import 'package:afiete/feature/assessments/domain/usecase/submit_assisment_usecase.dart';
 import 'package:afiete/feature/assessments/presentation/cubits/assessments_state.dart';
 
-import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:afiete/feature/doctors/domain/usecase/get_doctors_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

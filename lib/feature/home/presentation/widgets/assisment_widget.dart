@@ -53,7 +53,7 @@ class CustomAssignmentWidget extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, MyRoutes.AssessmentsTestScreen);
+                  Navigator.pushNamed(context, MyRoutes.assessmentsTestScreen);
                 },
                 child: Container(
                   padding: const EdgeInsets.all(3),

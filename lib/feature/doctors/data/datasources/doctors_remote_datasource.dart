@@ -1,17 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:afiete/core/network/api_endpoints.dart';
 import 'package:afiete/feature/doctors/data/models/doctor_model.dart';
-import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
-import 'package:afiete/feature/doctors/domain/entites/speciality_entity.dart';
+import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/entities/speciality_entity.dart';
 
 abstract class DoctorsRemoteDataSource {
   Future<List<DoctorModel>> getAllDoctors();
   Future<List<DoctorModel>> getRecommendedDoctors();
-  // تعديل: تحويل المعامل إلى int specialtyId
   Future<List<DoctorModel>> getDoctorsBySpecialty(int specialtyId);
-  // إضافة: الدالة المطلوبة لجلب التخصصات كـ Objects من الباك اند
   Future<List<SpecialtyEntity>> getSpecialties();
-  // دالة قديمة يمكن الإبقاء عليها أو حذفها حسب الحاجة
   Future<List<String>> getAllSpecialties();
   Future<DoctorModel> getDoctorByUsername(String username);
   Future<DoctorModel> getDoctorPublicProfile(String username);
@@ -175,10 +172,17 @@ class DoctorsRemoteDataSourceImpl implements DoctorsRemoteDataSource {
   }
 
   List<DoctorTimeSlot> _parseAvailableSlots(dynamic data) {
+    print("[Available Slots Debug] >>> البيانات القادمة: $data");
+
     List<dynamic> rawList = const [];
-    if (data is Map<String, dynamic>) {
-      final raw =
-          data['available_slots'] ?? data['slots'] ?? data['times'] ?? const [];
+
+    // تعديل: الفحص باستخدام Map بدلاً من Map<String, dynamic> لتجنب مشاكل الكاستينغ الداخلي
+    if (data is Map) {
+      final raw = data['available_slots'] ??
+          data['slots'] ??
+          data['times'] ??
+          data['results'] ??
+          const [];
       if (raw is List) rawList = raw;
     } else if (data is List) {
       rawList = data;
@@ -186,12 +190,19 @@ class DoctorsRemoteDataSourceImpl implements DoctorsRemoteDataSource {
 
     final result = <DoctorTimeSlot>[];
     for (final item in rawList) {
-      if (item is Map<String, dynamic>) {
-        final start =
-            item['start']?.toString() ?? item['start_time']?.toString();
-        final end = item['end']?.toString() ?? item['end_time']?.toString();
-        if (start != null && end != null) {
-          result.add(DoctorTimeSlot(start: start, end: end));
+      // الحالة الأولى: إذا كان الباك-أند يرسل الأوقات كنصوص مباشرة مثل ["08:00", "08:30"]
+      if (item is String) {
+        result.add(DoctorTimeSlot(start: item, end: item));
+      } else if (item is Map) {
+        final start = item['start']?.toString() ??
+            item['start_time']?.toString() ??
+            item['time']?.toString();
+
+        final end =
+            item['end']?.toString() ?? item['end_time']?.toString() ?? start;
+
+        if (start != null) {
+          result.add(DoctorTimeSlot(start: start, end: end!));
         }
       }
     }

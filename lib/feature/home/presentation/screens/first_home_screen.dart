@@ -2,6 +2,7 @@ import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/di/injection_container.dart';
 import 'package:afiete/feature/articles/presentation/cubits/articles_cubit.dart';
+import 'package:afiete/feature/articles/presentation/cubits/articles_state.dart';
 import 'package:afiete/feature/articles/presentation/widgets/articles_home_section.dart';
 import 'package:afiete/feature/assessments/presentation/cubits/assessments_cubit.dart';
 import 'package:afiete/feature/assessments/presentation/cubits/assessments_state.dart';
@@ -10,7 +11,7 @@ import 'package:afiete/feature/home/presentation/widgets/assisment_widget.dart';
 import 'package:afiete/feature/home/presentation/widgets/emotions_widget.dart';
 import 'package:afiete/feature/home/presentation/widgets/music_widget.dart';
 import 'package:afiete/feature/home/presentation/widgets/top_doctor.dart';
-import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:afiete/feature/music_and_breathing/domain/entities/music_entity.dart';
 import 'package:afiete/feature/music_and_breathing/presentation/cubit/music_cubit.dart';
 import 'package:flutter/material.dart';
@@ -28,18 +29,11 @@ class _FirstHomeScreenState extends State<FirstHomeScreen> {
   @override
   void initState() {
     super.initState();
-    // 🔥 الحل السحري: استدعاء البيانات فور إقلاع الشاشة بعد بناء أول إطار (Frame) بأمان
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final articlesCubit = context.read<ArticlesCubit>();
 
-      // نطلب المقالات فقط إذا كانت في الحالة الابتدائية ولم يتم جلبها مسبقاً لمنع التكرار
       if (articlesCubit.state is ArticlesInitial) {
-        final assignmentsState = context.read<AssessmentsCubit>().state;
-        final currentDiagnosis = _resolveClosestDiagnosis(assignmentsState);
-
-        articlesCubit.getArticlesForHomeUseCase(
-          userDiagnosis: currentDiagnosis,
-        );
+        articlesCubit.loadArticlesForHome();
       }
     });
   }
@@ -47,23 +41,6 @@ class _FirstHomeScreenState extends State<FirstHomeScreen> {
   FeelingType? _selectedFeelingFromState(FeelingState state) {
     if (state is FeelingLoaded) return state.selectedFeeling;
     if (state is FeelingError) return state.selectedFeeling;
-    return null;
-  }
-
-  String? _resolveClosestDiagnosis(AssessmentsState assignmentsState) {
-    if (assignmentsState is! AssessmentsResultLoaded) {
-      return null;
-    }
-
-    final result = assignmentsState.result;
-    if (result.recommendedSpecialties.isNotEmpty) {
-      return result.recommendedSpecialties.first;
-    }
-
-    if (result.severity.trim().isNotEmpty) {
-      return result.severity;
-    }
-
     return null;
   }
 
@@ -78,7 +55,6 @@ class _FirstHomeScreenState extends State<FirstHomeScreen> {
         ],
         child: MultiBlocListener(
           listeners: [
-            // 1. مراقبة المشاعر لتحديث الموسيقى
             BlocListener<FeelingCubit, FeelingState>(
               listenWhen: (previous, current) =>
                   _selectedFeelingFromState(previous) !=
@@ -95,17 +71,12 @@ class _FirstHomeScreenState extends State<FirstHomeScreen> {
                 context.read<MusicCubit>().selectFeeling(selectedFeeling);
               },
             ),
-
             BlocListener<AssessmentsCubit, AssessmentsState>(
               listenWhen: (previous, current) =>
                   previous is! AssessmentsResultLoaded &&
                   current is AssessmentsResultLoaded,
               listener: (context, assignmentsState) {
-                final currentDiagnosis =
-                    _resolveClosestDiagnosis(assignmentsState);
-                context.read<ArticlesCubit>().getArticlesForHomeUseCase(
-                      userDiagnosis: currentDiagnosis,
-                    );
+                context.read<ArticlesCubit>().loadArticlesForHome();
               },
             ),
           ],
@@ -124,12 +95,10 @@ class _FirstHomeScreenState extends State<FirstHomeScreen> {
                   const CustomMusicWidget(),
                   const CustomAssignmentWidget(),
                   const SizedBox(height: 12),
-
                   Text(
                     SettingsStrings.topDoctorsTitle,
                     style: AppStyles.headingMedium,
                   ),
-
                   BlocBuilder<AssessmentsCubit, AssessmentsState>(
                     builder: (context, assignmentsState) {
                       List<DoctorEntity>? recommendedDoctors;
@@ -143,16 +112,14 @@ class _FirstHomeScreenState extends State<FirstHomeScreen> {
                       );
                     },
                   ),
-
                   const SizedBox(height: 20),
                   Text(
                     SettingsStrings.bestArticlesForYou,
                     style: AppStyles.headingMedium,
                   ),
-
-                  // بناء سيكشن المقالات بشكل نقي ومستقر دون تدخل برمجي جانبي (Side effects)
                   BlocBuilder<ArticlesCubit, ArticlesState>(
                     builder: (context, articlesState) {
+                      print("STATE = ${articlesState.runtimeType}");
                       if (articlesState is ArticlesLoading ||
                           articlesState is ArticlesInitial) {
                         return const Padding(

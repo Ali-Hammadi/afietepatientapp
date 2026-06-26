@@ -2,7 +2,7 @@ import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
 import 'package:afiete/core/di/injection_container.dart';
 import 'package:afiete/core/routes/app_route.dart';
-import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:afiete/feature/doctors/presentation/cubits/doctors_cubit.dart';
 import 'package:afiete/feature/home/presentation/widgets/doctor_avatar.dart';
 import 'package:flutter/material.dart';
@@ -160,7 +160,7 @@ class CustomTopDoctorCard extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CustomDoctorAvatar(imageUrl: doctor.imageUrl),
+              Expanded(child: CustomDoctorAvatar(imageUrl: doctor.imageUrl)),
               const SizedBox(height: 10),
               Text(
                 doctor.name ?? '',
@@ -172,7 +172,7 @@ class CustomTopDoctorCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                SettingsStrings.specialtyLabel(doctor.specialization),
+                doctor.jobTitle ?? "",
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,

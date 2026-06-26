@@ -6,7 +6,7 @@ import 'package:afiete/core/widget/custom_button.dart';
 import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
 import 'package:afiete/feature/appoinments/domain/constants/session_type.dart';
 import 'package:afiete/feature/appoinments/presentation/cubits/appointments_cubit.dart';
-import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
+import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:afiete/feature/doctors/presentation/cubits/doctors_cubit.dart';
 import 'package:afiete/feature/payment/domain/entities/payment_request_entity.dart';
 import 'package:flutter/material.dart';
