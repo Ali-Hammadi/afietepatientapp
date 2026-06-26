@@ -17,8 +17,8 @@ import 'package:afiete/feature/auth/domain/entities/auth_user_entity.dart';
 import 'package:afiete/feature/appoinments/presentation/screens/appointments_screen.dart';
 import 'package:afiete/feature/appoinments/presentation/screens/book_session_screen.dart';
 import 'package:afiete/feature/chat/presentation/screens/chat_conversation_screen.dart';
-import 'package:afiete/feature/doctors/domain/entites/doctor_entity.dart';
-import 'package:afiete/feature/doctors/presentation/screens/doctor_info.dart';
+import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
+import 'package:afiete/feature/doctors/presentation/screens/doctor_info_screen.dart';
 import 'package:afiete/feature/doctors/presentation/screens/doctors_home_screen.dart';
 import 'package:afiete/feature/home/presentation/screens/first_home_screen.dart';
 import 'package:afiete/feature/home/presentation/screens/global_home_screen.dart';
@@ -191,14 +191,14 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const PrivacyScreen());
       case MyRoutes.contactUsScreen:
         return MaterialPageRoute(builder: (_) => const ContactUsScreen());
-      case MyRoutes.AssessmentsTestScreen:
+      case MyRoutes.assessmentsTestScreen:
         return MaterialPageRoute(
           builder: (_) => BlocProvider<AssessmentsCubit>(
             create: (_) => sl<AssessmentsCubit>()..loadQuestions(),
             child: const AssessmentsTestScreen(),
           ),
         );
-      case MyRoutes.AssessmentsResultScreen:
+      case MyRoutes.assessmentsResultScreen:
         final args = settings.arguments;
         if (args is! AssessmentsResultLoaded) {
           return MaterialPageRoute(
@@ -270,7 +270,7 @@ class AppRouter {
         final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
           builder: (_) => ArticlesListScreen(
-            doctorId: args?['doctorId'],
+            doctorUsername: args?['doctorId'],
             doctorName: args?['doctorName'],
             userDiagnosis: args?['userDiagnosis'],
           ),
@@ -348,8 +348,8 @@ class MyRoutes {
   static const String reportIssueScreen = "/reportIssueScreen";
   static const String privacyScreen = "/privacyScreen";
   static const String contactUsScreen = "/contactUsScreen";
-  static const String AssessmentsTestScreen = "/AssessmentsTestScreen";
-  static const String AssessmentsResultScreen = "/AssessmentsResultScreen";
+  static const String assessmentsTestScreen = "/assessmentsTestScreen";
+  static const String assessmentsResultScreen = "/assessmentsResultScreen";
   // Report Screens
   static const String reportScreen = "/reportScreen";
   static const String reportHistoryScreen = "/reportHistoryScreen";

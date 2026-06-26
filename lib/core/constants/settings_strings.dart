@@ -232,6 +232,8 @@ abstract class SettingsStrings {
   static String get reviewsLabel => _t('Reviews', 'التقييمات');
   static String get experienceLabel => _t('Experience', 'الخبرة');
   static String get patientsLabel => _t('Patients', 'المرضى');
+  static String get signUp => _t('Signup', 'انشاء حساب');
+
   static String get pleaseSignInToReportDoctor => _t(
         'Please sign in to report a doctor.',
         'يرجى تسجيل الدخول للإبلاغ عن الطبيب.',
@@ -635,7 +637,7 @@ abstract class SettingsStrings {
   static String get totalNotesLabel => _t('Total notes:', 'إجمالي الملاحظات:');
   static String get editNote => _t('Edit', 'تعديل');
   static String get shareNote => _t('Share', 'مشاركة');
-  static String AssessmentsProgressLabel(
+  static String assessmentsProgressLabel(
           int questionIndex, int totalQuestions) =>
       _t(
         'Question $questionIndex of $totalQuestions',
@@ -853,12 +855,12 @@ abstract class SettingsStrings {
         'Please answer all questions before submitting.',
         'يرجى الإجابة عن جميع الأسئلة قبل الإرسال.',
       );
-  static String get AssessmentsRecommendedSpecialistSummary => _t(
+  static String get assessmentsRecommendedSpecialistSummary => _t(
         'Based on your answers, we recommend speaking with a specialist that matches your current mental health state.',
         'بناءً على إجاباتك، نوصي بالتحدث مع متخصص يناسب حالتك النفسية الحالية.',
       );
 
-  static String AssessmentseverityLabel(String severity) {
+  static String assessmentseverityLabel(String severity) {
     final normalized = severity.trim().toLowerCase();
     switch (normalized) {
       case 'low':
@@ -883,7 +885,7 @@ abstract class SettingsStrings {
     }
   }
 
-  static String AssessmentsummaryLabel(String severity, String backendSummary) {
+  static String assessmentsummaryLabel(String severity, String backendSummary) {
     if (!isArabic) {
       if (backendSummary.trim().isNotEmpty) {
         return backendSummary;

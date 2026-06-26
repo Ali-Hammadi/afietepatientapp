@@ -29,6 +29,8 @@ abstract class AppColors {
   static const Color darkDividerColor = Color(0xFF2D3A4D);
   static const Color darkSwitchTrackColor = Color(0xFF3A495B);
   static const Color darkSwitchSelectedTrackColor = Color(0xFF2E5F85);
+  static const Color ratingColor = Colors.amber;
+
   // Other Colors
   static const Color whiteColor = Color(0xFFFFFFFF);
 

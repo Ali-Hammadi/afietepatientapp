@@ -106,7 +106,6 @@ class _MyAppState extends State<MyApp> {
               previous.languageCode != current.languageCode,
           listener: (context, locale) {
             context.read<DoctorsCubit>().reloadCurrent();
-            context.read<ArticlesCubit>().resetArticles();
             context.read<AppointmentsCubit>().loadAppointments();
           },
           child: BlocBuilder<ThemeCubit, ThemeMode>(

@@ -590,14 +590,11 @@ Future<void> init() async {
   // Articles cubit
   sl.registerFactory<ArticlesCubit>(
     () => ArticlesCubit(
-      getArticlesForHomeUseCase: sl<GetArticlesForHomeUseCase>(),
       getTrendingArticlesUseCase: sl<GetTrendingArticlesUseCase>(),
       getArticlesByDoctorUseCase: sl<GetArticlesByDoctorUseCase>(),
       getAllArticlesUseCase: sl<GetAllArticlesUseCase>(),
       getArticleByIdUseCase: sl<GetArticleByIdUseCase>(),
-      likeArticleUseCase: sl<LikeArticleUseCase>(),
       reactToArticleUseCase: sl<ReactToArticleUseCase>(),
-      dislikeArticleUseCase: sl<DislikeArticleUseCase>(),
       getRecommendedArticlesUseCase: sl<GetRecommendedArticlesUseCase>(),
     ),
   );
