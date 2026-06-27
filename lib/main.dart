@@ -13,7 +13,7 @@ import 'core/theme/theme_cubit.dart';
 import 'feature/articles/presentation/cubits/articles_cubit.dart';
 import 'feature/assessments/presentation/cubits/assessments_cubit.dart';
 import 'feature/auth/presentation/cubits/auth_cubit.dart';
-import 'feature/appoinments/presentation/cubits/appointments_cubit.dart';
+import 'feature/appointments/presentation/cubits/appointments_cubit.dart';
 import 'feature/chat/presentation/cubit/chat_cubit.dart';
 import 'feature/doctors/presentation/cubits/doctors_cubit.dart';
 import 'feature/payment/presentation/cubit/payment_cubit.dart';

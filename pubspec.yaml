@@ -45,6 +45,13 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+  fonts:
+    - family: sans
+      fonts:
+        - asset: assets/fonts/Microsoft Sans Serif.ttf
+    - family: cairo
+      fonts:
+        - asset: assets/fonts/Cairo-VariableFont_slnt,wght.ttf
 
 flutter_launcher_icons:
   android: "launcher_icon"

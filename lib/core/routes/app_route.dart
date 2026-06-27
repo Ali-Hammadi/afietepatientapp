@@ -14,8 +14,8 @@ import 'package:afiete/feature/auth/presentation/views/password_change_screen.da
 import 'package:afiete/feature/auth/presentation/views/reactivate_account_screen.dart';
 import 'package:afiete/feature/auth/presentation/views/verify_account_screen.dart';
 import 'package:afiete/feature/auth/domain/entities/auth_user_entity.dart';
-import 'package:afiete/feature/appoinments/presentation/screens/appointments_screen.dart';
-import 'package:afiete/feature/appoinments/presentation/screens/book_session_screen.dart';
+import 'package:afiete/feature/appointments/presentation/screens/appointments_screen.dart';
+import 'package:afiete/feature/appointments/presentation/screens/book_session_screen.dart';
 import 'package:afiete/feature/chat/presentation/screens/chat_conversation_screen.dart';
 import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:afiete/feature/doctors/presentation/screens/doctor_info_screen.dart';
@@ -118,7 +118,7 @@ class AppRouter {
             : false;
 
         if (doctor == null) {
-          return MaterialPageRoute<DateTime?>(
+          return MaterialPageRoute<Map<String, dynamic>?>(
             builder: (context) => Scaffold(
               appBar: AppBar(),
               body: const Center(
@@ -130,12 +130,40 @@ class AppRouter {
             ),
           );
         }
-        return MaterialPageRoute<DateTime?>(
+
+        return MaterialPageRoute<Map<String, dynamic>?>(
           builder: (_) =>
               BookSessionScreen(doctor: doctor, rescheduleMode: isReschedule),
         );
       case MyRoutes.doctorsHomeScreen:
         return MaterialPageRoute(builder: (_) => const DoctorsHomeScreen());
+
+      case MyRoutes.rescheduleSessionScreen:
+        final args = settings.arguments;
+        final doctor = args is DoctorEntity
+            ? args
+            : args is Map<String, dynamic>
+                ? args['doctor'] as DoctorEntity?
+                : null;
+
+        if (doctor == null) {
+          return MaterialPageRoute<Map<String, dynamic>?>(
+            builder: (context) => Scaffold(
+              appBar: AppBar(),
+              body: const Center(
+                child: Text(
+                  'Doctor data is required to reschedule.',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+            ),
+          );
+        }
+
+        return MaterialPageRoute<Map<String, dynamic>?>(
+          builder: (_) =>
+              BookSessionScreen(doctor: doctor, rescheduleMode: true),
+        );
       case MyRoutes.appointmentsScreen:
         return MaterialPageRoute(builder: (_) => const AppointmentsScreen());
       case MyRoutes.paymentScreen:
@@ -342,6 +370,7 @@ class MyRoutes {
   static const String paymentScreen = "/paymentScreen";
   static const String doctorsHomeScreen = "/doctorsHomeScreen";
   static const String appointmentsScreen = "/appointmentsScreen";
+  static const String rescheduleSessionScreen = "/rescheduleSessionScreen";
   static const String settingsScreen = "/settingsScreen";
   static const String medicalProfileScreen = "/medicalProfileScreen";
   static const String profileInfoScreen = "/profileInfoScreen";

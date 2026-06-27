@@ -1,5 +1,5 @@
 import 'package:afiete/core/network/dio_factory.dart';
-import 'package:afiete/feature/appoinments/domain/repositories/appointments_repository.dart';
+import 'package:afiete/feature/appointments/domain/repositories/appointments_repository.dart';
 
 import 'package:afiete/feature/assessments/data/datasources/assisments_remote_datasource.dart';
 import 'package:afiete/feature/assessments/data/repositories/assisments_repository_impl.dart';
@@ -19,12 +19,12 @@ import 'package:afiete/feature/auth/domain/usecase/verify_forgot_password_otp_us
 import 'package:afiete/feature/auth/domain/usecase/verify_otp_usecase.dart';
 import 'package:afiete/feature/auth/domain/usecase/update_profile_info_usecase.dart';
 
-import 'package:afiete/feature/appoinments/data/datasources/appointments_remote_datasource.dart';
-import 'package:afiete/feature/appoinments/data/repositories/appointments_repository_impl.dart';
+import 'package:afiete/feature/appointments/data/datasources/appointments_remote_datasource.dart';
+import 'package:afiete/feature/appointments/data/repositories/appointments_repository_impl.dart';
 import 'package:afiete/feature/articles/data/datasources/articles_remote_datasource.dart';
 
-import 'package:afiete/feature/appoinments/domain/usecase/appointments_usecase.dart';
-import 'package:afiete/feature/appoinments/presentation/cubits/appointments_cubit.dart';
+import 'package:afiete/feature/appointments/domain/usecase/appointments_usecase.dart';
+import 'package:afiete/feature/appointments/presentation/cubits/appointments_cubit.dart';
 import 'package:afiete/feature/chat/domain/repositories/chat_repository.dart';
 import 'package:afiete/feature/chat/domain/usecases/get_chat_messages_usecase.dart';
 import 'package:afiete/feature/chat/domain/usecases/mark_chat_message_read_usecase.dart';
