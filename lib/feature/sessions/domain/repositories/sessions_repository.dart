@@ -10,20 +10,20 @@ abstract class SessionsRepository {
 
   Future<Either<Failure, List<SessionEntity>>> getPastSessions();
 
-  Future<Either<Failure, SessionEntity>> joinSession(String sessionId);
+  Future<Either<Failure, SessionEntity>> joinSession(dynamic sessionId);
 
   Future<Either<Failure, void>> cancelSession({
-    required String sessionId,
+    required dynamic sessionId,
     required String username,
   });
 
   Future<Either<Failure, SessionEntity>> rescheduleSession({
-    required String sessionId,
+    required dynamic sessionId,
     required DateTime newScheduledAt,
   });
 
   Future<Either<Failure, ReviewEntity>> addReview({
-    required String sessionId,
+    required dynamic sessionId,
     required int rating,
     required String comment,
   });

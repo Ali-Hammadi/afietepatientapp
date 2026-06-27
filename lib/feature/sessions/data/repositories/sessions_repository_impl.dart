@@ -42,7 +42,7 @@ class SessionsRepositoryImpl implements SessionsRepository {
   }
 
   @override
-  Future<Either<Failure, SessionEntity>> joinSession(String sessionId) async {
+  Future<Either<Failure, SessionEntity>> joinSession(dynamic sessionId) async {
     try {
       final result = await dataSource.joinSession(sessionId);
       return Right<Failure, SessionEntity>(result);
@@ -57,7 +57,7 @@ class SessionsRepositoryImpl implements SessionsRepository {
 
   @override
   Future<Either<Failure, void>> cancelSession({
-    required String sessionId,
+    required dynamic sessionId,
     required String username,
   }) async {
     try {
@@ -72,7 +72,7 @@ class SessionsRepositoryImpl implements SessionsRepository {
 
   @override
   Future<Either<Failure, SessionEntity>> rescheduleSession({
-    required String sessionId,
+    required dynamic sessionId,
     required DateTime newScheduledAt,
   }) async {
     try {
@@ -92,7 +92,7 @@ class SessionsRepositoryImpl implements SessionsRepository {
 
   @override
   Future<Either<Failure, ReviewEntity>> addReview({
-    required String sessionId,
+    required dynamic sessionId,
     required int rating,
     required String comment,
   }) async {

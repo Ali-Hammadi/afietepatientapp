@@ -4,7 +4,7 @@ import 'package:afiete/feature/sessions/domain/repositories/sessions_repository.
 import 'package:dartz/dartz.dart';
 
 class CancelSessionParams {
-  final String sessionId;
+  final dynamic sessionId;
   final String username;
 
   const CancelSessionParams({required this.sessionId, required this.username});

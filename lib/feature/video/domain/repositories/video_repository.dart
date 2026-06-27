@@ -10,7 +10,7 @@ abstract class VideoRepository {
   Future<Either<Failure, VideoCallEntity>> startCall({
     required String doctorId,
     required String patientId,
-    required String sessionId,
+    required dynamic sessionId,
   });
 
   Future<Either<Failure, VideoCallEntity>> endCall(String callId);

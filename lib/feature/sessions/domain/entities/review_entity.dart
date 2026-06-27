@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 class ReviewEntity extends Equatable {
   final String id;
-  final String sessionId;
+  final dynamic sessionId;
   final int rating;
   final String comment;
   final DateTime createdAt;

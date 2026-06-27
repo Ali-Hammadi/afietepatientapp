@@ -23,7 +23,7 @@ class StartVideoCallUseCase
 class StartVideoCallParams {
   final String doctorId;
   final String patientId;
-  final String sessionId;
+  final dynamic sessionId;
 
   const StartVideoCallParams({
     required this.doctorId,

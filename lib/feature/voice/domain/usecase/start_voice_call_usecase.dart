@@ -23,7 +23,7 @@ class StartVoiceCallUseCase
 class StartVoiceCallParams {
   final String doctorId;
   final String patientId;
-  final String sessionId;
+  final dynamic sessionId;
 
   const StartVoiceCallParams({
     required this.doctorId,

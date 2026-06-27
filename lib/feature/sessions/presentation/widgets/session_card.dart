@@ -1,6 +1,6 @@
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
-import 'package:afiete/feature/appoinments/domain/constants/session_type.dart';
+import 'package:afiete/feature/appointments/domain/constants/session_type.dart';
 import 'package:afiete/feature/sessions/domain/entities/session_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

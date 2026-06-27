@@ -8,7 +8,7 @@ abstract class VideoRemoteDataSource {
   Future<VideoCallModel> startCall({
     required String doctorId,
     required String patientId,
-    required String sessionId,
+    required dynamic sessionId,
   });
 
   Future<VideoCallModel> endCall(String callId);
@@ -35,7 +35,7 @@ class VideoRemoteDataSourceImpl implements VideoRemoteDataSource {
   Future<VideoCallModel> startCall({
     required String doctorId,
     required String patientId,
-    required String sessionId,
+    required dynamic sessionId,
   }) async {
     final response = await dio.post(
       ApiEndpoints.videoCallsStart,

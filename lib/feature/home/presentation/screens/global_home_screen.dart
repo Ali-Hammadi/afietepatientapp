@@ -1,7 +1,7 @@
 import 'package:afiete/core/di/injection_container.dart';
 import 'package:afiete/core/constants/settings_strings.dart';
-import 'package:afiete/feature/appoinments/presentation/cubits/appointments_cubit.dart';
-import 'package:afiete/feature/appoinments/presentation/screens/appointments_screen.dart';
+import 'package:afiete/feature/appointments/presentation/cubits/appointments_cubit.dart';
+import 'package:afiete/feature/appointments/presentation/screens/appointments_screen.dart';
 import 'package:afiete/feature/doctors/presentation/cubits/doctors_cubit.dart';
 import 'package:afiete/feature/doctors/presentation/screens/doctors_home_screen.dart';
 import 'package:afiete/feature/home/presentation/screens/first_home_screen.dart';

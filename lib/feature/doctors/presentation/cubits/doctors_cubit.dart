@@ -107,12 +107,12 @@ class DoctorsCubit extends Cubit<DoctorsState> {
   }
 
   Future<List<DoctorTimeSlot>> fetchSlotsForDate(
-    String username,
+    String doctorUsername,
     DateTime date,
   ) async {
     final dateStr = DateFormat('yyyy-MM-dd').format(date);
     final result = await getDoctorByUsernameUseCase.repository
-        .getDoctorAvailableSlots(username, dateStr);
+        .getDoctorAvailableSlots(doctorUsername, dateStr);
     return result.getOrElse(() => const <DoctorTimeSlot>[]);
   }
 

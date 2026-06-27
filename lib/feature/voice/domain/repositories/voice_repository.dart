@@ -10,7 +10,7 @@ abstract class VoiceRepository {
   Future<Either<Failure, VoiceCallEntity>> startCall({
     required String doctorId,
     required String patientId,
-    required String sessionId,
+    required dynamic sessionId,
   });
 
   Future<Either<Failure, VoiceCallEntity>> endCall(String callId);

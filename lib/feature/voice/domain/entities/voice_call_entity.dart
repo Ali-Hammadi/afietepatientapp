@@ -6,7 +6,7 @@ class VoiceCallEntity extends Equatable {
   final String id;
   final String doctorId;
   final String patientId;
-  final String sessionId;
+  final dynamic sessionId;
   final DateTime startedAt;
   final DateTime? endedAt;
   final VoiceCallStatus status;
@@ -30,12 +30,12 @@ class VoiceCallEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    doctorId,
-    patientId,
-    sessionId,
-    startedAt,
-    endedAt,
-    status,
-  ];
+        id,
+        doctorId,
+        patientId,
+        sessionId,
+        startedAt,
+        endedAt,
+        status,
+      ];
 }

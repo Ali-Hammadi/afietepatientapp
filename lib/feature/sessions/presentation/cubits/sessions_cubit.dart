@@ -44,7 +44,7 @@ class SessionsCubit extends Cubit<SessionsState> {
   }
 
   Future<bool> cancelSession({
-    required String sessionId,
+    required dynamic sessionId,
     required String username,
   }) async {
     final result = await cancelSessionUseCase(
@@ -63,7 +63,7 @@ class SessionsCubit extends Cubit<SessionsState> {
   }
 
   Future<bool> rescheduleSession({
-    required String sessionId,
+    required dynamic sessionId,
     required DateTime newScheduledAt,
   }) async {
     final result = await rescheduleSessionUseCase(

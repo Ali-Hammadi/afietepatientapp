@@ -32,7 +32,7 @@ class VideoRepositoryImpl implements VideoRepository {
   Future<Either<Failure, VideoCallEntity>> startCall({
     required String doctorId,
     required String patientId,
-    required String sessionId,
+    required dynamic sessionId,
   }) async {
     try {
       final result = await dataSource.startCall(

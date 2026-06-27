@@ -1,7 +1,7 @@
 import 'package:afiete/core/routes/app_route.dart';
 import 'package:afiete/feature/chat/presentation/screens/chat_conversation_screen.dart';
-import 'package:afiete/feature/appoinments/domain/constants/session_type.dart';
-import 'package:afiete/feature/appoinments/domain/entities/appointment_entity.dart';
+import 'package:afiete/feature/appointments/domain/constants/session_type.dart';
+import 'package:afiete/feature/appointments/domain/entities/appointment_entity.dart';
 import 'package:afiete/feature/sessions/domain/entities/session_entity.dart';
 import 'package:flutter/material.dart';
 

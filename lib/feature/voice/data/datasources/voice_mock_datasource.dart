@@ -27,7 +27,7 @@ class VoiceMockDataSourceImpl implements VoiceRemoteDataSource {
   Future<VoiceCallModel> startCall({
     required String doctorId,
     required String patientId,
-    required String sessionId,
+    required dynamic sessionId,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 220));
 

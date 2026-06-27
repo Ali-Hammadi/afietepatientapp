@@ -8,20 +8,20 @@ abstract class SessionsRemoteDataSource {
 
   Future<List<SessionModel>> getPastSessions();
 
-  Future<SessionModel> joinSession(String sessionId);
+  Future<SessionModel> joinSession(dynamic sessionId);
 
   Future<void> cancelSession({
-    required String sessionId,
+    required dynamic sessionId,
     required String username,
   });
 
   Future<SessionModel> rescheduleSession({
-    required String sessionId,
+    required dynamic sessionId,
     required DateTime newScheduledAt,
   });
 
   Future<ReviewModel> addReview({
-    required String sessionId,
+    required dynamic sessionId,
     required int rating,
     required String comment,
   });
@@ -92,7 +92,7 @@ class SessionsRemoteDataSourceImpl implements SessionsRemoteDataSource {
 
   /// Here will update later to add Sessions conversation type
   @override
-  Future<SessionModel> joinSession(String sessionId) async {
+  Future<SessionModel> joinSession(dynamic sessionId) async {
     try {
       final response = await _dio.post(
         ApiEndpoints.myAppointment(sessionId),
@@ -120,7 +120,7 @@ class SessionsRemoteDataSourceImpl implements SessionsRemoteDataSource {
 
   @override
   Future<void> cancelSession({
-    required String sessionId,
+    required dynamic sessionId,
     required String username,
   }) async {
     try {
@@ -149,7 +149,7 @@ class SessionsRemoteDataSourceImpl implements SessionsRemoteDataSource {
 
   @override
   Future<SessionModel> rescheduleSession({
-    required String sessionId,
+    required dynamic sessionId,
     required DateTime newScheduledAt,
   }) async {
     try {
@@ -183,7 +183,7 @@ class SessionsRemoteDataSourceImpl implements SessionsRemoteDataSource {
 
   @override
   Future<ReviewModel> addReview({
-    required String sessionId,
+    required dynamic sessionId,
     required int rating,
     required String comment,
   }) async {

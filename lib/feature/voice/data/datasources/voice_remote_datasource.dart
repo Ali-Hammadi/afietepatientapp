@@ -8,7 +8,7 @@ abstract class VoiceRemoteDataSource {
   Future<VoiceCallModel> startCall({
     required String doctorId,
     required String patientId,
-    required String sessionId,
+    required dynamic sessionId,
   });
 
   Future<VoiceCallModel> endCall(String callId);
@@ -35,7 +35,7 @@ class VoiceRemoteDataSourceImpl implements VoiceRemoteDataSource {
   Future<VoiceCallModel> startCall({
     required String doctorId,
     required String patientId,
-    required String sessionId,
+    required dynamic sessionId,
   }) async {
     final response = await dio.post(
       ApiEndpoints.voiceCallsStart,
