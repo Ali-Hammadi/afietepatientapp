@@ -1,9 +1,9 @@
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/routes/app_route.dart';
-import 'package:afiete/core/widget/custom_button.dart';
 import 'package:afiete/feature/articles/presentation/cubits/articles_cubit.dart';
 import 'package:afiete/feature/articles/presentation/cubits/articles_state.dart';
+import 'package:afiete/feature/articles/domain/entities/article_entities.dart';
 import 'package:afiete/feature/articles/presentation/widgets/article_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,29 +32,16 @@ class _SpecialDoctorArticleListScreenState
   @override
   void initState() {
     super.initState();
-    _loadArticles();
+    // تم إلغاء طلب الـ API من هنا للاعتماد كلياً على الفلترة المحلية كما هو مطلوب.
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
-        // إذا أردت جلب المزيد من مقالات الطبيب عند النزول لأسفل، يمكنك استدعاء دالة pagination مخصصة هنا
-        // لكن الشرط التالي يمنع تداخلها مع حالات التصفح العادية
-        if (widget.doctorUsername != null) {
-          // context.read<ArticlesCubit>().loadMoreArticlesByDoctor(widget.doctorUsername!);
-        } else {
+        if (widget.doctorUsername == null) {
           context.read<ArticlesCubit>().loadMoreArticles();
         }
       }
     });
-  }
-
-  void _loadArticles() {
-    final cubit = context.read<ArticlesCubit>();
-    // جلب مقالات الطبيب المختار فقط بناءً على الـ username الخاص به
-    if (widget.doctorUsername != null &&
-        widget.doctorUsername!.trim().isNotEmpty) {
-      cubit.loadArticlesByDoctor(widget.doctorUsername!);
-    }
   }
 
   @override
@@ -82,92 +69,76 @@ class _SpecialDoctorArticleListScreenState
       ),
       body: BlocBuilder<ArticlesCubit, ArticlesState>(
         builder: (context, state) {
-          // في حال كانت المقالات لا تزال قيد التحميل
-          if (state is ArticlesLoading &&
-              (_scrollController.hasClients == false ||
-                  _scrollController.position.pixels == 0)) {
+          final cubit = context.read<ArticlesCubit>();
+          final allArticles = cubit.currentCachedArticles;
+
+          // الفلترة المحلية الصارمة حسب الـ Username
+          List<ArticleEntity> displayArticles = [];
+          if (widget.doctorUsername != null &&
+              widget.doctorUsername!.trim().isNotEmpty) {
+            displayArticles = allArticles
+                .where((a) => a.doctor.doctorUsername == widget.doctorUsername)
+                .toList();
+          } else {
+            displayArticles = allArticles;
+          }
+
+          if (state is ArticlesLoading && allArticles.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (state is ArticlesLoaded) {
-            if (state.articles.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.article_outlined,
-                      size: 64,
-                      color: colorScheme.primary.withValues(alpha: 0.5),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      SettingsStrings.noArticlesFound,
-                      style: AppStyles.headingMedium,
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            return ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.all(AppStyles.padding),
-              itemCount: state.articles.length,
-              itemBuilder: (context, index) {
-                final article = state.articles[index];
-
-                return ArticleCardWidget(
-                  article: article,
-                  onDoctorTap: article.doctor.doctorUsername.trim().isNotEmpty
-                      ? () {
-                          Navigator.pushNamed(
-                            context,
-                            MyRoutes.doctorInfoScreen,
-                            arguments: article.doctor,
-                          );
-                        }
-                      : null,
-                  onReadMore: () {
-                    Navigator.pushNamed(
-                      context,
-                      MyRoutes.articleDetailsScreen,
-                      arguments: article,
-                    );
-                  },
-                );
-              },
-            );
-          }
-
-          if (state is ArticlesError) {
+          if (displayArticles.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 64, color: colorScheme.error),
+                  Icon(
+                    Icons.article_outlined,
+                    size: 64,
+                    color: colorScheme.primary.withValues(alpha: 0.5),
+                  ),
                   const SizedBox(height: 16),
                   Text(
-                    state.message,
-                    style: AppStyles.bodyMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  CustomButton(
-                    widget: Text(
-                      SettingsStrings.retry,
-                      style: AppStyles.bodyMedium.copyWith(
-                        color: colorScheme.onPrimary,
-                      ),
-                    ),
-                    onPressed: _loadArticles,
+                    SettingsStrings.noArticlesFound,
+                    style: AppStyles.headingMedium,
                   ),
                 ],
               ),
             );
           }
 
-          return const SizedBox.shrink();
+          return ListView.builder(
+            controller: _scrollController,
+            padding: const EdgeInsets.all(AppStyles.padding),
+            itemCount: displayArticles.length,
+            itemBuilder: (context, index) {
+              final article = displayArticles[index];
+
+              return ArticleCardWidget(
+                article: article,
+                onDoctorTap: article.doctor.doctorUsername.trim().isNotEmpty
+                    ? () {
+                        // تجنب التوجيه لنفس شاشة الطبيب إذا كنا بداخلها بالفعل
+                        if (widget.doctorUsername !=
+                            article.doctor.doctorUsername) {
+                          Navigator.pushNamed(
+                            context,
+                            MyRoutes.doctorInfoScreen,
+                            arguments: article.doctor,
+                          );
+                        }
+                      }
+                    : null,
+                onReadMore: () {
+                  Navigator.pushNamed(
+                    context,
+                    MyRoutes.articleDetailsScreen,
+                    arguments: article,
+                  );
+                },
+              );
+            },
+          );
         },
       ),
     );

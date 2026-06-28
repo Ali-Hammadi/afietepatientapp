@@ -1,5 +1,6 @@
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/ln10/settings_strings.dart';
+import 'package:afiete/core/di/injection_container.dart'; // مسار الـ sl
 import 'package:afiete/feature/articles/domain/entities/article_entities.dart';
 import 'package:afiete/feature/articles/presentation/cubits/articles_cubit.dart';
 import 'package:afiete/feature/articles/presentation/cubits/articles_state.dart';
@@ -23,81 +24,79 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen> {
   void initState() {
     super.initState();
     _id = widget.article?.id ?? widget.articleId;
-    if (_id != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        // تصحيح: استدعاء دالة جلب المقال المنفرد بواسطة الـ ID بدلاً من مقالات الطبيب
-        context.read<ArticlesCubit>().loadArticleById(_id);
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_id == null && widget.article == null) {
-      return Scaffold(
-        appBar: AppBar(),
-        body: const Center(child: Text('Article not provided')),
-      );
-    }
+    final colorScheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.article?.title ?? 'Article')),
-      body: Padding(
-        padding: const EdgeInsets.all(AppStyles.padding),
-        child: BlocBuilder<ArticlesCubit, ArticlesState>(
+    // هنا يتم عزل تفاصيل المقال في نسخة منفصلة لا تلمس الـ Home
+    return BlocProvider<ArticlesCubit>(
+      create: (context) {
+        final cubit = sl<ArticlesCubit>();
+        if (_id != null) {
+          cubit.loadArticleById(_id);
+        }
+        return cubit;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(SettingsStrings.allArticlesTitle),
+          centerTitle: true,
+        ),
+        body: BlocBuilder<ArticlesCubit, ArticlesState>(
           builder: (context, state) {
-            ArticleEntity? displayArticle = widget.article;
-
-            if (state is ArticlesLoading && displayArticle == null) {
+            if (state is ArticlesLoading || state is ArticleDetailsLoading) {
               return const Center(child: CircularProgressIndicator());
             }
 
+            ArticleEntity? article;
             if (state is ArticleDetailsLoaded) {
-              displayArticle = state.article;
+              article = state.article;
+            } else if (widget.article != null) {
+              article = widget.article;
             }
 
-            if (state is ArticlesLoaded) {
-              final found = state.articles.firstWhere(
-                (a) => a.id == _id,
-                orElse: () => displayArticle ?? state.articles.first,
-              );
-              displayArticle = found;
+            if (article == null) {
+              return const Center(child: Text("تعذر تحميل بيانات المقال"));
             }
-
-            if (state is ArticlesError && displayArticle == null) {
-              return Center(child: Text(state.message));
-            }
-
-            if (displayArticle == null) {
-              return const Center(child: Text('Article not available'));
-            }
-
-            final article = displayArticle;
 
             return SingleChildScrollView(
+              padding: EdgeInsets.all(AppStyles.padding),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(article.title, style: AppStyles.headingMedium),
-                  const SizedBox(height: 8),
-                  Text(
-                      'By ${article.doctor.name} • ${article.createdAt.toLocal()}'),
-                  const SizedBox(height: 12),
                   if (article.imageUrl.isNotEmpty) ...[
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(12),
                       child: Image.network(
                         article.imageUrl,
-                        fit: BoxFit.cover,
                         width: double.infinity,
-                        height: 200,
-                        errorBuilder: (c, e, s) => const SizedBox.shrink(),
+                        height: 220,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const SizedBox.shrink(),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                   ],
-                  Text(article.content, style: AppStyles.bodyMedium),
-                  const SizedBox(height: 20),
+                  Text(
+                    article.title,
+                    style: AppStyles.headingMedium
+                        .copyWith(color: colorScheme.primary),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'بواسطة: ${article.doctor.name}',
+                    style: AppStyles.bodyMedium
+                        .copyWith(color: colorScheme.outline),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    article.content,
+                    style: AppStyles.bodyMedium.copyWith(height: 1.5),
+                  ),
+                  const SizedBox(height: 24),
                   Row(
                     children: [
                       ElevatedButton.icon(
@@ -108,7 +107,7 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen> {
                         ),
                         onPressed: () =>
                             context.read<ArticlesCubit>().reactToArticle(
-                                  article.id,
+                                  article!.id,
                                   article.isLikedByUser ? 'none' : 'like',
                                 ),
                         icon: Icon(Icons.thumb_up,
@@ -125,7 +124,7 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen> {
                         ),
                         onPressed: () =>
                             context.read<ArticlesCubit>().reactToArticle(
-                                  article.id,
+                                  article!.id,
                                   article.isDislikedByUser ? 'none' : 'dislike',
                                 ),
                         icon: Icon(Icons.thumb_down,

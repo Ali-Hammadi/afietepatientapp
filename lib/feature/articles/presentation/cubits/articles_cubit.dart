@@ -20,98 +20,149 @@ class ArticlesCubit extends Cubit<ArticlesState> {
     required this.reactToArticleUseCase,
   }) : super(const ArticlesInitial());
 
-  // =========================
-  // Internal cache/state
-  // =========================
-  List<ArticleEntity>? _currentArticles;
-  String _currentSource = "home";
-
-  int _page = 1;
+  // ==========================================
+  // 1. Dual-Cache System لمنع التعارض
+  // ==========================================
+  String _currentSource = "home"; // 'home' or 'doctor'
   final int _pageSize = 10;
-  bool _isFetchingMore = false;
-  bool _hasLoadedAll = false;
+
+  // كاش الصفحة الرئيسية
+  List<ArticleEntity>? _homeArticles;
+  int _homePage = 1;
+  bool _homeIsFetchingMore = false;
+  bool _homeHasLoadedAll = false;
+
+  // كاش مقالات الطبيب
+  List<ArticleEntity>? _doctorArticles;
+  int _doctorPage = 1;
+  bool _doctorIsFetchingMore = false;
+  bool _doctorHasLoadedAll = false;
+
+  // ==========================================
+  // 2. Dynamic Getters & Setters
+  // ==========================================
+  List<ArticleEntity>? get _currentArticles =>
+      _currentSource == "home" ? _homeArticles : _doctorArticles;
+
+  set _currentArticles(List<ArticleEntity>? value) {
+    if (_currentSource == "home") {
+      _homeArticles = value;
+    } else {
+      _doctorArticles = value;
+    }
+  }
+
+  int get _page => _currentSource == "home" ? _homePage : _doctorPage;
+  set _page(int value) {
+    if (_currentSource == "home") {
+      _homePage = value;
+    } else {
+      _doctorPage = value;
+    }
+  }
+
+  bool get _isFetchingMore =>
+      _currentSource == "home" ? _homeIsFetchingMore : _doctorIsFetchingMore;
+  set _isFetchingMore(bool value) {
+    if (_currentSource == "home") {
+      _homeIsFetchingMore = value;
+    } else {
+      _doctorIsFetchingMore = value;
+    }
+  }
+
+  bool get _hasLoadedAll =>
+      _currentSource == "home" ? _homeHasLoadedAll : _doctorHasLoadedAll;
+  set _hasLoadedAll(bool value) {
+    if (_currentSource == "home") {
+      _homeHasLoadedAll = value;
+    } else {
+      _doctorHasLoadedAll = value;
+    }
+  }
+
+  // Getter للوصول للمقالات محلياً من قبل الشاشات الأخرى بدون كسر الحالة
+  List<ArticleEntity> get currentCachedArticles => _currentArticles ?? [];
 
   // =========================
   // HOME PIPELINE
-  // recommended → trending → all
   // =========================
   Future<void> loadArticlesForHome() async {
-    emit(const ArticlesLoading(step: "recommended"));
-    _currentSource = "home";
+    _currentSource = "home"; // تأكيد توجيه المؤشر للهوم
 
-    final List<ArticleEntity> compiled = [];
+    // Cache Guard: منع إعادة التحميل ومسح الشاشة إذا كانت البيانات موجودة مسبقاً
+    if (_homeArticles != null && _homeArticles!.isNotEmpty) {
+      if (state is! ArticlesLoaded ||
+          (state is ArticlesLoaded &&
+              (state as ArticlesLoaded).source != "home")) {
+        emit(ArticlesLoaded(
+            articles: List.from(_homeArticles!), source: "home"));
+      }
+      return;
+    }
+
+    emit(const ArticlesLoading(step: "home"));
+
     final Set<String> ids = {};
+    final List<ArticleEntity> compiled = [];
 
-// =========================
-// 1️⃣ Recommended
-// =========================
-    final recommendedResult = await getRecommendedArticlesUseCase();
+    // استخدام Future.wait لجلب البيانات بالتوازي لضمان عدم تأثر الأداء
+    final results = await Future.wait([
+      getRecommendedArticlesUseCase(),
+      getTrendingArticlesUseCase(),
+      getAllArticlesUseCase(page: 1, pageSize: 20), // جلب كمية كافية للترتيب
+    ]);
 
+    final recommendedResult = results[0];
+    final trendingResult = results[1];
+    final allResult = results[2];
+
+    // 1️⃣ Recommended
     recommendedResult.fold(
-      (failure) {
-        print("Recommended error: ${failure.errorMessage}");
-      },
+      (failure) => print("Recommended error: ${failure.errorMessage}"),
       (articles) {
-        if (articles.isNotEmpty) {
-          for (var a in articles.take(5)) {
-            if (ids.add(a.id)) {
-              compiled.add(a);
-            }
-          }
+        final List<ArticleEntity> recArticles = articles;
+        for (var a in recArticles) {
+          if (ids.add(a.id)) compiled.add(a);
         }
       },
     );
 
-    if (compiled.isEmpty) {
-      emit(const ArticlesLoading(step: "trending"));
+    // 2️⃣ Trending
+    trendingResult.fold(
+      (failure) => print("Trending error: ${failure.errorMessage}"),
+      (articles) {
+        final List<ArticleEntity> trendArticles = articles;
+        for (var a in trendArticles) {
+          if (ids.add(a.id)) compiled.add(a);
+        }
+      },
+    );
 
-      final trendingResult = await getTrendingArticlesUseCase();
+    // 3️⃣ All (Rest sorted by Likes descending)
+    allResult.fold(
+      (failure) => print("All error: ${failure.errorMessage}"),
+      (articles) {
+        final List<ArticleEntity> allArticles = articles;
+        final List<ArticleEntity> restList = [];
 
-      trendingResult.fold(
-        (failure) {
-          print("Trending error: ${failure.errorMessage}");
-        },
-        (articles) {
-          if (articles.isNotEmpty) {
-            for (var a in articles.take(5)) {
-              if (ids.add(a.id)) {
-                compiled.add(a);
-              }
-            }
+        for (var a in allArticles) {
+          if (!ids.contains(a.id)) {
+            restList.add(a);
           }
-        },
-      );
+        }
 
-      // 3️⃣ Final fallback → All
-      if (compiled.isEmpty) {
-        emit(const ArticlesLoading(step: "all"));
+        // ترتيب بقية المقالات تنازلياً حسب عدد الإعجابات
+        restList.sort((a, b) => b.likesCount.compareTo(a.likesCount));
 
-        final allResult = await getAllArticlesUseCase(
-          page: 1,
-          pageSize: 10,
-        );
+        for (var a in restList) {
+          if (ids.add(a.id)) compiled.add(a);
+        }
+      },
+    );
 
-        allResult.fold(
-          (failure) {
-            emit(ArticlesError(
-              message: failure.errorMessage,
-              step: "all",
-            ));
-          },
-          (articles) {
-            if (articles.isNotEmpty) {
-              for (var a in articles) {
-                if (ids.add(a.id)) {
-                  compiled.add(a);
-                }
-              }
-            }
-          },
-        );
-      }
-    }
+    _homeArticles = compiled;
 
-    // Empty check
     if (compiled.isEmpty) {
       emit(const ArticlesEmpty(source: "home"));
       return;
@@ -139,10 +190,6 @@ class ArticlesCubit extends Cubit<ArticlesState> {
     result.fold(
       (failure) {
         _isFetchingMore = false;
-        emit(ArticlesError(
-          message: failure.errorMessage,
-          step: "all",
-        ));
       },
       (newArticles) {
         _isFetchingMore = false;
@@ -166,16 +213,12 @@ class ArticlesCubit extends Cubit<ArticlesState> {
 
         if (added) {
           _page++;
+          _currentArticles = current;
+          emit(ArticlesLoaded(
+              articles: List.from(current), source: _currentSource));
         } else {
           _hasLoadedAll = true;
         }
-
-        _currentArticles = current;
-
-        emit(ArticlesLoaded(
-          articles: List.from(current),
-          source: "home",
-        ));
       },
     );
   }
@@ -184,8 +227,14 @@ class ArticlesCubit extends Cubit<ArticlesState> {
   // DOCTOR ARTICLES
   // =========================
   Future<void> loadArticlesByDoctor(String doctorUsername) async {
+    _currentSource = "doctor"; // تغيير المؤشر لكاش الطبيب
+    _doctorPage = 1;
+    _doctorHasLoadedAll = false;
+
+    // تصفير كاش الطبيب عند كل طلب جديد لضمان جلب أحدث المقالات له
+    _doctorArticles = null;
+
     emit(const ArticlesLoading(step: "doctor"));
-    _currentSource = "doctor";
 
     final result = await getArticlesByDoctorUseCase(doctorUsername);
 
@@ -197,10 +246,12 @@ class ArticlesCubit extends Cubit<ArticlesState> {
         ));
       },
       (articles) {
-        _currentArticles = articles;
+        _doctorArticles = articles;
+        _doctorHasLoadedAll =
+            true; // نعتبرها مكتملة مبدئياً لعدم وجود باجينيشن خاص بالطبيب حالياً
 
         emit(ArticlesLoaded(
-          articles: articles,
+          articles: List.from(_doctorArticles!),
           source: "doctor",
         ));
       },
@@ -253,11 +304,21 @@ class ArticlesCubit extends Cubit<ArticlesState> {
   // INTERNAL UPDATE
   // =========================
   void _updateLocal(ArticleEntity updated) {
-    if (_currentArticles != null) {
-      _currentArticles = _currentArticles!
+    // تحديث في كاش الهوم إذا كان موجوداً
+    if (_homeArticles != null) {
+      _homeArticles =
+          _homeArticles!.map((a) => a.id == updated.id ? updated : a).toList();
+    }
+
+    // تحديث في كاش الطبيب إذا كان موجوداً
+    if (_doctorArticles != null) {
+      _doctorArticles = _doctorArticles!
           .map((a) => a.id == updated.id ? updated : a)
           .toList();
+    }
 
+    // تحديث الشاشة بناءً على المؤشر الحالي
+    if (_currentArticles != null) {
       emit(ArticlesLoaded(
         articles: List.from(_currentArticles!),
         source: _currentSource,
@@ -273,12 +334,27 @@ class ArticlesCubit extends Cubit<ArticlesState> {
   // RESET
   // =========================
   void reset() {
-    _currentArticles = null;
+    _homeArticles = null;
+    _doctorArticles = null;
     _currentSource = "home";
-    _page = 1;
-    _isFetchingMore = false;
-    _hasLoadedAll = false;
+
+    _homePage = 1;
+    _homeIsFetchingMore = false;
+    _homeHasLoadedAll = false;
+
+    _doctorPage = 1;
+    _doctorIsFetchingMore = false;
+    _doctorHasLoadedAll = false;
 
     emit(const ArticlesInitial());
+  }
+
+  // ==========================================
+  // 3. الحل السحري لمنع تجمد واختفاء بيانات الهوم عند العودة
+  // ==========================================
+  @override
+  // ignore: must_call_super
+  Future<void> close() {
+    return Future.value();
   }
 }

@@ -78,9 +78,7 @@ class DoctorEntity extends Equatable {
   final String? bio;
   final List<DoctorSessionPrice> sessionPrices;
   final List<DoctorSchedule> schedules;
-
-  // الحقول الجديدة المضافة لدعم الـ Model والـ JSON القادم من السيرفر
-  final String? patients_count;
+  final String? patientsCount;
   final double? _ratingValue;
   final String? _rating;
   final String? _specialization;
@@ -101,7 +99,7 @@ class DoctorEntity extends Equatable {
     this.bio,
     this.sessionPrices = const [],
     this.schedules = const [],
-    this.patients_count,
+    this.patientsCount,
     double? ratingValue,
     String? rating,
     String? specialization,
@@ -180,7 +178,7 @@ class DoctorEntity extends Equatable {
       bio: bio ?? this.bio,
       sessionPrices: sessionPrices ?? this.sessionPrices,
       schedules: schedules ?? this.schedules,
-      patients_count: patients_count ?? this.patients_count,
+      patientsCount: patients_count ?? this.patientsCount,
       ratingValue: ratingValue ?? this._ratingValue,
       rating: rating ?? this._rating,
       specialization: specialization ?? this._specialization,
@@ -204,7 +202,7 @@ class DoctorEntity extends Equatable {
         bio,
         sessionPrices,
         schedules,
-        patients_count,
+        patientsCount,
         _ratingValue,
         _rating,
         _specialization,

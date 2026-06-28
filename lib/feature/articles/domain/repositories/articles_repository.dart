@@ -10,14 +10,15 @@ abstract class ArticlesRepository {
   Future<Either<Failure, List<ArticleEntity>>> getRecommendedArticles();
   Future<Either<Failure, List<ArticleEntity>>> getTrendingArticles();
   Future<Either<Failure, List<ArticleEntity>>> getArticlesByDoctor(
-    String doctorId,
+    String doctorUsername,
   );
   Future<Either<Failure, List<ArticleEntity>>> getAllArticles({
     int page = 1,
     int pageSize = 10,
   });
   Future<Either<Failure, ArticleEntity>> getArticleById(String articleId);
-  Future<Either<Failure, void>> reactToArticle(String articleId, String reaction);
+  Future<Either<Failure, void>> reactToArticle(
+      String articleId, String reaction);
   Future<Either<Failure, void>> likeArticle(String articleId);
   Future<Either<Failure, void>> dislikeArticle(String articleId);
 }

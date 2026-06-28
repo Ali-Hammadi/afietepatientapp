@@ -2,6 +2,8 @@ import 'package:afiete/core/constants/report_types.dart';
 import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/di/injection_container.dart';
 import 'package:afiete/feature/appointments/presentation/screens/reschedule_session_screen.dart';
+import 'package:afiete/feature/articles/presentation/cubits/articles_cubit.dart';
+import 'package:afiete/feature/articles/presentation/screens/special_doctor_article_list_screen.dart';
 import 'package:afiete/feature/assessments/presentation/cubits/assessments_cubit.dart';
 import 'package:afiete/feature/assessments/presentation/cubits/assessments_state.dart';
 import 'package:afiete/feature/assessments/presentation/screens/assisment_result_screen.dart';
@@ -101,11 +103,23 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => ForgotPasswordScreen(initialEmail: initialEmail),
         );
-      case MyRoutes.doctorInfoScreen:
-        final args = settings.arguments;
+
+      case MyRoutes.doctorSpecialArticleScreen:
+        final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
-          builder: (_) =>
-              DoctorInfo(doctor: args is DoctorEntity ? args : null),
+          builder: (_) => SpecialDoctorArticleListScreen(
+            doctorUsername: args?['doctorUsername'],
+            doctorName: args?['doctorName'],
+            userDiagnosis: args?['userDiagnosis'],
+          ),
+        );
+      case MyRoutes.doctorInfoScreen:
+        final doctor = settings.arguments as DoctorEntity;
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider<ArticlesCubit>(
+            create: (context) => sl<ArticlesCubit>(),
+            child: DoctorInfo(doctor: doctor),
+          ),
         );
       case MyRoutes.bookSessionScreen:
         final args = settings.arguments;
@@ -382,4 +396,6 @@ class MyRoutes {
   // Articles Screens
   static const String articlesListScreen = "/articlesListScreen";
   static const String articleDetailsScreen = "/articleDetailsScreen";
+  static const String doctorSpecialArticleScreen =
+      "/doctorSpecialArticleScreen";
 }

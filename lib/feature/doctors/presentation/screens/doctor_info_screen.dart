@@ -7,7 +7,6 @@ import 'package:afiete/core/routes/app_route.dart';
 import 'package:afiete/core/widget/custom_button.dart';
 import 'package:afiete/core/widget/error_custom_button.dart';
 import 'package:afiete/feature/articles/presentation/cubits/articles_cubit.dart';
-import 'package:afiete/feature/articles/presentation/widgets/article_card_widget.dart';
 import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
 import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:afiete/feature/doctors/presentation/cubits/doctors_cubit.dart';
@@ -15,6 +14,7 @@ import 'package:afiete/feature/doctors/presentation/cubits/doctors_cubit.dart';
 import 'package:afiete/feature/home/presentation/widgets/custom_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:share_plus/share_plus.dart';
 
 class DoctorInfo extends StatefulWidget {
   final DoctorEntity? doctor;
@@ -32,7 +32,11 @@ class _DoctorInfoState extends State<DoctorInfo> {
     final doctorUsername = widget.doctor?.doctorUsername;
     if (doctorUsername != null && doctorUsername.isNotEmpty) {
       context.read<DoctorsCubit>().loadDoctorByUsername(doctorUsername);
-      context.read<ArticlesCubit>().loadArticlesByDoctor(doctorUsername);
+    }
+    if (widget.doctor?.doctorUsername != null) {
+      context
+          .read<ArticlesCubit>()
+          .loadArticlesByDoctor(widget.doctor!.doctorUsername);
     }
   }
 
@@ -97,7 +101,10 @@ class _DoctorInfoState extends State<DoctorInfo> {
             centerTitle: true,
             actions: [
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  final shareText = doctor!.doctorUsername;
+                  Share.share(shareText);
+                },
                 icon: Icon(Icons.share, color: colorScheme.onSurface),
               ),
             ],
@@ -112,9 +119,15 @@ class _DoctorInfoState extends State<DoctorInfo> {
                       _buildDoctorPhoto(doctor),
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                          vertical: AppStyles.padding,
+                          vertical: AppStyles.padding / 2,
                         ),
                         child: Text(doctorName, style: AppStyles.headingMedium),
+                      ),
+                      Padding(
+                        padding: EdgeInsetsGeometry.symmetric(
+                            vertical: AppStyles.padding / 2),
+                        child: Text(doctor!.doctorUsername,
+                            style: AppStyles.bodyMedium),
                       ),
                       _buildStatsCard(colorScheme: colorScheme, doctor: doctor),
                       _buildSection(
@@ -320,7 +333,7 @@ class _DoctorInfoState extends State<DoctorInfo> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(doctor?.patients_count ?? '0'),
+                Text(doctor?.patientsCount ?? '0'),
                 Text(SettingsStrings.patientsLabel, style: AppStyles.bodySmall),
               ],
             ),
@@ -367,15 +380,15 @@ class _DoctorInfoState extends State<DoctorInfo> {
         style: AppStyles.bodySmall.copyWith(color: colorScheme.outline),
       );
     }
+    final uniqueDays = schedules.map((s) => s.dayOfWeek).toSet().toList();
 
     return Column(
-      children: schedules
+      children: uniqueDays
           .map(
-            (schedule) => ListTile(
+            (day) => ListTile(
               contentPadding: EdgeInsets.zero,
               leading: Icon(Icons.schedule, color: colorScheme.primary),
-              title: Text(schedule.dayOfWeek),
-              subtitle: Text('${schedule.startTime} - ${schedule.endTime}'),
+              title: Text(day),
             ),
           )
           .toList(),
@@ -461,7 +474,7 @@ class _DoctorInfoState extends State<DoctorInfo> {
                 onPressed: () {
                   Navigator.pushNamed(
                     context,
-                    MyRoutes.articlesListScreen,
+                    MyRoutes.doctorSpecialArticleScreen,
                     arguments: {
                       'doctorUsername': widget.doctor?.doctorUsername,
                       'doctorName': widget.doctor?.name,
@@ -481,58 +494,178 @@ class _DoctorInfoState extends State<DoctorInfo> {
           BlocBuilder<ArticlesCubit, ArticlesState>(
             builder: (context, state) {
               if (state is ArticlesLoading) {
-                return const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24.0),
-                  child: Center(child: CircularProgressIndicator()),
-                );
+                return const Center(child: CircularProgressIndicator());
               }
 
               if (state is ArticlesLoaded) {
-                final articles = state.articles
+                final doctorArticles = state.articles
                     .where((article) =>
                         article.doctor.doctorUsername ==
                         widget.doctor?.doctorUsername)
                     .toList();
 
-                if (articles.isEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Text(
-                      SettingsStrings.noArticlesAvailableForThisDoctorYet,
-                      style: AppStyles.bodySmall.copyWith(
-                        color: colorScheme.outline,
-                      ),
+                if (doctorArticles.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text(SettingsStrings.noArticlesFound),
                     ),
                   );
                 }
 
-                return Column(
-                  children: articles
-                      .map(
-                        (article) => ArticleCardWidget(
-                          article: article,
-                          flatMode: true,
-                          onReadMore: () {
-                            Navigator.pushNamed(
-                              context,
-                              MyRoutes.articleDetailsScreen,
-                              arguments: article,
-                            );
-                          },
-                        ),
-                      )
-                      .toList(),
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: doctorArticles.length,
+                  itemBuilder: (context, index) {
+                    final article = doctorArticles[index];
+
+                    return Container(
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 12, horizontal: 16),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundImage: article
+                                        .doctor.imageUrl!.isNotEmpty
+                                    ? NetworkImage(article.doctor.imageUrl!)
+                                    : const AssetImage(
+                                            'assets/images/default_avatar.png')
+                                        as ImageProvider,
+                              ),
+                              const SizedBox(width: 10),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    article.doctor.name!, // اسم الطبيب
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                                  Text(
+                                    "@${article.doctor.doctorUsername}", // Username
+                                    style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 13),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+
+                          // 2. صورة المقال
+                          if (article.imageUrl.isNotEmpty)
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                article.imageUrl,
+                                width: double.infinity,
+                                height: 200,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const SizedBox.shrink(),
+                              ),
+                            ),
+                          const SizedBox(height: 12),
+
+                          Text(
+                            article.title, // عنوان المقال
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: Colors.blueAccent),
+                          ),
+                          const SizedBox(height: 6),
+
+                          if (article.relatedConditions.isNotEmpty)
+                            Wrap(
+                              spacing: 6,
+                              children:
+                                  article.relatedConditions.map((condition) {
+                                return Chip(
+                                  label: Text(condition,
+                                      style: const TextStyle(fontSize: 12)),
+                                  backgroundColor: Colors.blue.shade50,
+                                );
+                              }).toList(),
+                            ),
+                          const SizedBox(height: 8),
+
+                          // 5. الوصف (Summary)
+                          Text(
+                            article.summary, // الوصف
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade700,
+                                fontStyle: FontStyle.italic),
+                          ),
+                          const SizedBox(height: 8),
+
+                          // 6. المحتوى الكامل (Content)
+                          Text(
+                            article.content, // المحتوى
+                            style: const TextStyle(fontSize: 15, height: 1.4),
+                          ),
+                          const SizedBox(height: 12),
+                          const Divider(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.thumb_up_alt_outlined,
+                                      size: 18, color: Colors.blue),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    "${article.likesCount}",
+                                    style: const TextStyle(fontSize: 13),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  const Icon(Icons.thumb_down_alt_outlined,
+                                      size: 18, color: Colors.red),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    "${article.dislikesCount}",
+                                    style: const TextStyle(fontSize: 13),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                "${article.createdAt.year}-${article.createdAt.month}-${article.createdAt.day}", // تاريخ النشر
+                                style: TextStyle(
+                                    color: Colors.grey.shade500, fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 );
               }
 
               if (state is ArticlesError) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Text(
-                    state.message,
-                    style: AppStyles.bodySmall.copyWith(
-                      color: colorScheme.error,
-                    ),
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(state.message),
                   ),
                 );
               }

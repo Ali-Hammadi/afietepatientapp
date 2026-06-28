@@ -112,8 +112,8 @@ abstract class ApiEndpoints {
   // === Articles ===
 
   static String articleById(String id) => '/api/patient/articles/$id/';
-  static String articlesByDoctor(String doctorUsername) =>
-      '/api/patient/articles/$doctorUsername/';
+  static String articlesByDoctor(String username) =>
+      '/api/patient/articles/doctor/$username/';
   static const String articlesRecommended =
       '/api/patient/articles/recommended/';
   static const String articlesFeed = '/api/patient/articles/feed/';

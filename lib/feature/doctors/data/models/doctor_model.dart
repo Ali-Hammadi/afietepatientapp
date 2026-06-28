@@ -88,7 +88,7 @@ class DoctorModel extends DoctorEntity {
     super.specialization,
     super.experience,
     super.rating,
-    super.patients_count,
+    super.patientsCount,
   });
 
   factory DoctorModel.fromJson(Map<String, dynamic> json) {
@@ -179,7 +179,7 @@ class DoctorModel extends DoctorEntity {
         specialization: firstSpecialtyId,
         experience: '$expYears years',
         rating: ratingVal.toStringAsFixed(1),
-        patients_count: patientsCountStr);
+        patientsCount: patientsCountStr);
   }
 
   Map<String, dynamic> toJson() {
@@ -190,7 +190,7 @@ class DoctorModel extends DoctorEntity {
       'bio': bio,
       'profile_picture': imageUrl,
       'average_rating': ratingValue,
-      'patients_count': patients_count,
+      'patients_count': patientsCount,
       'experience': experienceYears,
       'session_prices': sessionPrices
           .map((e) => {

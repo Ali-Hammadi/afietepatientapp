@@ -50,11 +50,14 @@ class ArticlesRepositoryImpl implements ArticlesRepository {
   }
 
   @override
+  // أضف تطبيق الدالة داخل كلاس ArticlesRepositoryImpl
+
+  @override
   Future<Either<Failure, List<ArticleEntity>>> getArticlesByDoctor(
-      String doctorId) async {
+      String doctorUsername) async {
     try {
-      final articles = await remoteDataSource.getArticlesByDoctor(doctorId);
-      return Right(articles.map((model) => model.toEntity()).toList());
+      final models = await remoteDataSource.getArticlesByDoctor(doctorUsername);
+      return Right(models.map((model) => model.toEntity()).toList());
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) return const Right([]);
       return Left(ServerFailure.fromDioError(e));
