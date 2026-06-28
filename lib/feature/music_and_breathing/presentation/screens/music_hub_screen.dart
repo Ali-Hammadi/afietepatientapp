@@ -1,4 +1,4 @@
-import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/feature/music_and_breathing/domain/entities/breathing_exercise_entity.dart';
 import 'package:afiete/feature/music_and_breathing/presentation/cubit/music_cubit.dart';
 import 'package:afiete/feature/music_and_breathing/presentation/screens/breating_excercise_screen.dart';
