@@ -1,13 +1,8 @@
-import 'package:afiete/core/constants/payment_methods.dart';
 import 'package:afiete/core/constants/styles.dart';
-import 'package:afiete/core/constants/settings_strings.dart';
-import 'package:afiete/core/routes/app_route.dart';
+import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/widget/custom_button.dart';
-import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
-import 'package:afiete/feature/appointments/presentation/cubits/appointments_cubit.dart';
 import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:afiete/feature/doctors/presentation/cubits/doctors_cubit.dart';
-import 'package:afiete/feature/payment/domain/entities/payment_request_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -19,12 +14,10 @@ enum _RescheduleStep {
 
 class RescheduleSessionScreen extends StatefulWidget {
   final DoctorEntity doctor;
-  final bool rescheduleMode;
 
   const RescheduleSessionScreen({
     super.key,
     required this.doctor,
-    this.rescheduleMode = false,
   });
 
   @override
@@ -38,14 +31,9 @@ class _RescheduleSessionScreenState extends State<RescheduleSessionScreen> {
   DoctorTimeSlot? _selectedSlot;
   List<DoctorTimeSlot> _daySlots = const [];
 
-  // متغيرات التصفية المسبقة والتحميل الشامل للأيام
   Map<DateTime, List<DoctorTimeSlot>> _allDaysSlotsMap = {};
   List<DateTime> _filteredDays = [];
   bool _isLoadingAllDays = true;
-
-  int? _selectedDurationSlots;
-  String? _selectedSessionType;
-  bool _isSubmitting = false;
 
   DateTime? get _selectedDateTime {
     if (_selectedSlot == null || _selectedDate == null) return null;
@@ -119,89 +107,18 @@ class _RescheduleSessionScreenState extends State<RescheduleSessionScreen> {
         setState(() => _step = _RescheduleStep.time);
         return;
       case _RescheduleStep.time:
-        await _submitBooking();
+        _confirmRescheduleTime();
         return;
     }
   }
 
-  Future<void> _submitBooking() async {
+  void _confirmRescheduleTime() {
     final scheduledAt = _selectedDateTime;
-    if (scheduledAt == null ||
-        _selectedDurationSlots == null ||
-        _selectedSessionType == null) {
-      return;
-    }
+    if (scheduledAt == null) return;
 
-    setState(() => _isSubmitting = true);
-
-    if (widget.rescheduleMode) {
-      if (!mounted) return;
-      setState(() => _isSubmitting = false);
-
-      Navigator.pop(context, {
-        'selectedTime': scheduledAt,
-      });
-      return;
-    } else {
-      setState(() {});
-
-      final authState = context.read<AuthCubit>().state;
-      String patientUsername = 'unknown-patient';
-      if (authState is AuthLoaded) {
-        patientUsername = authState.user.patientUsername;
-      } else if (authState is AuthProfileUpdated) {
-        patientUsername = authState.user.patientUsername;
-      }
-
-      final generatedAppointmentId =
-          DateTime.now().millisecondsSinceEpoch ~/ 1000;
-
-      final cubit = context.read<AppointmentsCubit>();
-      await cubit.createAppointmentDraft(
-        appointmentId: generatedAppointmentId,
-        doctorUsername: widget.doctor.doctorUsername,
-        patientUsername: patientUsername,
-        doctorName: widget.doctor.name ?? 'Doctor',
-        scheduledAt: scheduledAt,
-        durationSlots: _selectedDurationSlots!,
-        consultationFee: widget.doctor.consultationFee,
-        sessionType: _selectedSessionType!,
-      );
-
-      if (!mounted) return;
-      setState(() => _isSubmitting = false);
-
-      final state = cubit.state;
-      if (state is AppointmentsError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(state.message)),
-        );
-        return;
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(SettingsStrings.bookingDraftCreatedSuccessfully)),
-      );
-
-      final amount = widget.doctor.consultationFee.getFeeBySType(
-        _selectedSessionType!,
-      );
-
-      Navigator.pushNamed(
-        context,
-        MyRoutes.paymentScreen,
-        arguments: PaymentRequestEntity(
-          appointmentId: generatedAppointmentId,
-          doctorName: widget.doctor.name ?? 'Doctor',
-          scheduledAt: scheduledAt,
-          sessionType: _selectedSessionType!,
-          amount: amount,
-          currency: 'USD',
-          method: PaymentMethod.card,
-        ),
-      );
-    }
+    Navigator.pop(context, {
+      'selectedTime': scheduledAt,
+    });
   }
 
   void _onBack() {
@@ -211,7 +128,6 @@ class _RescheduleSessionScreenState extends State<RescheduleSessionScreen> {
         return;
       case _RescheduleStep.time:
         setState(() => _step = _RescheduleStep.date);
-
         return;
     }
   }
@@ -228,9 +144,7 @@ class _RescheduleSessionScreenState extends State<RescheduleSessionScreen> {
           onPressed: _onBack,
         ),
         title: Text(
-          widget.rescheduleMode
-              ? SettingsStrings.reschedule
-              : SettingsStrings.bookYourSessionTitle,
+          SettingsStrings.reschedule,
           style: AppStyles.headingMedium,
         ),
         bottom: PreferredSize(
@@ -265,25 +179,14 @@ class _RescheduleSessionScreenState extends State<RescheduleSessionScreen> {
             ),
             const SizedBox(height: 12),
             CustomButton(
-              widget: _isSubmitting
-                  ? SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.2,
-                        color: colorScheme.onPrimary,
-                      ),
-                    )
-                  : Text(
-                      _step == _RescheduleStep.date
-                          ? (widget.rescheduleMode
-                              ? SettingsStrings.reschedule
-                              : SettingsStrings.continueToPayment)
-                          : SettingsStrings.continueTextShort,
-                      style: AppStyles.headingSmall.copyWith(
-                        color: colorScheme.onPrimary,
-                      ),
-                    ),
+              widget: Text(
+                _step == _RescheduleStep.date
+                    ? SettingsStrings.continueTextShort
+                    : SettingsStrings.reschedule,
+                style: AppStyles.headingSmall.copyWith(
+                  color: colorScheme.onPrimary,
+                ),
+              ),
               onPressed: _canContinue ? _onContinuePressed : null,
             ),
             const SizedBox(height: 8),
@@ -338,7 +241,20 @@ class _RescheduleSessionScreenState extends State<RescheduleSessionScreen> {
           );
         }
 
-        return;
+        return _OptionCard(
+          leading: Icons.calendar_today_outlined,
+          title: DateFormat('EEEE, dd MMM yyyy', localeCode).format(day),
+          subtitle: isToday ? 'Today' : '',
+          isSelected: isSelected,
+          trailing: trailing,
+          onTap: () {
+            setState(() {
+              _selectedDate = day;
+              _daySlots = currentDaySlots;
+              _selectedSlot = null;
+            });
+          },
+        );
       },
     );
   }
@@ -424,6 +340,74 @@ class _StepIndicator extends StatelessWidget {
           ),
         );
       }),
+    );
+  }
+}
+
+class _OptionCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final IconData? leading;
+  final Widget? trailing;
+
+  const _OptionCard({
+    required this.title,
+    required this.subtitle,
+    required this.isSelected,
+    required this.onTap,
+    required this.leading,
+    this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppStyles.borderRadius),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: colorScheme.primaryContainer.withValues(alpha: 0.35),
+          borderRadius: BorderRadius.circular(AppStyles.borderRadius),
+          border: Border.all(
+            color: isSelected ? colorScheme.primary : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            if (leading != null) ...[
+              Icon(leading, color: colorScheme.primary),
+              const SizedBox(width: 8),
+            ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: AppStyles.bodyMedium),
+                  if (subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(subtitle, style: AppStyles.bodySmall),
+                  ],
+                ],
+              ),
+            ),
+            if (trailing != null)
+              trailing!
+            else
+              Icon(
+                Icons.circle,
+                color: isSelected ? colorScheme.primary : theme.cardColor,
+                size: 20,
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

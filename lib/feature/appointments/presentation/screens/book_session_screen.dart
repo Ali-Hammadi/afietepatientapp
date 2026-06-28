@@ -1,6 +1,6 @@
 import 'package:afiete/core/constants/payment_methods.dart';
 import 'package:afiete/core/constants/styles.dart';
-import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/routes/app_route.dart';
 import 'package:afiete/core/widget/custom_button.dart';
 import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
@@ -17,12 +17,10 @@ enum _BookingStep { date, time, duration, type }
 
 class BookSessionScreen extends StatefulWidget {
   final DoctorEntity doctor;
-  final bool rescheduleMode;
 
   const BookSessionScreen({
     super.key,
     required this.doctor,
-    this.rescheduleMode = false,
   });
 
   @override
@@ -35,7 +33,6 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
   DoctorTimeSlot? _selectedSlot;
   List<DoctorTimeSlot> _daySlots = const [];
 
-  // متغيرات التصفية المسبقة والتحميل الشامل للأيام
   Map<DateTime, List<DoctorTimeSlot>> _allDaysSlotsMap = {};
   List<DateTime> _filteredDays = [];
   bool _isLoadingAllDays = true;
@@ -88,7 +85,6 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
     try {
       final doctorsCubit = context.read<DoctorsCubit>();
 
-      // جلب ذكي متوازي لجميع الأوقات
       final results = await Future.wait(days
           .map((day) => doctorsCubit.fetchSlotsForDate(doctorUsername, day)));
 
@@ -101,7 +97,6 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
 
       setState(() {
         _allDaysSlotsMap = tempMap;
-        // الاحتفاظ فقط بالأيام التي تحتوي على خانة وقت واحدة متاحة على الأقل
         _filteredDays = days.where((day) {
           final slots = _allDaysSlotsMap[day] ?? [];
           return slots.isNotEmpty;
@@ -162,77 +157,61 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
 
     setState(() => _isSubmitting = true);
 
-    if (widget.rescheduleMode) {
-      if (!mounted) return;
-      setState(() => _isSubmitting = false);
+    final authState = context.read<AuthCubit>().state;
+    String patientUsername = 'unknown-patient';
+    if (authState is AuthLoaded) {
+      patientUsername = authState.user.patientUsername;
+    } else if (authState is AuthProfileUpdated) {
+      patientUsername = authState.user.patientUsername;
+    }
 
-      Navigator.pop(context, {
-        'selectedTime': scheduledAt,
-      });
+    final generatedAppointmentId =
+        DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+    final cubit = context.read<AppointmentsCubit>();
+    await cubit.createAppointmentDraft(
+      appointmentId: generatedAppointmentId,
+      doctorUsername: widget.doctor.doctorUsername,
+      patientUsername: patientUsername,
+      doctorName: widget.doctor.name ?? 'Doctor',
+      scheduledAt: scheduledAt,
+      durationSlots: _selectedDurationSlots!,
+      consultationFee: widget.doctor.consultationFee,
+      sessionType: _selectedSessionType!,
+    );
+
+    if (!mounted) return;
+    setState(() => _isSubmitting = false);
+
+    final state = cubit.state;
+    if (state is AppointmentsError) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(state.message)),
+      );
       return;
-    } else {
-      // السلوك القياسي للحجز الجديد: الانتقال للخطوة التالية
-      setState(() {
-        _step = _BookingStep.type;
-      });
+    }
 
-      final authState = context.read<AuthCubit>().state;
-      String patientUsername = 'unknown-patient';
-      if (authState is AuthLoaded) {
-        patientUsername = authState.user.patientUsername;
-      } else if (authState is AuthProfileUpdated) {
-        patientUsername = authState.user.patientUsername;
-      }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(SettingsStrings.bookingDraftCreatedSuccessfully)),
+    );
 
-      final generatedAppointmentId =
-          DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    final amount = widget.doctor.consultationFee.getFeeBySType(
+      _selectedSessionType!,
+    );
 
-      final cubit = context.read<AppointmentsCubit>();
-      await cubit.createAppointmentDraft(
+    Navigator.pushNamed(
+      context,
+      MyRoutes.paymentScreen,
+      arguments: PaymentRequestEntity(
         appointmentId: generatedAppointmentId,
-        doctorUsername: widget.doctor.doctorUsername,
-        patientUsername: patientUsername,
         doctorName: widget.doctor.name ?? 'Doctor',
         scheduledAt: scheduledAt,
-        durationSlots: _selectedDurationSlots!,
-        consultationFee: widget.doctor.consultationFee,
         sessionType: _selectedSessionType!,
-      );
-
-      if (!mounted) return;
-      setState(() => _isSubmitting = false);
-
-      final state = cubit.state;
-      if (state is AppointmentsError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(state.message)),
-        );
-        return;
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(SettingsStrings.bookingDraftCreatedSuccessfully)),
-      );
-
-      final amount = widget.doctor.consultationFee.getFeeBySType(
-        _selectedSessionType!,
-      );
-
-      Navigator.pushNamed(
-        context,
-        MyRoutes.paymentScreen,
-        arguments: PaymentRequestEntity(
-          appointmentId: generatedAppointmentId,
-          doctorName: widget.doctor.name ?? 'Doctor',
-          scheduledAt: scheduledAt,
-          sessionType: _selectedSessionType!,
-          amount: amount,
-          currency: 'USD',
-          method: PaymentMethod.card,
-        ),
-      );
-    }
+        amount: amount,
+        currency: 'USD',
+        method: PaymentMethod.card,
+      ),
+    );
   }
 
   void _onBack() {
@@ -264,9 +243,7 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
           onPressed: _onBack,
         ),
         title: Text(
-          widget.rescheduleMode
-              ? SettingsStrings.reschedule
-              : SettingsStrings.bookYourSessionTitle,
+          SettingsStrings.bookYourSessionTitle,
           style: AppStyles.headingMedium,
         ),
         bottom: PreferredSize(
@@ -312,9 +289,7 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
                     )
                   : Text(
                       _step == _BookingStep.type
-                          ? (widget.rescheduleMode
-                              ? SettingsStrings.reschedule
-                              : SettingsStrings.continueToPayment)
+                          ? SettingsStrings.continueToPayment
                           : SettingsStrings.continueTextShort,
                       style: AppStyles.headingSmall.copyWith(
                         color: colorScheme.onPrimary,

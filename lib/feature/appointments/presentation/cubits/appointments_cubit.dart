@@ -20,7 +20,7 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
   final RescheduleAppointmentUseCase rescheduleAppointmentUseCase;
   final GetAvailableSlotsUseCase getAvailableSlotsUseCase;
 
-  Timer? _doctorRescheduleTimer; // مؤقت الاستماع لتحديثات الطبيب
+  Timer? _doctorRescheduleTimer;
 
   AppointmentsCubit({
     required this.getAppointmentsUseCase,
@@ -55,7 +55,7 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
   void startDoctorRescheduleListener() {
     _doctorRescheduleTimer?.cancel();
     _doctorRescheduleTimer =
-        Timer.periodic(const Duration(seconds: 15), (timer) async {
+        Timer.periodic(const Duration(seconds: 2), (timer) async {
       await _checkDoctorUpdatesInBackground();
     });
   }
