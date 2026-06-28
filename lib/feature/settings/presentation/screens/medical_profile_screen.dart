@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:afiete/core/constants/app_colors.dart';
 import 'package:afiete/core/constants/styles.dart';
-import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/di/injection_container.dart';
 import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
 import 'package:afiete/feature/settings/domin/entities/medical_profile_entity.dart';

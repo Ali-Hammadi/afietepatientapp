@@ -1,4 +1,4 @@
-import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/feature/settings/domin/entities/medical_profile_entity.dart';
 import 'package:afiete/feature/settings/presentation/cubits/settings_cubit.dart';

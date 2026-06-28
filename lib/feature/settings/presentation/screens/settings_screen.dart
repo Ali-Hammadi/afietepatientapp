@@ -1,7 +1,7 @@
 import 'package:afiete/core/constants/styles.dart';
-import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/routes/app_route.dart';
-import 'package:afiete/core/theme/language_cubit.dart';
+import 'package:afiete/core/ln10/language_cubit/language_cubit.dart';
 import 'package:afiete/core/theme/theme_cubit.dart';
 import 'package:afiete/core/utils/age_utils.dart';
 import 'package:afiete/core/widget/profile_initial_avatar.dart';

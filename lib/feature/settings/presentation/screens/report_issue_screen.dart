@@ -1,6 +1,6 @@
 import 'package:afiete/core/constants/report_types.dart';
 import 'package:afiete/core/constants/styles.dart';
-import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/di/injection_container.dart';
 import 'package:afiete/core/widget/custom_button.dart';
 import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
