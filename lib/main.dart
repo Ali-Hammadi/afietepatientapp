@@ -8,7 +8,7 @@ import 'core/routes/app_route.dart';
 import 'core/reset/nuclear_reset_helper.dart';
 import 'core/network/token_storage.dart';
 import 'core/theme/app_theme.dart';
-import 'core/theme/language_cubit.dart';
+import 'core/ln10/language_cubit/language_cubit.dart';
 import 'core/theme/theme_cubit.dart';
 import 'feature/articles/presentation/cubits/articles_cubit.dart';
 import 'feature/assessments/presentation/cubits/assessments_cubit.dart';

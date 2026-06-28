@@ -9,20 +9,20 @@ abstract class AppColors {
   static const Color unselectedFieldColor = Color(0xFF7FAEDB);
   static const Color selectedFieldColor = Color(0xFF4FA3E3);
   // Background Colors
-  static const Color primarybackgroundColor = Color(0xFFF5F6F8);
-  static const Color secondarybackgroundColor = Color(0xFFD9F7FF);
+  static const Color primaryBackgroundColor = Color(0xFFF5F6F8);
+  static const Color secondaryBackgroundColor = Color(0xFFD9F7FF);
   static const Color darkBackgroundColor = Color(0xFF111A27);
   static const Color darkSecondaryBackgroundColor = Color(0xFF1A2433);
   // Text Colors
-  static const Color primarytextColor = Color(0xFF1E1E1E);
-  static const Color secondarytextColor = Color(0xFF8A9A98);
+  static const Color primaryTextColor = Color(0xFF1E1E1E);
+  static const Color secondaryTextColor = Color(0xFF8A9A98);
   static const Color darkPrimaryTextColor = Color(0xFFE6ECF3);
   static const Color darkSecondaryTextColor = Color(0xFFA7B9CC);
   // Error Colors
   static const Color errorColor = Color(0xFFF01F1F);
   // Icon Colors
-  static const Color unselectedIconColor = secondarytextColor;
-  static const Color selectedIconcolor = secondaryColor;
+  static const Color unselectedIconColor = secondaryTextColor;
+  static const Color selectedIconColor = secondaryColor;
   static const Color darkUnselectedIconColor = Color(0xFFC4D4E5);
   static const Color darkUnselectedFieldColor = Color(0xFF35465A);
   static const Color darkPrimaryFillColor = Color(0xFF243548);
@@ -35,8 +35,8 @@ abstract class AppColors {
   static const Color whiteColor = Color(0xFFFFFFFF);
 
   static Color primaryTextFor(bool isDark) =>
-      isDark ? darkPrimaryTextColor : primarytextColor;
+      isDark ? darkPrimaryTextColor : primaryTextColor;
 
   static Color secondaryTextFor(bool isDark) =>
-      isDark ? darkSecondaryTextColor : secondarytextColor;
+      isDark ? darkSecondaryTextColor : secondaryTextColor;
 }
