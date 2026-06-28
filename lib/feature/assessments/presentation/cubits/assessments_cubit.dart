@@ -1,4 +1,4 @@
-import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/usecases/usecase.dart';
 import 'package:afiete/feature/assessments/data/assisment_visibility_store.dart';
 import 'package:afiete/feature/assessments/domain/entity/assisments_entity.dart';
