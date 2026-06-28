@@ -1,6 +1,7 @@
 import 'package:afiete/core/constants/report_types.dart';
-import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/di/injection_container.dart';
+import 'package:afiete/feature/appointments/presentation/screens/reschedule_session_screen.dart';
 import 'package:afiete/feature/assessments/presentation/cubits/assessments_cubit.dart';
 import 'package:afiete/feature/assessments/presentation/cubits/assessments_state.dart';
 import 'package:afiete/feature/assessments/presentation/screens/assisment_result_screen.dart';
@@ -113,9 +114,6 @@ class AppRouter {
             : args is Map<String, dynamic>
                 ? args['doctor'] as DoctorEntity?
                 : null;
-        final isReschedule = args is Map<String, dynamic>
-            ? args['rescheduleMode'] == true
-            : false;
 
         if (doctor == null) {
           return MaterialPageRoute<Map<String, dynamic>?>(
@@ -132,8 +130,9 @@ class AppRouter {
         }
 
         return MaterialPageRoute<Map<String, dynamic>?>(
-          builder: (_) =>
-              BookSessionScreen(doctor: doctor, rescheduleMode: isReschedule),
+          builder: (_) => BookSessionScreen(
+            doctor: doctor,
+          ),
         );
       case MyRoutes.doctorsHomeScreen:
         return MaterialPageRoute(builder: (_) => const DoctorsHomeScreen());
@@ -159,10 +158,8 @@ class AppRouter {
             ),
           );
         }
-
         return MaterialPageRoute<Map<String, dynamic>?>(
-          builder: (_) =>
-              BookSessionScreen(doctor: doctor, rescheduleMode: true),
+          builder: (_) => RescheduleSessionScreen(doctor: doctor),
         );
       case MyRoutes.appointmentsScreen:
         return MaterialPageRoute(builder: (_) => const AppointmentsScreen());

@@ -5,13 +5,13 @@ abstract class AppTheme {
   static final ColorScheme _lightColorScheme = const ColorScheme.light(
     primary: AppColors.primaryColor,
     secondary: AppColors.secondaryColor,
-    surface: AppColors.primarybackgroundColor,
+    surface: AppColors.primaryBackgroundColor,
     primaryContainer: AppColors.primaryFillColor,
-    onPrimaryContainer: AppColors.primarytextColor,
+    onPrimaryContainer: AppColors.primaryTextColor,
     error: AppColors.errorColor,
     onPrimary: AppColors.whiteColor,
     onSecondary: AppColors.whiteColor,
-    onSurface: AppColors.primarytextColor,
+    onSurface: AppColors.primaryTextColor,
     onError: AppColors.whiteColor,
   );
 
@@ -30,15 +30,16 @@ abstract class AppTheme {
 
   static ThemeData get lightTheme {
     return ThemeData(
+      fontFamily: 'cairo',
       useMaterial3: true,
       brightness: Brightness.light,
       colorScheme: _lightColorScheme,
-      scaffoldBackgroundColor: AppColors.primarybackgroundColor,
+      scaffoldBackgroundColor: AppColors.primaryBackgroundColor,
       cardColor: AppColors.whiteColor,
       dividerColor: AppColors.primaryFillColor,
       appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.primarybackgroundColor,
-        foregroundColor: AppColors.primarytextColor,
+        backgroundColor: AppColors.primaryBackgroundColor,
+        foregroundColor: AppColors.primaryTextColor,
         elevation: 0,
       ),
       snackBarTheme: const SnackBarThemeData(
@@ -64,22 +65,22 @@ abstract class AppTheme {
             width: 1.4,
           ),
         ),
-        hintStyle: const TextStyle(color: AppColors.secondarytextColor),
-        labelStyle: const TextStyle(color: AppColors.primarytextColor),
+        hintStyle: const TextStyle(color: AppColors.secondaryTextColor),
+        labelStyle: const TextStyle(color: AppColors.primaryTextColor),
       ),
       textTheme: const TextTheme(
-        displayLarge: TextStyle(color: AppColors.primarytextColor),
-        displayMedium: TextStyle(color: AppColors.primarytextColor),
-        displaySmall: TextStyle(color: AppColors.primarytextColor),
-        headlineLarge: TextStyle(color: AppColors.primarytextColor),
-        headlineMedium: TextStyle(color: AppColors.primarytextColor),
-        headlineSmall: TextStyle(color: AppColors.primarytextColor),
-        titleLarge: TextStyle(color: AppColors.primarytextColor),
-        titleMedium: TextStyle(color: AppColors.primarytextColor),
-        titleSmall: TextStyle(color: AppColors.primarytextColor),
-        bodyLarge: TextStyle(color: AppColors.primarytextColor),
-        bodyMedium: TextStyle(color: AppColors.primarytextColor),
-        bodySmall: TextStyle(color: AppColors.secondarytextColor),
+        displayLarge: TextStyle(color: AppColors.primaryTextColor),
+        displayMedium: TextStyle(color: AppColors.primaryTextColor),
+        displaySmall: TextStyle(color: AppColors.primaryTextColor),
+        headlineLarge: TextStyle(color: AppColors.primaryTextColor),
+        headlineMedium: TextStyle(color: AppColors.primaryTextColor),
+        headlineSmall: TextStyle(color: AppColors.primaryTextColor),
+        titleLarge: TextStyle(color: AppColors.primaryTextColor),
+        titleMedium: TextStyle(color: AppColors.primaryTextColor),
+        titleSmall: TextStyle(color: AppColors.primaryTextColor),
+        bodyLarge: TextStyle(color: AppColors.primaryTextColor),
+        bodyMedium: TextStyle(color: AppColors.primaryTextColor),
+        bodySmall: TextStyle(color: AppColors.secondaryTextColor),
       ),
       iconTheme: const IconThemeData(color: AppColors.unselectedIconColor),
       switchTheme: SwitchThemeData(
@@ -113,6 +114,7 @@ abstract class AppTheme {
 
   static ThemeData get darkTheme {
     return ThemeData(
+      fontFamily: 'cairo',
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: _darkColorScheme,
