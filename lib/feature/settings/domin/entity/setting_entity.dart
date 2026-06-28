@@ -19,13 +19,13 @@ class UserSettingsProfileEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    nickName,
-    userId,
-    email,
-    phoneNumber,
-    gender,
-    age,
-  ];
+        nickName,
+        userId,
+        email,
+        phoneNumber,
+        gender,
+        age,
+      ];
 }
 
 class MedicalPrescriptionEntity extends Equatable {
@@ -43,19 +43,4 @@ class MedicalPrescriptionEntity extends Equatable {
 
   @override
   List<Object?> get props => [medicine, dosage, schedule, nextRefill];
-}
-
-class MedicalNoteEntity extends Equatable {
-  final String title;
-  final String content;
-  final String updatedAt;
-
-  const MedicalNoteEntity({
-    required this.title,
-    required this.content,
-    required this.updatedAt,
-  });
-
-  @override
-  List<Object?> get props => [title, content, updatedAt];
 }

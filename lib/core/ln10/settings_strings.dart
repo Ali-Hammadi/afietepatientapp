@@ -7,8 +7,21 @@ abstract class SettingsStrings {
 
   static String _t(String en, String ar) => _languageCode == 'ar' ? ar : en;
   static bool get isArabic => _languageCode == 'ar';
+  static String get appName => _t('Afiete', 'أفييت');
+  static String get enterContet =>
+      _t('Please enter content', 'الرجاء إدخال المحتوى');
+  static String get contet => _t('Content', 'المحتوى');
+  static String get title => _t('Title', 'العنوان');
+  static String get enterTitle =>
+      _t('Please enter a title', 'الرجاء إدخال العنوان');
 
   static String get settingsTitle => _t('Settings', 'الإعدادات');
+  static String get private => _t('Private', 'خاص');
+  static String get shareNote => _t('Share Note', 'مشاركة الملاحظة');
+  static String get enterDoctorUsername =>
+      _t('Please enter doctor Username', 'الرجاء إدخال اسم مستخدم الطبيب');
+  static String get doctorUsername => _t('DoctorUsername', 'اسم مستخدم الطبيب');
+
   static String get settingsSubtitle =>
       _t('Account, preferences and security', 'الحساب والتفضيلات والأمان');
   static String get medicalProfileTitle => _t('Medical Profile', 'الملف الطبي');
@@ -121,6 +134,8 @@ abstract class SettingsStrings {
       _t('Payment successful: $reference', 'تم الدفع بنجاح: $reference');
   static String get reportDoctorTitle =>
       _t('Report Doctor', 'الإبلاغ عن الطبيب');
+
+  static String get selectDoctor => _t('Select Doctor', 'اختر الطبيب');
 
   static String get unCompletedReportInformation => _t(
       'The report informations are\'t complete. ',
@@ -636,7 +651,6 @@ abstract class SettingsStrings {
       _t('Active medicines:', 'الأدوية النشطة:');
   static String get totalNotesLabel => _t('Total notes:', 'إجمالي الملاحظات:');
   static String get editNote => _t('Edit', 'تعديل');
-  static String get shareNote => _t('Share', 'مشاركة');
   static String assessmentsProgressLabel(
           int questionIndex, int totalQuestions) =>
       _t(
@@ -648,6 +662,7 @@ abstract class SettingsStrings {
   static String get noteTitleLabel => _t('Note title', 'عنوان الملاحظة');
   static String get noteContentLabel => _t('Note details', 'تفاصيل الملاحظة');
   static String get saveChanges => _t('Save Changes', 'حفظ التغييرات');
+  static String get save => _t('Save', 'حفظ');
   static String get shareWithDoctorTitle =>
       _t('Share with Doctor', 'المشاركة مع الطبيب');
   static String get chooseDoctorLabel => _t('Choose doctor', 'اختر الطبيب');

@@ -61,6 +61,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildHeader(context, authState),
               const SizedBox(height: 20),
               CustomSettingTile(
+                icon: Icons.notes_outlined,
+                title: SettingsStrings.totalNotesLabel,
+                subtitle: SettingsStrings.noteContentLabel,
+                onTap: () {
+                  Navigator.pushNamed(context, MyRoutes.notesListScreen);
+                },
+              ),
+              const SizedBox(height: 20),
+              CustomSettingTile(
                 icon: Icons.medical_services_outlined,
                 title: SettingsStrings.medicalProfileTitle,
                 subtitle: SettingsStrings.medicalProfileSubtitle,

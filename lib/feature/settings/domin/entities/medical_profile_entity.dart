@@ -1,4 +1,22 @@
+// feature/settings/domin/entities/medical_profile_entity.dart
 import 'package:equatable/equatable.dart';
+
+class MedicalNoteEntity extends Equatable {
+  final String id;
+  final String title;
+  final String content;
+  final String updatedAt;
+
+  const MedicalNoteEntity({
+    required this.id,
+    required this.title,
+    required this.content,
+    required this.updatedAt,
+  });
+
+  @override
+  List<Object?> get props => [id, title, content, updatedAt];
+}
 
 class MedicalPrescriptionEntity extends Equatable {
   final String prescriptionNumber;
@@ -25,31 +43,16 @@ class MedicalPrescriptionEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    prescriptionNumber,
-    medicine,
-    dosage,
-    schedule,
-    nextRefill,
-    documentType,
-    doctorName,
-    capturedAt,
-    imagePath,
-  ];
-}
-
-class MedicalNoteEntity extends Equatable {
-  final String title;
-  final String content;
-  final String updatedAt;
-
-  const MedicalNoteEntity({
-    required this.title,
-    required this.content,
-    required this.updatedAt,
-  });
-
-  @override
-  List<Object?> get props => [title, content, updatedAt];
+        prescriptionNumber,
+        medicine,
+        dosage,
+        schedule,
+        nextRefill,
+        documentType,
+        doctorName,
+        capturedAt,
+        imagePath,
+      ];
 }
 
 class MedicalProfileEntity extends Equatable {
@@ -57,8 +60,8 @@ class MedicalProfileEntity extends Equatable {
   final List<MedicalNoteEntity> notes;
 
   const MedicalProfileEntity({
-    required this.prescriptions,
-    required this.notes,
+    this.prescriptions = const [],
+    this.notes = const [],
   });
 
   @override

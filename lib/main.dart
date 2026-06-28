@@ -47,7 +47,6 @@ class MyApp extends StatefulWidget {
     required this.themeCubit,
     required this.languageCubit,
   });
-
   static void restartApp(BuildContext context) {
     debugPrint('[MyApp.restartApp] Called with context: $context');
     final _MyAppState? state = context.findAncestorStateOfType<_MyAppState>();

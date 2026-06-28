@@ -25,6 +25,8 @@ import 'package:afiete/feature/doctors/presentation/screens/doctor_info_screen.d
 import 'package:afiete/feature/doctors/presentation/screens/doctors_home_screen.dart';
 import 'package:afiete/feature/home/presentation/screens/first_home_screen.dart';
 import 'package:afiete/feature/home/presentation/screens/global_home_screen.dart';
+import 'package:afiete/feature/notes/presentation/pages/create_note_screen.dart';
+import 'package:afiete/feature/notes/presentation/pages/notes_list_screen.dart';
 import 'package:afiete/feature/payment/domain/entities/payment_request_entity.dart';
 import 'package:afiete/feature/payment/presentation/screens/payment_screen.dart';
 import 'package:afiete/feature/report/presentation/cubits/report_cubit.dart';
@@ -213,6 +215,11 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => ChatConversationScreen(args: args),
         );
+
+      case MyRoutes.notesListScreen:
+        return MaterialPageRoute(builder: (_) => const NotesListScreen());
+      case MyRoutes.createNoteScreen:
+        return MaterialPageRoute(builder: (_) => const CreateNoteScreen());
       case MyRoutes.settingsScreen:
         return MaterialPageRoute(builder: (_) => const SettingsScreen());
       case MyRoutes.medicalProfileScreen:
@@ -388,6 +395,8 @@ class MyRoutes {
   static const String reportIssueScreen = "/reportIssueScreen";
   static const String privacyScreen = "/privacyScreen";
   static const String contactUsScreen = "/contactUsScreen";
+  static const String notesListScreen = "/notesListScreen";
+  static const String createNoteScreen = "/createNoteScreen";
   static const String assessmentsTestScreen = "/assessmentsTestScreen";
   static const String assessmentsResultScreen = "/assessmentsResultScreen";
   // Report Screens

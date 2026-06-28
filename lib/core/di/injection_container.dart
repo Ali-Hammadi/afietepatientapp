@@ -44,6 +44,10 @@ import 'package:afiete/feature/music_and_breathing/data/repositories/relax_repos
 import 'package:afiete/feature/music_and_breathing/domain/repositories/music_repository.dart';
 import 'package:afiete/feature/music_and_breathing/domain/usecase/get_recommended_music_usecase.dart';
 import 'package:afiete/feature/music_and_breathing/presentation/cubit/music_cubit.dart';
+import 'package:afiete/feature/notes/data/datasources/notes_local_datasource.dart';
+import 'package:afiete/feature/notes/data/datasources/notes_remote_datasource.dart';
+import 'package:afiete/feature/notes/data/repositories/notes_repository_impl.dart';
+import 'package:afiete/feature/notes/domain/repositories/notes_repository.dart';
 import 'package:afiete/feature/payment/data/datasources/payment_remote_datasource.dart';
 import 'package:afiete/feature/payment/data/repositories/payment_repository_impl.dart';
 import 'package:afiete/feature/payment/domain/repositories/payment_repository.dart';
@@ -59,13 +63,11 @@ import 'package:afiete/feature/sessions/domain/usecase/get_upcoming_sessions_use
 import 'package:afiete/feature/sessions/domain/usecase/reschedule_session_usecase.dart';
 import 'package:afiete/feature/sessions/presentation/cubits/sessions_cubit.dart';
 import 'package:afiete/feature/settings/data/data_source/settings_remote_data_source.dart';
-import 'package:afiete/feature/settings/data/data_source/settings_mock_data_source.dart';
 import 'package:afiete/feature/settings/data/repositories/settings_repository_impl.dart';
 import 'package:afiete/feature/settings/domin/repositories/settings_repository.dart';
 import 'package:afiete/feature/settings/domin/usecase/get_medical_profile_usecase.dart';
-import 'package:afiete/feature/settings/domin/usecase/share_medical_note_with_doctor_usecase.dart';
+import 'package:afiete/feature/notes/domain/usecases/notes_usecase.dart';
 import 'package:afiete/feature/settings/domin/usecase/submit_report_issue_usecase.dart';
-import 'package:afiete/feature/settings/domin/usecase/update_medical_note_usecase.dart';
 import 'package:afiete/feature/settings/presentation/cubits/settings_cubit.dart';
 import 'package:afiete/feature/video/data/datasources/video_mock_datasource.dart';
 import 'package:afiete/feature/video/data/datasources/video_remote_datasource.dart';
@@ -97,6 +99,9 @@ import 'package:afiete/feature/auth/domain/usecase/login_usecase.dart';
 import 'package:afiete/feature/auth/domain/usecase/signup_usecase.dart';
 import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
 import 'package:dio/dio.dart';
+
+import 'package:afiete/feature/notes/presentation/cubit/notes_cubit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final sl = GetIt.instance;
 const bool useMockDataSources = false;
@@ -431,6 +436,44 @@ Future<void> init() async {
     ),
   );
 
+  final sharedPreferences = await SharedPreferences.getInstance();
+
+  // Dio (assuming it's already registered in your app, otherwise register it here)
+  // If Dio is not registered yet:
+  // sl.registerLazySingleton<Dio>(() => Dio());
+
+  // Data Sources
+  sl.registerLazySingleton<NoteLocalDataSource>(
+    () => NoteLocalDataSourceImpl(sharedPreferences: sharedPreferences),
+  );
+  sl.registerLazySingleton<NoteRemoteDataSource>(
+    () => NoteRemoteDataSourceImpl(dio: sl<Dio>()),
+  );
+
+  // Repository
+  sl.registerLazySingleton<NoteRepository>(
+    () => NoteRepositoryImpl(
+      localDataSource: sl(),
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Use Cases
+  sl.registerLazySingleton(() => CreateNoteUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateNoteUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteNoteUseCase(sl()));
+  sl.registerLazySingleton(() => GetNotesUseCase(sl()));
+
+  // Cubit
+  sl.registerFactory(
+    () => NotesCubit(
+      createNoteUseCase: sl(),
+      updateNoteUseCase: sl(),
+      deleteNoteUseCase: sl(),
+      getNotesUseCase: sl(),
+    ),
+  );
+
   // Assessments data sources
   sl.registerLazySingleton<AssessmentsRemoteDataSource>(
     () => AssessmentsRemoteDataSourceImpl(dio: sl<Dio>()),
@@ -475,9 +518,7 @@ Future<void> init() async {
   );
   // Settings data sources
   sl.registerLazySingleton<SettingsRemoteDataSource>(
-    () => useMockDataSources
-        ? SettingsMockDataSourceImpl()
-        : SettingsRemoteDataSourceImpl(dio: sl<Dio>()),
+    () => SettingsRemoteDataSourceImpl(dio: sl<Dio>()),
   );
 
   // Settings repositories
@@ -494,22 +535,12 @@ Future<void> init() async {
   sl.registerLazySingleton<SubmitReportIssueUseCase>(
     () => SubmitReportIssueUseCase(sl<SettingsRepository>()),
   );
-  sl.registerLazySingleton<UpdateMedicalNoteUseCase>(
-    () => UpdateMedicalNoteUseCase(sl<SettingsRepository>()),
-  );
-  sl.registerLazySingleton<ShareMedicalNoteWithDoctorUseCase>(
-    () => ShareMedicalNoteWithDoctorUseCase(sl<SettingsRepository>()),
-  );
 
   // Settings cubit
-  sl.registerFactory<SettingsCubit>(
-    () => SettingsCubit(
-      sl<GetMedicalProfileUseCase>(),
-      sl<SubmitReportIssueUseCase>(),
-      sl<UpdateMedicalNoteUseCase>(),
-      sl<ShareMedicalNoteWithDoctorUseCase>(),
-    ),
-  );
+  sl.registerFactory<SettingsCubit>(() => SettingsCubit(
+        sl<GetMedicalProfileUseCase>(),
+        sl<SubmitReportIssueUseCase>(),
+      ));
 
   // Report data sources
   sl.registerLazySingleton<ReportsRemoteDataSourceImpl>(

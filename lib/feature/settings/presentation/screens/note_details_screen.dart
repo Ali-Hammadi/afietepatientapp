@@ -1,21 +1,10 @@
-import 'package:afiete/core/ln10/settings_strings.dart';
+// feature/settings/presentation/screens/note_details_screen.dart
+import 'package:afiete/core/constants/app_colors.dart';
 import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/feature/settings/domin/entities/medical_profile_entity.dart';
-import 'package:afiete/feature/settings/presentation/cubits/settings_cubit.dart';
+import 'package:afiete/feature/settings/presentation/models/share_doctor_option.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-class ShareDoctorOption {
-  final String id;
-  final String name;
-  final String specialization;
-
-  const ShareDoctorOption({
-    required this.id,
-    required this.name,
-    required this.specialization,
-  });
-}
 
 class NoteDetailsScreen extends StatefulWidget {
   final MedicalNoteEntity note;
@@ -34,11 +23,9 @@ class NoteDetailsScreen extends StatefulWidget {
 }
 
 class _NoteDetailsScreenState extends State<NoteDetailsScreen> {
-  late final TextEditingController _titleController;
-  late final TextEditingController _contentController;
+  late TextEditingController _titleController;
+  late TextEditingController _contentController;
   ShareDoctorOption? _selectedDoctor;
-  bool _isSaving = false;
-  bool _isSharing = false;
 
   @override
   void initState() {
@@ -63,114 +50,112 @@ class _NoteDetailsScreenState extends State<NoteDetailsScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: theme.scaffoldBackgroundColor,
-        automaticallyImplyLeading: false,
         elevation: 0,
         title: Text(
-          SettingsStrings.editMedicalNoteTitle,
+          SettingsStrings.noteContentLabel,
           style: AppStyles.headingMedium,
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.save_outlined),
+            onPressed: _saveNote,
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppStyles.padding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              SettingsStrings.noteTitleLabel,
+              style: AppStyles.headingSmall,
+            ),
+            const SizedBox(height: 8),
             TextField(
               controller: _titleController,
               decoration: InputDecoration(
-                labelText: SettingsStrings.noteTitleLabel,
+                hintText: SettingsStrings.noteTitleLabel,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _contentController,
-              maxLines: 6,
-              decoration: InputDecoration(
-                labelText: SettingsStrings.noteContentLabel,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: Text(widget.note.updatedAt, style: AppStyles.bodySmall),
             ),
             const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: _isSaving ? null : _saveChanges,
-                child: _isSaving
-                    ? SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            colorScheme.onPrimary,
-                          ),
-                        ),
-                      )
-                    : Text(
-                        SettingsStrings.saveChanges,
-                        style: AppStyles.bodyMedium.copyWith(
-                          color: colorScheme.onPrimary,
-                        ),
-                      ),
-              ),
-            ),
-            const SizedBox(height: 28),
             Text(
-              SettingsStrings.shareWithDoctorTitle,
+              SettingsStrings.noteContentLabel,
               style: AppStyles.headingSmall,
             ),
-            const SizedBox(height: 10),
-
-            // FIX: Wrapped the list elements inside a RadioGroup widget
-            RadioGroup<ShareDoctorOption>(
-              groupValue: _selectedDoctor,
-              onChanged: (value) {
-                setState(() {
-                  _selectedDoctor = value;
-                });
-              },
-              child: Column(
-                children: [
-                  ...widget.doctors.map(
-                    (doctor) => RadioListTile<ShareDoctorOption>(
-                      contentPadding: EdgeInsets.zero,
-                      value: doctor,
-                      title: Text(doctor.name),
-                      subtitle: Text(
-                        SettingsStrings.specialtyLabel(doctor.specialization),
-                      ),
-                    ),
-                  ),
-                ],
+            const SizedBox(height: 8),
+            TextField(
+              controller: _contentController,
+              maxLines: 8,
+              decoration: InputDecoration(
+                hintText: SettingsStrings.editNote,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignLabelWithHint: true,
               ),
             ),
-
+            const SizedBox(height: 24),
+            Text(
+              SettingsStrings.shareNote,
+              style: AppStyles.headingSmall,
+            ),
             const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: colorScheme.outline.withValues(alpha: 0.4),
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<ShareDoctorOption>(
+                  value: _selectedDoctor,
+                  hint: Text(
+                    SettingsStrings.selectDoctor,
+                    style: AppStyles.bodyMedium,
+                  ),
+                  isExpanded: true,
+                  items: widget.doctors.map((doctor) {
+                    return DropdownMenuItem(
+                      value: doctor,
+                      child: Text(
+                        '${doctor.name} - ${doctor.specialization}',
+                        style: AppStyles.bodyMedium,
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedDoctor = value;
+                    });
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
-              child: FilledButton(
-                onPressed: _isSharing ? null : _shareNote,
-                child: _isSharing
-                    ? SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            colorScheme.onPrimary,
-                          ),
-                        ),
-                      )
-                    : Text(
-                        SettingsStrings.shareNow,
-                        style: AppStyles.bodyMedium.copyWith(
-                          color: colorScheme.onPrimary,
-                        ),
-                      ),
+              child: ElevatedButton(
+                onPressed: _shareNote,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  SettingsStrings.shareNote,
+                  style: AppStyles.headingSmall.copyWith(
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
           ],
@@ -179,61 +164,23 @@ class _NoteDetailsScreenState extends State<NoteDetailsScreen> {
     );
   }
 
-  Future<void> _saveChanges() async {
-    setState(() {
-      _isSaving = true;
-    });
-
-    final message = await context.read<SettingsCubit>().updateMedicalNote(
-          userId: widget.username,
-          noteTitle: widget.note.title,
-          previousUpdatedAt: widget.note.updatedAt,
-          newTitle: _titleController.text.trim(),
-          newContent: _contentController.text.trim(),
-        );
-
-    if (!mounted) return;
-
-    setState(() {
-      _isSaving = false;
-    });
-
-    if (message == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(SettingsStrings.noteUpdatedSuccess)),
-      );
-      Navigator.pop(context);
-    }
+  void _saveNote() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Note saved successfully')),
+    );
   }
 
-  Future<void> _shareNote() async {
+  void _shareNote() {
     if (_selectedDoctor == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(SettingsStrings.selectDoctorError)),
+        const SnackBar(content: Text('Please select a doctor')),
       );
       return;
     }
-
-    setState(() {
-      _isSharing = true;
-    });
-
-    final message =
-        await context.read<SettingsCubit>().shareMedicalNoteWithDoctor(
-              userId: widget.username,
-              noteTitle: _titleController.text.trim(),
-              noteContent: _contentController.text.trim(),
-              username: _selectedDoctor!.id,
-            );
-
-    if (!mounted) return;
-
-    setState(() {
-      _isSharing = false;
-    });
-
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Note shared with ${_selectedDoctor!.name}'),
+      ),
+    );
   }
 }

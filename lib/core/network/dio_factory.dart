@@ -8,10 +8,11 @@ import 'package:afiete/core/utils/logger.dart';
 import 'package:afiete/core/reset/nuclear_reset_helper.dart';
 
 abstract class DioFactory {
-  // static const String baseUrl = 'https://alihammadi.pythonanywhere.com/';
+// static const String baseUrl = 'https://alihammadi.pythonanywhere.com/';
   static const String baseUrl = 'http://127.0.0.1:8000/';
   // static const String baseUrl =
   // 'https://seventy-unlined-freefall.ngrok-free.dev/';
+
   static Completer<bool>? _refreshCompleter;
 
   static Dio create() {
@@ -25,9 +26,6 @@ abstract class DioFactory {
       ),
     );
 
-    // During development, enable detailed request/response logging to help
-    // diagnose network issues (payloads, headers, bodies). Enabled only
-    // when running in debug mode so production logs stay clean.
     if (kDebugMode) {
       final log = loggerFor('DioFactory');
       dio.interceptors.add(
@@ -54,9 +52,12 @@ abstract class DioFactory {
           handler.next(options);
         },
         onError: (err, handler) async {
+          final statusCode = err.response?.statusCode;
+          final data = err.response?.data;
+
           final missingUser = _isMissingUserResponse(
-            err.response?.statusCode,
-            err.response?.data,
+            statusCode,
+            data,
             err.requestOptions.path,
           );
 
@@ -69,7 +70,9 @@ abstract class DioFactory {
             );
           }
 
-          final unauthorized = err.response?.statusCode == 401;
+          // ✅ Handle both 401 and 403 token errors
+          final isTokenError = _isExpiredTokenResponse(statusCode, data);
+          final unauthorized = statusCode == 401 || isTokenError;
           final alreadyRetried =
               err.requestOptions.headers['x-no-retry'] == true;
           var shouldNuclearReset = false;
@@ -77,6 +80,7 @@ abstract class DioFactory {
           if (missingUser) {
             shouldNuclearReset = false;
           } else if (unauthorized && !alreadyRetried) {
+            // ✅ Try refresh token for both 401 and 403 token errors
             final refreshed = await _tryRefreshToken(dio);
             if (refreshed) {
               final retryOptions = err.requestOptions;
@@ -91,7 +95,6 @@ abstract class DioFactory {
                 final retryResponse = await dio.fetch<dynamic>(retryOptions);
                 return handler.resolve(retryResponse);
               } catch (_) {
-                // Fallback to default mapped error below.
                 shouldNuclearReset = true;
               }
             } else {
@@ -133,7 +136,6 @@ abstract class DioFactory {
       return false;
     }
 
-    // Serialize refresh requests: if one is already in progress, wait for it
     if (_refreshCompleter != null) {
       return _refreshCompleter!.future;
     }
@@ -175,7 +177,7 @@ abstract class DioFactory {
 
       _refreshCompleter!.complete(true);
       return true;
-    } catch (_) {
+    } catch (e) {
       await TokenStorage.clearTokens();
       _refreshCompleter!.complete(false);
       return false;
@@ -373,7 +375,8 @@ abstract class DioFactory {
   }
 
   static bool _isExpiredTokenResponse(int? statusCode, dynamic data) {
-    if (statusCode != 403) {
+    // ✅ Handle both 401 and 403 for token expiration
+    if (statusCode != 401 && statusCode != 403) {
       return false;
     }
 
@@ -429,13 +432,11 @@ abstract class DioFactory {
       return 'Your account is already verified. Please sign in directly.';
     }
 
-    // ✅ 1. فحص "عدم الوجود" أولاً لحل مشكلة التداخل في النصوص
     if (normalized.contains('does not exist') ||
         normalized.contains('not found')) {
       return 'No account was found for this data. Please check your input or create a new account.';
     }
 
-    // ✅ 2. فحص "الحساب مسجل مسبقاً" يميّز الآن الحالات الصحيحة فقط
     if (normalized.contains('already exists') ||
         normalized.contains('user with this email')) {
       return 'This email is already registered. Please sign in or use another email.';
@@ -457,7 +458,6 @@ abstract class DioFactory {
 
   static String? _extractAccessToken(dynamic data) {
     if (data is Map<String, dynamic>) {
-      // Common token fields used by various backends
       final candidates = ['access', 'access_token', 'accessToken'];
 
       for (final key in candidates) {
@@ -465,7 +465,6 @@ abstract class DioFactory {
         if (v != null && v.toString().isNotEmpty) return v.toString();
       }
 
-      // Nested containers: data -> tokens or tokens -> access(_token)
       final nested = data['data'];
       if (nested is Map<String, dynamic>) {
         final nestedCandidates = ['access', 'access_token', 'accessToken'];
@@ -483,7 +482,6 @@ abstract class DioFactory {
         }
       }
 
-      // Top-level tokens container
       final tokens = data['tokens'];
       if (tokens is Map<String, dynamic>) {
         final v =

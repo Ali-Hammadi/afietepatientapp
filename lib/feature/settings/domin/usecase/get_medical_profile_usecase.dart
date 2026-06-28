@@ -1,3 +1,4 @@
+// feature/settings/domin/usecase/get_medical_profile_usecase.dart
 import 'package:afiete/core/error/failure.dart';
 import 'package:afiete/core/usecases/usecase.dart';
 import 'package:afiete/feature/settings/domin/entities/medical_profile_entity.dart';

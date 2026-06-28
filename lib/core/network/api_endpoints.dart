@@ -85,7 +85,6 @@ abstract class ApiEndpoints {
   // ===============================================================================================
   // === Notes ===
   static const String notes = '/api/patient/notes/';
-  static String notesId(String id) => '/api/patient/notes/$id';
 
   // ===============================================================================================
   // === Doctors ===

@@ -1,12 +1,15 @@
+// feature/settings/presentation/screens/medical_profile_screen.dart
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:afiete/core/constants/app_colors.dart';
 import 'package:afiete/core/constants/styles.dart';
-import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/di/injection_container.dart';
+import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
 import 'package:afiete/feature/settings/domin/entities/medical_profile_entity.dart';
 import 'package:afiete/feature/settings/presentation/cubits/settings_cubit.dart';
+import 'package:afiete/feature/settings/presentation/models/share_doctor_option.dart';
 import 'package:afiete/feature/settings/presentation/screens/note_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -56,7 +59,7 @@ class MedicalProfileScreen extends StatelessWidget {
             style: AppStyles.headingMedium,
           ),
           bottom: PreferredSize(
-            preferredSize: Size.fromHeight(48),
+            preferredSize: const Size.fromHeight(48),
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: AppStyles.padding),
               child: TabBar(
@@ -88,7 +91,7 @@ class MedicalProfileScreen extends StatelessWidget {
 
               final profile = state is SettingsLoaded
                   ? state.medicalProfile
-                  : const MedicalProfileEntity(prescriptions: [], notes: []);
+                  : const MedicalProfileEntity();
 
               return TabBarView(
                 children: [

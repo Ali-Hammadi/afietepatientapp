@@ -109,7 +109,6 @@ class DoctorEntity extends Equatable {
         _specialization = specialization,
         _experience = experience;
 
-  // الـ Getters أصبحت تدعم القيم الممررة من المودل مع الحفاظ على القيم الافتراضية السابقة (Fallback) في حال كانت null
   String get specialization =>
       _specialization ??
       jobTitle ??
