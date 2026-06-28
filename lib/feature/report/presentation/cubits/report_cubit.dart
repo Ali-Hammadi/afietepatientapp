@@ -1,4 +1,5 @@
 import 'package:afiete/feature/report/data/config/report_config.dart';
+import 'package:afiete/feature/report/data/models/user_report_model.dart';
 import 'package:afiete/feature/report/domain/entities/report_entity.dart';
 import 'package:afiete/feature/report/domain/usecases/report_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -34,7 +35,7 @@ class ReportCubit extends Cubit<ReportState> {
             emit(ReportsDashboardLoaded(
               config: config,
               appReports: reportsMap['app_reports'] as List<AppReport>,
-              userReports: reportsMap['user_reports'] as List<UserReport>,
+              userReports: reportsMap['user_reports'] as List<UserReportModel>,
             ));
           },
         );

@@ -1,4 +1,5 @@
 import 'package:afiete/core/constants/report_types.dart';
+import 'package:afiete/core/di/injection_container.dart' as di;
 import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/di/injection_container.dart';
 import 'package:afiete/feature/appointments/presentation/screens/reschedule_session_screen.dart';
@@ -29,11 +30,14 @@ import 'package:afiete/feature/notes/presentation/pages/create_note_screen.dart'
 import 'package:afiete/feature/notes/presentation/pages/notes_list_screen.dart';
 import 'package:afiete/feature/payment/domain/entities/payment_request_entity.dart';
 import 'package:afiete/feature/payment/presentation/screens/payment_screen.dart';
+import 'package:afiete/feature/prespection/presentation/bloc/patient_prescriptions_bloc.dart';
+import 'package:afiete/feature/prespection/presentation/bloc/patient_prescriptions_event.dart';
+import 'package:afiete/feature/prespection/presentation/pages/patient_prescription_detail_page.dart';
+import 'package:afiete/feature/prespection/presentation/pages/patient_prescriptions_screen.dart';
 import 'package:afiete/feature/report/presentation/cubits/report_cubit.dart';
 import 'package:afiete/feature/report/presentation/screens/report_history_screen.dart';
 import 'package:afiete/feature/report/presentation/screens/report_screen.dart';
 import 'package:afiete/feature/settings/presentation/screens/contact_us_screen.dart';
-import 'package:afiete/feature/settings/presentation/screens/medical_profile_screen.dart';
 import 'package:afiete/feature/settings/presentation/screens/privacy_screen.dart';
 import 'package:afiete/feature/settings/presentation/screens/profile_info_screen.dart';
 import 'package:afiete/feature/settings/presentation/screens/report_issue_screen.dart';
@@ -222,8 +226,27 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const CreateNoteScreen());
       case MyRoutes.settingsScreen:
         return MaterialPageRoute(builder: (_) => const SettingsScreen());
-      case MyRoutes.medicalProfileScreen:
-        return MaterialPageRoute(builder: (_) => const MedicalProfileScreen());
+      case MyRoutes.patientPrescriptionsScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => di.sl<PatientPrescriptionsBloc>()
+              ..add(LoadPatientPrescriptions()),
+            child: const PatientPrescriptionsScreen(),
+          ),
+        );
+
+      case MyRoutes.patientPrescriptionDetailPage:
+        final prescriptionId = settings.arguments as int;
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => di.sl<PatientPrescriptionsBloc>()
+              ..add(LoadPatientPrescriptionDetail(prescriptionId)),
+            child: PatientPrescriptionDetailPage(
+              prescriptionId: prescriptionId,
+            ),
+          ),
+        );
+
       case MyRoutes.profileInfoScreen:
         final args = settings.arguments;
         return MaterialPageRoute(
@@ -390,7 +413,10 @@ class MyRoutes {
   static const String appointmentsScreen = "/appointmentsScreen";
   static const String rescheduleSessionScreen = "/rescheduleSessionScreen";
   static const String settingsScreen = "/settingsScreen";
-  static const String medicalProfileScreen = "/medicalProfileScreen";
+  static const String patientPrescriptionsScreen =
+      "/patientPrescriptionsScreen";
+  static const String patientPrescriptionDetailPage =
+      "/patientPrescriptionDetailPage";
   static const String profileInfoScreen = "/profileInfoScreen";
   static const String reportIssueScreen = "/reportIssueScreen";
   static const String privacyScreen = "/privacyScreen";

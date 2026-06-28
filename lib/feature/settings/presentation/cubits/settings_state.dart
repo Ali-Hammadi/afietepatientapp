@@ -17,12 +17,10 @@ class SettingsLoading extends SettingsState {
 }
 
 class SettingsLoaded extends SettingsState {
-  final MedicalProfileEntity medicalProfile;
-
-  const SettingsLoaded(this.medicalProfile);
+  const SettingsLoaded();
 
   @override
-  List<Object?> get props => [medicalProfile];
+  List<Object?> get props => [];
 }
 
 class SettingsSubmittingReport extends SettingsState {

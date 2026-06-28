@@ -1,3 +1,7 @@
+import 'package:afiete/core/di/injection_container.dart' as di;
+import 'package:afiete/feature/prespection/presentation/bloc/patient_prescriptions_bloc.dart';
+import 'package:afiete/feature/prespection/presentation/bloc/patient_prescriptions_event.dart';
+import 'package:afiete/feature/prespection/presentation/pages/patient_prescriptions_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'firebase_options.dart';
@@ -91,6 +95,11 @@ class _MyAppState extends State<MyApp> {
           BlocProvider<AssessmentsCubit>(create: (_) => sl<AssessmentsCubit>()),
           BlocProvider<AppointmentsCubit>(
             create: (_) => sl<AppointmentsCubit>(),
+          ),
+          BlocProvider(
+            create: (context) => di.sl<PatientPrescriptionsBloc>()
+              ..add(LoadPatientPrescriptions()),
+            child: PatientPrescriptionsScreen(),
           ),
           BlocProvider<DoctorsCubit>(create: (_) => sl<DoctorsCubit>()),
           BlocProvider<ChatCubit>(create: (_) => ChatCubit()),

@@ -14,8 +14,7 @@ class ReportsRepositoryImpl implements ReportsRepository {
       final config = await remoteDataSource.getReportConfig();
       return Right(config);
     } on ServerFailure catch (e) {
-      return Left(
-          ServerFailure(e.toString())); // تمرير الرسالة القادمة من السيرفر
+      return Left(ServerFailure(e.toString()));
     }
   }
 

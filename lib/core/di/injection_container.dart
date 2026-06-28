@@ -1,4 +1,5 @@
 import 'package:afiete/core/network/dio_factory.dart';
+import 'package:afiete/core/network/token_storage.dart';
 import 'package:afiete/feature/appointments/domain/repositories/appointments_repository.dart';
 
 import 'package:afiete/feature/assessments/data/datasources/assisments_remote_datasource.dart';
@@ -53,6 +54,10 @@ import 'package:afiete/feature/payment/data/repositories/payment_repository_impl
 import 'package:afiete/feature/payment/domain/repositories/payment_repository.dart';
 import 'package:afiete/feature/payment/domain/usecases/process_payment_usecase.dart';
 import 'package:afiete/feature/payment/presentation/cubit/payment_cubit.dart';
+import 'package:afiete/feature/prespection/data/datasources/patient_prescription_remote_datasource.dart';
+import 'package:afiete/feature/prespection/data/repositories/patient_prescription_repository_impl.dart';
+import 'package:afiete/feature/prespection/domain/repositories/patient_prescription_repo.dart';
+import 'package:afiete/feature/prespection/presentation/bloc/patient_prescriptions_bloc.dart';
 import 'package:afiete/feature/sessions/data/datasources/sessions_remote_datasource.dart';
 import 'package:afiete/feature/sessions/data/repositories/sessions_repository_impl.dart';
 import 'package:afiete/feature/sessions/domain/repositories/sessions_repository.dart';
@@ -65,7 +70,7 @@ import 'package:afiete/feature/sessions/presentation/cubits/sessions_cubit.dart'
 import 'package:afiete/feature/settings/data/data_source/settings_remote_data_source.dart';
 import 'package:afiete/feature/settings/data/repositories/settings_repository_impl.dart';
 import 'package:afiete/feature/settings/domin/repositories/settings_repository.dart';
-import 'package:afiete/feature/settings/domin/usecase/get_medical_profile_usecase.dart';
+import 'package:afiete/feature/prespection/domain/usecases/prescription_usecase.dart';
 import 'package:afiete/feature/notes/domain/usecases/notes_usecase.dart';
 import 'package:afiete/feature/settings/domin/usecase/submit_report_issue_usecase.dart';
 import 'package:afiete/feature/settings/presentation/cubits/settings_cubit.dart';
@@ -528,17 +533,36 @@ Future<void> init() async {
     ),
   );
 
-  // Settings use cases
-  sl.registerLazySingleton<GetMedicalProfileUseCase>(
-    () => GetMedicalProfileUseCase(sl<SettingsRepository>()),
+  // Bloc
+  sl.registerFactory(
+    () => PatientPrescriptionsBloc(
+      getPrescriptions: sl(),
+      getPrescriptionDetail: sl(),
+    ),
   );
-  sl.registerLazySingleton<SubmitReportIssueUseCase>(
-    () => SubmitReportIssueUseCase(sl<SettingsRepository>()),
+
+  // Use cases
+  sl.registerLazySingleton(() => GetPatientPrescriptions(sl()));
+  sl.registerLazySingleton(() => GetPatientPrescriptionDetail(sl()));
+
+  // Repository
+  sl.registerLazySingleton<PatientPrescriptionRepository>(
+    () => PatientPrescriptionRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton(
+    () => PatientPrescriptionRemoteDataSource(
+      dio: sl<Dio>(),
+      baseUrl: DioFactory.baseUrl,
+      getToken: () => "${TokenStorage.getAccessToken()}",
+    ),
   );
 
   // Settings cubit
   sl.registerFactory<SettingsCubit>(() => SettingsCubit(
-        sl<GetMedicalProfileUseCase>(),
         sl<SubmitReportIssueUseCase>(),
       ));
 
@@ -562,6 +586,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<CreateAppReportUseCase>(
     () => CreateAppReportUseCase(sl<ReportsRepositoryImpl>()),
+  );
+  sl.registerLazySingleton<SubmitReportIssueUseCase>(
+    () => SubmitReportIssueUseCase(sl<SettingsRepository>()),
   );
 
   // Report cubit

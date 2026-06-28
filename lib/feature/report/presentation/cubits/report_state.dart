@@ -19,7 +19,7 @@ class ReportsDashboardLoading extends ReportState {
 class ReportsDashboardLoaded extends ReportState {
   final ReportConfig config;
   final List<AppReport> appReports;
-  final List<UserReport> userReports;
+  final List<UserReportModel> userReports;
 
   const ReportsDashboardLoaded({
     required this.config,

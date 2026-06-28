@@ -83,6 +83,12 @@ abstract class ApiEndpoints {
   static const String Assessmentscores = '/api/patient/assessment/scores/';
 
   // ===============================================================================================
+  // === Prescription ===
+  static const String prescription = '/api/patient/prescriptions/';
+  static String getPrescription(dynamic id) =>
+      '/api/patient/prescriptions/$id/';
+
+  // ===============================================================================================
   // === Notes ===
   static const String notes = '/api/patient/notes/';
 

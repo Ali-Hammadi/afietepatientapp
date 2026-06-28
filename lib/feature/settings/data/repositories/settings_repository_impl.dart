@@ -1,7 +1,6 @@
 // feature/settings/data/repositories/settings_repository_impl.dart
 import 'package:afiete/core/error/failure.dart';
 import 'package:afiete/feature/settings/data/data_source/settings_remote_data_source.dart';
-import 'package:afiete/feature/settings/domin/entities/medical_profile_entity.dart';
 import 'package:afiete/feature/settings/domin/repositories/settings_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
@@ -10,20 +9,6 @@ class SettingsRepositoryImpl implements SettingsRepository {
   final SettingsRemoteDataSource remoteDataSource;
 
   const SettingsRepositoryImpl({required this.remoteDataSource});
-
-  @override
-  Future<Either<Failure, MedicalProfileEntity>> getMedicalProfile(
-    String userId,
-  ) async {
-    try {
-      final result = await remoteDataSource.getMedicalProfile(userId);
-      return Right(result.toEntity());
-    } on DioException catch (e) {
-      return Left(ServerFailure.fromDioError(e));
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
-  }
 
   @override
   Future<Either<Failure, String>> submitReportIssue({

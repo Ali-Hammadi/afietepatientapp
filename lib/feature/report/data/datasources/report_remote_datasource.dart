@@ -1,3 +1,4 @@
+import 'package:afiete/core/network/api_endpoints.dart';
 import 'package:afiete/feature/report/data/models/user_report_model.dart';
 import 'package:dio/dio.dart';
 import '../models/app_report_model.dart';
@@ -16,13 +17,13 @@ class ReportsRemoteDataSourceImpl implements ReportsRemoteDataSource {
 
   @override
   Future<ReportConfigModel> getReportConfig() async {
-    final response = await dio.get('/api/reports/config/');
+    final response = await dio.get(ApiEndpoints.reportsConfig);
     return ReportConfigModel.fromJson(response.data);
   }
 
   @override
   Future<Map<String, List<dynamic>>> getMyReports() async {
-    final response = await dio.get('/api/reports/my-reports/');
+    final response = await dio.get(ApiEndpoints.myReports);
     final appReports = (response.data['app_reports'] as List)
         .map((e) => AppReportModel.fromJson(e))
         .toList();
@@ -35,7 +36,7 @@ class ReportsRemoteDataSourceImpl implements ReportsRemoteDataSource {
   @override
   Future<void> createAppReport(
       String type, String title, String content) async {
-    await dio.post('/api/reports/app/create/', data: {
+    await dio.post(ApiEndpoints.appReports, data: {
       "report_type": type,
       "title": title,
       "content": content,
@@ -44,9 +45,8 @@ class ReportsRemoteDataSourceImpl implements ReportsRemoteDataSource {
 
   @override
   Future<void> createUserReport(String targetUsername, String content) async {
-    await dio.post('/api/reports/user/create/', data: {
-      "reported_user":
-          targetUsername, // يطابق تماماً الـ validated_data بالسيرفر
+    await dio.post(ApiEndpoints.reportOnUser, data: {
+      "reported_user": targetUsername,
       "content": content,
     });
   }

@@ -74,7 +74,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: SettingsStrings.medicalProfileTitle,
                 subtitle: SettingsStrings.medicalProfileSubtitle,
                 onTap: () {
-                  Navigator.pushNamed(context, MyRoutes.medicalProfileScreen);
+                  Navigator.pushNamed(
+                      context, MyRoutes.patientPrescriptionsScreen);
                 },
               ),
               const SizedBox(height: 12),
