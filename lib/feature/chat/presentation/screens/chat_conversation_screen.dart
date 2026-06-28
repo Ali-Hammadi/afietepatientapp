@@ -1,5 +1,5 @@
 import 'package:afiete/core/assets/icon_image_links.dart';
-import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/feature/chat/presentation/widgets/chat_message_bubble.dart';
 import 'package:afiete/feature/chat/presentation/widgets/chat_message_item.dart';

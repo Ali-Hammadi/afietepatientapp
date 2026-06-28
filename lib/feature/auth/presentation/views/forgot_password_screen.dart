@@ -1,5 +1,5 @@
 import 'package:afiete/core/constants/styles.dart';
-import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/routes/app_route.dart';
 import 'package:afiete/core/widget/custom_button.dart';
 import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
@@ -153,8 +153,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               onPressed: _isLoading
                   ? null
                   : _step == 'request_otp'
-                  ? _handleSendResetOtp
-                  : _handleResetPassword,
+                      ? _handleSendResetOtp
+                      : _handleResetPassword,
               widget: _isLoading
                   ? SizedBox(
                       width: 20,
@@ -211,8 +211,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     try {
       final error = await context.read<AuthCubit>().requestForgotPasswordOtp(
-        email: email,
-      );
+            email: email,
+          );
 
       if (mounted) {
         setState(() {

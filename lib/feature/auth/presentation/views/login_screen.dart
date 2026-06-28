@@ -1,5 +1,5 @@
 import 'package:afiete/core/constants/styles.dart';
-import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/routes/app_route.dart';
 import 'package:afiete/core/widget/custom_button.dart';
 import 'package:afiete/feature/auth/presentation/widgets/auth_google_button.dart';
@@ -155,9 +155,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 final email = emailController.text.trim();
                                 final password = passwordController.text;
                                 context.read<AuthCubit>().login(
-                                  email,
-                                  password,
-                                );
+                                      email,
+                                      password,
+                                    );
                               }
                             },
                     ),

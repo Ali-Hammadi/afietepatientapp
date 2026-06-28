@@ -1,7 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:afiete/core/assets/icon_image_links.dart';
-import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/routes/app_route.dart';
 import 'package:afiete/core/widget/custom_button.dart';
@@ -53,7 +53,8 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
     });
     try {
       _pinPutController.clear();
-      final success = await context.read<AuthCubit>().sendVerificationOtp(widget.email);
+      final success =
+          await context.read<AuthCubit>().sendVerificationOtp(widget.email);
       if (mounted) {
         final currentState = context.read<AuthCubit>().state;
         _syncCountdownSecondsFromState(currentState);
@@ -134,8 +135,7 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
 
             // OTP verification successful - check if it was signup or login flow
             final user = state.user;
-            final isProfileIncomplete =
-                user.birthDate == null ||
+            final isProfileIncomplete = user.birthDate == null ||
                 user.age == null ||
                 user.gender == null ||
                 user.gender?.isEmpty == true ||
@@ -213,8 +213,8 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
                       onPressed: state is AuthLoading
                           ? null
                           : isFormValid
-                          ? () => _verifyOTP(_pinPutController.text)
-                          : null,
+                              ? () => _verifyOTP(_pinPutController.text)
+                              : null,
                     ),
                     const SizedBox(height: 30),
                     // Countdown timer with resend button

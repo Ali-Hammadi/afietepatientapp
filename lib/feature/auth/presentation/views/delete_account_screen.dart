@@ -1,5 +1,5 @@
 import 'package:afiete/core/constants/styles.dart';
-import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/feature/auth/presentation/cubits/auth_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,8 +30,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final isConfirmed =
-        _confirmController.text.trim() ==
+    final isConfirmed = _confirmController.text.trim() ==
         SettingsStrings.deleteConfirmationText;
 
     return Scaffold(
@@ -164,9 +163,8 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                     borderRadius: BorderRadius.circular(AppStyles.borderRadius),
                   ),
                 ),
-                onPressed: !isConfirmed || _isLoading
-                    ? null
-                    : _handleDeleteAccount,
+                onPressed:
+                    !isConfirmed || _isLoading ? null : _handleDeleteAccount,
                 child: _isLoading
                     ? SizedBox(
                         width: 20,
