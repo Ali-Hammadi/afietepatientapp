@@ -1,5 +1,5 @@
 import 'package:afiete/core/assets/icon_image_links.dart';
-import 'package:afiete/core/constants/settings_strings.dart';
+import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/feature/settings/data/data_source/settings_remote_data_source.dart';
 import 'package:afiete/feature/settings/data/models/medical_profile_model.dart';
 
