@@ -1,5 +1,4 @@
-import 'package:afiete/feature/report/data/config/report_config.dart';
-import 'package:afiete/feature/report/data/models/user_report_model.dart';
+import 'package:afiete/feature/report/domain/entities/report_config.dart';
 import 'package:afiete/feature/report/domain/entities/report_entity.dart';
 import 'package:afiete/feature/report/domain/usecases/report_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,6 +11,7 @@ class ReportCubit extends Cubit<ReportState> {
   final GetMyReportsUseCase getMyReportsUseCase;
   final CreateAppReportUseCase createAppReportUseCase;
   final CreateUserReportUseCase createUserReportUseCase;
+
   ReportCubit({
     required this.getReportConfigUseCase,
     required this.getMyReportsUseCase,
@@ -19,7 +19,6 @@ class ReportCubit extends Cubit<ReportState> {
     required this.createUserReportUseCase,
   }) : super(const ReportInitial());
 
-  /// جلب لوحة تحكم التقارير بالكامل (الأسباب المتاحة + سجل المستخدم الحالي)
   Future<void> loadReportsDashboard() async {
     emit(const ReportsDashboardLoading());
 
@@ -35,7 +34,7 @@ class ReportCubit extends Cubit<ReportState> {
             emit(ReportsDashboardLoaded(
               config: config,
               appReports: reportsMap['app_reports'] as List<AppReport>,
-              userReports: reportsMap['user_reports'] as List<UserReportModel>,
+              userReports: reportsMap['user_reports'] as List<UserReport>,
             ));
           },
         );
@@ -43,43 +42,43 @@ class ReportCubit extends Cubit<ReportState> {
     );
   }
 
-  /// إنشاء بلاغ تقني أو اقتراح للتطبيق
   Future<void> submitAppReport({
-    required String reportType,
-    required String title,
-    required String content,
+    required String reason,
+    required String description,
   }) async {
     emit(const ReportActionLoading());
 
     final result = await createAppReportUseCase(
-      reportType: reportType,
-      title: title,
-      content: content,
+      reason: reason,
+      description: description,
     );
 
     result.fold(
       (failure) => emit(ReportsError(failure.errorMessage)),
       (_) => emit(const ReportSubmitSuccess(
-          "Your report has been submitted successfully and will be reviewed.")),
+          "تم إرسال البلاغ التقني بنجاح وسيتم مراجعته.")),
     );
   }
 
-  /// إنشاء بلاغ ضد مستخدم (طبيب/مريض) - سيتحقق السيرفر تلقائياً من الجلسة المشتركة
   Future<void> submitUserReport({
-    required String reportedUsername,
-    required String content,
+    required String reportType,
+    required String targetName,
+    required String reason,
+    required String description,
   }) async {
     emit(const ReportActionLoading());
 
     final result = await createUserReportUseCase(
-      reportedUsername: reportedUsername,
-      content: content,
+      reportType: reportType,
+      targetName: targetName,
+      reason: reason,
+      description: description,
     );
 
     result.fold(
       (failure) => emit(ReportsError(failure.errorMessage)),
       (_) => emit(const ReportSubmitSuccess(
-          "Your report against the user has been submitted successfully and will be reviewed.")),
+          "تم إرسال البلاغ ضد المستخدم بنجاح وسيتم مراجعته.")),
     );
   }
 }

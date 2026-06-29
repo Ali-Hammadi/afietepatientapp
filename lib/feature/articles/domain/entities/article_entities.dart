@@ -15,7 +15,7 @@ class ArticleEntity extends Equatable {
   final int dislikesCount;
   final bool isLikedByUser;
   final bool isDislikedByUser;
-  final List<String> relatedConditions; // List of diagnoses/conditions
+  final List<String> relatedConditions; 
 
   const ArticleEntity({
     required this.id,

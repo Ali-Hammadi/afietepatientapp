@@ -1,18 +1,27 @@
 import 'package:afiete/core/network/api_endpoints.dart';
+import 'package:afiete/feature/report/data/models/app_report_model.dart';
+import 'package:afiete/feature/report/data/models/report_config_model.dart';
 import 'package:afiete/feature/report/data/models/user_report_model.dart';
 import 'package:dio/dio.dart';
-import '../models/app_report_model.dart';
-import '../models/report_config_model.dart';
 
 abstract class ReportsRemoteDataSource {
   Future<ReportConfigModel> getReportConfig();
   Future<Map<String, List<dynamic>>> getMyReports();
-  void createAppReport(String type, String title, String content);
-  void createUserReport(String targetUserId, String content);
+  Future<void> createAppReport({
+    required String reason,
+    required String description,
+  });
+  Future<void> createUserReport({
+    required String reportType,
+    required String targetName,
+    required String reason,
+    required String description,
+  });
 }
 
 class ReportsRemoteDataSourceImpl implements ReportsRemoteDataSource {
-  final Dio dio; // يتم تمرير الـ Dio المحقون مع الـ Token المحدث بـ Interceptor
+  final Dio dio;
+
   ReportsRemoteDataSourceImpl({required this.dio});
 
   @override
@@ -30,24 +39,41 @@ class ReportsRemoteDataSourceImpl implements ReportsRemoteDataSource {
     final userReports = (response.data['user_reports'] as List)
         .map((e) => UserReportModel.fromJson(e))
         .toList();
-    return {"app_reports": appReports, "user_reports": userReports};
+    return {
+      "app_reports": appReports,
+      "user_reports": userReports,
+    };
   }
 
   @override
-  Future<void> createAppReport(
-      String type, String title, String content) async {
-    await dio.post(ApiEndpoints.appReports, data: {
-      "report_type": type,
-      "title": title,
-      "content": content,
-    });
+  Future<void> createAppReport({
+    required String reason,
+    required String description,
+  }) async {
+    await dio.post(
+      ApiEndpoints.appReports,
+      data: {
+        "reason": reason,
+        "description": description,
+      },
+    );
   }
 
   @override
-  Future<void> createUserReport(String targetUsername, String content) async {
-    await dio.post(ApiEndpoints.reportOnUser, data: {
-      "reported_user": targetUsername,
-      "content": content,
-    });
+  Future<void> createUserReport({
+    required String reportType,
+    required String targetName,
+    required String reason,
+    required String description,
+  }) async {
+    await dio.post(
+      ApiEndpoints.reportOnUser,
+      data: {
+        "reportType": reportType,
+        "targetName": targetName,
+        "reason": reason,
+        "description": description,
+      },
+    );
   }
 }

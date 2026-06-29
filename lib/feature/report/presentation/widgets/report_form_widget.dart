@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:afiete/core/constants/styles.dart';
+import 'package:flutter/material.dart';
 
 class CustomReportFormWidget extends StatelessWidget {
   final String label;
@@ -61,11 +61,17 @@ class CustomReportFormWidget extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppStyles.borderRadius),
-              borderSide: BorderSide(color: colorScheme.primary, width: 2),
+              borderSide: BorderSide(
+                color: colorScheme.primary,
+                width: 2,
+              ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppStyles.borderRadius),
-              borderSide: BorderSide(color: colorScheme.error, width: 2),
+              borderSide: BorderSide(
+                color: colorScheme.error,
+                width: 2,
+              ),
             ),
             errorText: errorText,
             counterStyle: AppStyles.bodySmall.copyWith(

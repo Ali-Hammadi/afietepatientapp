@@ -1,4 +1,3 @@
-import 'package:afiete/core/constants/report_types.dart';
 import 'package:afiete/feature/articles/presentation/cubits/articles_state.dart';
 import 'package:afiete/feature/doctors/presentation/widgets/doctor_profile_image.dart';
 import 'package:afiete/core/ln10/settings_strings.dart';
@@ -224,10 +223,8 @@ class _DoctorInfoState extends State<DoctorInfo> {
 
                           Navigator.pushNamed(
                             context,
-                            MyRoutes.reportIssueScreen,
-                            arguments: ReportScreenArgs(
-                              reportType: ReportType.doctor,
-                            ),
+                            MyRoutes.reportScreen,
+                            arguments: ReportScreenArgs(),
                           );
                         },
                       ),

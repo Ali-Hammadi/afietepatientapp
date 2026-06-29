@@ -96,7 +96,7 @@ class _MyAppState extends State<MyApp> {
           BlocProvider<AppointmentsCubit>(
             create: (_) => sl<AppointmentsCubit>(),
           ),
-          BlocProvider(
+          BlocProvider( 
             create: (context) => di.sl<PatientPrescriptionsBloc>()
               ..add(LoadPatientPrescriptions()),
             child: PatientPrescriptionsScreen(),

@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:afiete/core/constants/styles.dart';
+import 'package:flutter/material.dart';
 
 class CustomReportReasonCard extends StatelessWidget {
   final String label;
@@ -49,7 +49,11 @@ class CustomReportReasonCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(_getIconData(), color: _getIconColor(colorScheme), size: 24),
+              Icon(
+                _getIconData(),
+                color: _getIconColor(colorScheme),
+                size: 24,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -83,7 +87,10 @@ class CustomReportReasonCard extends StatelessWidget {
                   height: 24,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: colorScheme.outline, width: 1),
+                    border: Border.all(
+                      color: colorScheme.outline,
+                      width: 1,
+                    ),
                   ),
                 ),
             ],

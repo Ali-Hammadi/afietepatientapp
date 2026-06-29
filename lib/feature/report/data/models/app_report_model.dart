@@ -4,22 +4,36 @@ class AppReportModel extends AppReport {
   const AppReportModel({
     required super.id,
     required super.reportType,
-    required super.reportTypeDisplay,
-    required super.title,
-    required super.content,
+    required super.reason,
+    required super.description,
+    required super.status,
     required super.createdAt,
-    required super.isResolved,
+    super.resolvedAt,
   });
 
   factory AppReportModel.fromJson(Map<String, dynamic> json) {
     return AppReportModel(
       id: json['id'],
-      reportType: json['report_type'] ?? '',
-      reportTypeDisplay: json['report_type_display'] ?? '',
-      title: json['title'] ?? '',
-      content: json['content'] ?? '',
-      createdAt: DateTime.parse(json['created_at']),
-      isResolved: json['is_resolved'] ?? false,
+      reportType: json['reportType'] ?? 'app',
+      reason: json['reason'] ?? '',
+      description: json['description'] ?? '',
+      status: json['status'] ?? 'pending',
+      createdAt: DateTime.parse(json['createdAt']),
+      resolvedAt: json['resolvedAt'] != null
+          ? DateTime.parse(json['resolvedAt'])
+          : null,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'reportType': reportType,
+      'reason': reason,
+      'description': description,
+      'status': status,
+      'createdAt': createdAt.toIso8601String(),
+      'resolvedAt': resolvedAt?.toIso8601String(),
+    };
   }
 }

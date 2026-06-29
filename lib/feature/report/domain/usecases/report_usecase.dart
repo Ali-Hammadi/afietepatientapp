@@ -1,5 +1,5 @@
 import 'package:afiete/core/error/failure.dart';
-import 'package:afiete/feature/report/data/config/report_config.dart';
+import 'package:afiete/feature/report/domain/entities/report_config.dart';
 import 'package:afiete/feature/report/domain/repositories/report_repository.dart';
 import 'package:dartz/dartz.dart';
 
@@ -24,14 +24,12 @@ class CreateAppReportUseCase {
   CreateAppReportUseCase(this.repository);
 
   Future<Either<Failure, Unit>> call({
-    required String reportType,
-    required String title,
-    required String content,
+    required String reason,
+    required String description,
   }) async =>
       await repository.createAppReport(
-        reportType: reportType,
-        title: title,
-        content: content,
+        reason: reason,
+        description: description,
       );
 }
 
@@ -40,11 +38,15 @@ class CreateUserReportUseCase {
   CreateUserReportUseCase(this.repository);
 
   Future<Either<Failure, Unit>> call({
-    required String reportedUsername,
-    required String content,
+    required String reportType,
+    required String targetName,
+    required String reason,
+    required String description,
   }) async =>
       await repository.createUserReport(
-        reportedUsername: reportedUsername,
-        content: content,
+        reportType: reportType,
+        targetName: targetName,
+        reason: reason,
+        description: description,
       );
 }

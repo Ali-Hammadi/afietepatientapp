@@ -1,4 +1,3 @@
-import 'package:afiete/core/constants/report_types.dart';
 import 'package:afiete/core/di/injection_container.dart' as di;
 import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/di/injection_container.dart';
@@ -40,7 +39,6 @@ import 'package:afiete/feature/report/presentation/screens/report_screen.dart';
 import 'package:afiete/feature/settings/presentation/screens/contact_us_screen.dart';
 import 'package:afiete/feature/settings/presentation/screens/privacy_screen.dart';
 import 'package:afiete/feature/settings/presentation/screens/profile_info_screen.dart';
-import 'package:afiete/feature/settings/presentation/screens/report_issue_screen.dart';
 import 'package:afiete/feature/settings/presentation/screens/settings_screen.dart';
 import 'package:afiete/feature/sessions/presentation/screens/my_sessions_screen.dart';
 import 'package:afiete/feature/splash/presentation/views/splash_screen.dart';
@@ -254,8 +252,7 @@ class AppRouter {
             initialUser: args is UserAuthEntity ? args : null,
           ),
         );
-      case MyRoutes.reportIssueScreen:
-        return MaterialPageRoute(builder: (_) => const ReportIssueScreen());
+
       case MyRoutes.privacyScreen:
         return MaterialPageRoute(builder: (_) => const PrivacyScreen());
       case MyRoutes.contactUsScreen:
@@ -287,30 +284,35 @@ class AppRouter {
 
       case MyRoutes.reportScreen:
         final args = settings.arguments;
-        final reportArgs = args is ReportScreenArgs
-            ? args
-            : args is Map<String, dynamic>
-                ? ReportScreenArgs(
-                    // استخدام الـ Extension الذي قمنا ببنائه لمنع الكراش وتحويل النص لـ Enum بآمان
-                    reportType: args['reportType'] is String
-                        ? ReportTypeExtension.fromString(
-                            args['reportType'] as String)
-                        : args['reportType'] as ReportType,
-                    reportedUsername: args['reportedUserId'],
-                    sessionId: args['sessionId'] as String?,
-                    reportedName: args['reportedName'] as String?,
-                  )
-                : null;
 
-        // إذا كان البلاغ سلوكي (طبيب أو جلسة) ولم نمرر البيانات الأساسية، نرفع شاشة الخطأ حماية للسيستم
-        if (reportArgs == null) {
+        String? reportedUsername;
+        String? targetName;
+
+        if (args is ReportScreenArgs) {
+          reportedUsername = args.reportedUsername;
+          targetName = args.targetName;
+        } else if (args is Map<String, dynamic>) {
+          reportedUsername = args['reportedUsername'] as String?;
+          targetName =
+              args['targetName'] as String? ?? args['reportedName'] as String?;
+        }
+
+        final isUserReport =
+            reportedUsername != null && reportedUsername.trim().isNotEmpty;
+
+        if (isUserReport) {
+        } else if (args != null && !isUserReport) {
           return MaterialPageRoute(
             builder: (context) => Scaffold(
-              appBar: AppBar(title: const Text("خطأ في البيانات")),
+              appBar: AppBar(title: Text(SettingsStrings.reportIssueTitle)),
               body: Center(
-                child: Text(
-                  SettingsStrings.unCompletedReportInformation,
-                  style: TextStyle(fontSize: 18),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    SettingsStrings.unCompletedReportInformation,
+                    style: const TextStyle(fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
             ),
@@ -321,20 +323,19 @@ class AppRouter {
           builder: (_) => BlocProvider<ReportCubit>(
             create: (_) => sl<ReportCubit>(),
             child: ReportScreen(
-              reportedUsername: reportArgs
-                  .reportedUsername, // تمرير الـ ID لطبقة الـ Presentation
-              targetName: reportArgs.reportedName, // تمرير الاسم للعرض الشكلي
+              reportedUsername: reportedUsername,
+              targetName: targetName,
             ),
           ),
         );
+
       case MyRoutes.reportHistoryScreen:
         return MaterialPageRoute(
           builder: (_) => BlocProvider<ReportCubit>(
             create: (_) => sl<ReportCubit>(),
-            child: ReportHistoryScreen(),
+            child: const ReportHistoryScreen(),
           ),
         );
-
       case MyRoutes.articlesListScreen:
         final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
@@ -372,18 +373,33 @@ class AppRouter {
 }
 
 class ReportScreenArgs {
-  final ReportType reportType;
   final String?
-      reportedUsername; // المعرف الرقمي للمستخدم المشكو بحقه (مهم جداً)
-  final String? sessionId; // معرف الجلسة إذا كان البلاغ متعلق بموعد
-  final String? reportedName; // الاسم الذي سيظهر في الواجهة (طبيب أو مريض)
+      reportedUsername; // null للبلاغات التقنية، username للبلاغات السلوكية
+  final String? targetName; // اسم المستخدم للعرض الشكلي (اختياري)
 
   const ReportScreenArgs({
-    required this.reportType,
     this.reportedUsername,
-    this.sessionId,
-    this.reportedName,
+    this.targetName,
   });
+
+  // Factory constructor لإنشاء args للبلاغات التقنية
+  factory ReportScreenArgs.appReport() {
+    return const ReportScreenArgs(
+      reportedUsername: null,
+      targetName: null,
+    );
+  }
+
+  // Factory constructor لإنشاء args للبلاغات السلوكية
+  factory ReportScreenArgs.userReport({
+    required String username,
+    String? displayName,
+  }) {
+    return ReportScreenArgs(
+      reportedUsername: username,
+      targetName: displayName ?? username,
+    );
+  }
 }
 
 class MyRoutes {
@@ -418,7 +434,6 @@ class MyRoutes {
   static const String patientPrescriptionDetailPage =
       "/patientPrescriptionDetailPage";
   static const String profileInfoScreen = "/profileInfoScreen";
-  static const String reportIssueScreen = "/reportIssueScreen";
   static const String privacyScreen = "/privacyScreen";
   static const String contactUsScreen = "/contactUsScreen";
   static const String notesListScreen = "/notesListScreen";
