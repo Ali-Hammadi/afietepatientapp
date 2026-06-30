@@ -141,14 +141,13 @@ abstract class ApiEndpoints {
   // ===============================================================================================
   // === Video call Endpoints ===
   /// Fake Links (to be updated with real endpoints when available)
-  static const String videoCalls = '/api/patient/videoCalls/token/';
-  static const String videoCallsStart = '/api/patient/videoCallsStart/token/';
-  static String videoCallsEnd(String id) => '/api/patient/videoCallsEnd/token/';
+  // static const String videoCalls = '/api/patient/videoCalls/token/';
+  // static const String videoCallsStart = '/api/patient/videoCallsStart/token/';
+  // static String videoCallsEnd(String id) => '/api/patient/videoCallsEnd/token/';
   // ===============================================================================================
   // === Voice call Endpoints ===
-  /// Fake Links (to be updated with real endpoints when available)
-  static const String voiceCalls = '/api/patient/videoCalls/token/';
-  static const String voiceCallsStart = '/api/patient/videoCallsStart/token/';
-  static String voiceCallsEnd(String id) => '/api/patient/videoCallsEnd/token/';
+  // ===============================================================================================
+  // === Chat Endpoints ===
+  static const String chatMessages = '/api/chat/firebase-token/';
   // ===============================================================================================
 }

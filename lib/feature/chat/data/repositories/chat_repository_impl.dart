@@ -1,67 +1,28 @@
-// import 'package:afiete/core/error/failure.dart';
-// import 'package:afiete/feature/chat/domain/entities/chat_entity.dart';
-// import 'package:afiete/feature/chat/domain/repositories/chat_repository.dart';
-// import 'package:dartz/dartz.dart';
-// import 'package:dio/dio.dart';
+// lib/features/chat/data/repositories/chat_repository_impl.dart
+import 'package:afiete/feature/chat/data/datasources/chat_remote_datasource.dart';
 
-// class ChatRepositoryImpl implements ChatRepository {
-//   final ChatRemoteDataSource dataSource;
+import '../../domain/entities/chat_room.dart';
+import '../../domain/entities/chat_message.dart';
+import '../../domain/repositories/chat_repository.dart';
 
-//   const ChatRepositoryImpl({required this.dataSource});
+class ChatRepositoryImpl implements ChatRepository {
+  ChatRepositoryImpl(this._remoteDataSource);
+  final ChatRemoteDataSource _remoteDataSource;
 
-//   @override
-//   Future<Either<Failure, List<ChatMessageEntity>>> getMessages(
-//     String conversationId,
-//   ) async {
-//     try {
-//       final result = await dataSource.getMessages(conversationId);
-//       return Right<Failure, List<ChatMessageEntity>>(result);
-//     } on DioException catch (e) {
-//       return Left<Failure, List<ChatMessageEntity>>(
-//         ServerFailure.fromDioError(e),
-//       );
-//     } catch (_) {
-//       return Left<Failure, List<ChatMessageEntity>>(
-//         ServerFailure('Unable to load chat messages.'),
-//       );
-//     }
-//   }
+  @override
+  Future<ChatRoom> getRoomForAppointment(String appointmentId) =>
+      _remoteDataSource.getRoomForAppointment(appointmentId);
 
-//   @override
-//   Future<Either<Failure, ChatMessageEntity>> sendMessage({
-//     required String conversationId,
-//     required String senderId,
-//     required String receiverId,
-//     required String message,
-//   }) async {
-//     try {
-//       final result = await dataSource.sendMessage(
-//         conversationId: conversationId,
-//         senderId: senderId,
-//         receiverId: receiverId,
-//         message: message,
-//       );
-//       return Right<Failure, ChatMessageEntity>(result);
-//     } on DioException catch (e) {
-//       return Left<Failure, ChatMessageEntity>(ServerFailure.fromDioError(e));
-//     } catch (_) {
-//       return Left<Failure, ChatMessageEntity>(
-//         ServerFailure('Unable to send message.'),
-//       );
-//     }
-//   }
+  @override
+  Stream<List<ChatMessage>> getMessagesStream(String chatId) =>
+      _remoteDataSource.getMessagesStream(chatId);
 
-//   @override
-//   Future<Either<Failure, void>> markMessageAsRead(String messageId) async {
-//     try {
-//       await dataSource.markMessageAsRead(messageId);
-//       return Right<Failure, void>(null);
-//     } on DioException catch (e) {
-//       return Left<Failure, void>(ServerFailure.fromDioError(e));
-//     } catch (_) {
-//       return Left<Failure, void>(
-//         ServerFailure('Unable to mark message as read.'),
-//       );
-//     }
-//   }
-// }
+  @override
+  Future<void> sendMessage({
+    required String chatId,
+    required String senderId,
+    required String text,
+  }) =>
+      _remoteDataSource.sendMessage(
+          chatId: chatId, senderId: senderId, text: text);
+}

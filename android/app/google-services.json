@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "109907298173",
-    "project_id": "afeiteproject",
-    "storage_bucket": "afeiteproject.firebasestorage.app"
+    "project_number": "113063880812",
+    "project_id": "afiete-chat",
+    "storage_bucket": "afiete-chat.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:109907298173:android:0642ec373d78f5e44d6e14",
+        "mobilesdk_app_id": "1:113063880812:android:0577fb64eca1405da55049",
         "android_client_info": {
           "package_name": "com.example.afietepatientapp"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBXA1JFOQD51eT6CLKklppiiMppZN29rv8"
+          "current_key": "AIzaSyDP2-Bhmbh45CNgpoowHgMoQ8dZ390h-lA"
         }
       ],
       "services": {

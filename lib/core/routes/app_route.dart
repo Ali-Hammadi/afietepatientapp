@@ -19,7 +19,7 @@ import 'package:afiete/feature/auth/presentation/views/verify_account_screen.dar
 import 'package:afiete/feature/auth/domain/entities/auth_user_entity.dart';
 import 'package:afiete/feature/appointments/presentation/screens/appointments_screen.dart';
 import 'package:afiete/feature/appointments/presentation/screens/book_session_screen.dart';
-import 'package:afiete/feature/chat/presentation/screens/chat_conversation_screen.dart';
+import 'package:afiete/feature/chat/presentation/screens/chat_screen.dart';
 import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:afiete/feature/doctors/presentation/screens/doctor_info_screen.dart';
 import 'package:afiete/feature/doctors/presentation/screens/doctors_home_screen.dart';
@@ -200,7 +200,7 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => PaymentScreen(request: args));
       case MyRoutes.mySessionsScreen:
         return MaterialPageRoute(builder: (_) => const MySessionsScreen());
-      case MyRoutes.chatConversationScreen:
+      case MyRoutes.chatScreen:
         final args = settings.arguments;
         if (args is! ChatConversationArgs) {
           return MaterialPageRoute(
@@ -216,7 +216,8 @@ class AppRouter {
           );
         }
         return MaterialPageRoute(
-          builder: (_) => ChatConversationScreen(args: args),
+          builder: (_) => ChatScreen(
+              appointmentId: args.appointmentId, doctorName: args.doctorName),
         );
 
       case MyRoutes.notesListScreen:
@@ -406,6 +407,16 @@ class ReportScreenArgs {
   }
 }
 
+class ChatConversationArgs {
+  final String appointmentId;
+  final String doctorName;
+
+  const ChatConversationArgs({
+    required this.appointmentId,
+    required this.doctorName,
+  });
+}
+
 class MyRoutes {
   // Splash Screen
   static const String splashScreen = "/splashScreen";
@@ -423,7 +434,7 @@ class MyRoutes {
   // Home Screens
   // Sessions Screens
   static const String mySessionsScreen = "/mySessionsScreen";
-  static const String chatConversationScreen = "/chatConversationScreen";
+  static const String chatScreen = "/chatScreen";
   static const String homeScreen = "/homeScreens";
   static const String firstHomeScreen = "/firstHomeScreen";
   static const String doctorInfoScreen = "/doctorInfoScreen";

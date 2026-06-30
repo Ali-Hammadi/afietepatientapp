@@ -96,13 +96,13 @@ class _MyAppState extends State<MyApp> {
           BlocProvider<AppointmentsCubit>(
             create: (_) => sl<AppointmentsCubit>(),
           ),
-          BlocProvider( 
+          BlocProvider(
             create: (context) => di.sl<PatientPrescriptionsBloc>()
               ..add(LoadPatientPrescriptions()),
             child: PatientPrescriptionsScreen(),
           ),
           BlocProvider<DoctorsCubit>(create: (_) => sl<DoctorsCubit>()),
-          BlocProvider<ChatCubit>(create: (_) => ChatCubit()),
+          BlocProvider<ChatCubit>(create: (_) => sl<ChatCubit>()),
           BlocProvider<PaymentCubit>(create: (_) => sl<PaymentCubit>()),
           BlocProvider<ReportCubit>(create: (_) => sl<ReportCubit>()),
           BlocProvider<SessionsCubit>(create: (_) => sl<SessionsCubit>()),

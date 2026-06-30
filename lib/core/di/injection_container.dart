@@ -26,10 +26,12 @@ import 'package:afiete/feature/articles/data/datasources/articles_remote_datasou
 
 import 'package:afiete/feature/appointments/domain/usecase/appointments_usecase.dart';
 import 'package:afiete/feature/appointments/presentation/cubits/appointments_cubit.dart';
+import 'package:afiete/feature/chat/data/datasources/chat_remote_datasource.dart';
+import 'package:afiete/feature/chat/data/repositories/chat_repository_impl.dart';
 import 'package:afiete/feature/chat/domain/repositories/chat_repository.dart';
-import 'package:afiete/feature/chat/domain/usecases/get_chat_messages_usecase.dart';
-import 'package:afiete/feature/chat/domain/usecases/mark_chat_message_read_usecase.dart';
-import 'package:afiete/feature/chat/domain/usecases/send_chat_message_usecase.dart';
+import 'package:afiete/feature/chat/domain/usecases/chat_usecase.dart';
+
+import 'package:afiete/feature/chat/presentation/cubit/chat_cubit.dart';
 import 'package:afiete/feature/doctors/data/datasources/doctors_remote_datasource.dart';
 import 'package:afiete/feature/doctors/data/repositories/doctors_repository_impl.dart';
 import 'package:afiete/feature/doctors/domain/repositories/doctors_repository.dart';
@@ -74,20 +76,6 @@ import 'package:afiete/feature/prespection/domain/usecases/prescription_usecase.
 import 'package:afiete/feature/notes/domain/usecases/notes_usecase.dart';
 import 'package:afiete/feature/settings/domin/usecase/submit_report_issue_usecase.dart';
 import 'package:afiete/feature/settings/presentation/cubits/settings_cubit.dart';
-import 'package:afiete/feature/video/data/datasources/video_mock_datasource.dart';
-import 'package:afiete/feature/video/data/datasources/video_remote_datasource.dart';
-import 'package:afiete/feature/video/data/repositories/video_repository_impl.dart';
-import 'package:afiete/feature/video/domain/repositories/video_repository.dart';
-import 'package:afiete/feature/video/domain/usecase/end_video_call_usecase.dart';
-import 'package:afiete/feature/video/domain/usecase/get_video_calls_usecase.dart';
-import 'package:afiete/feature/video/domain/usecase/start_video_call_usecase.dart';
-import 'package:afiete/feature/voice/data/datasources/voice_mock_datasource.dart';
-import 'package:afiete/feature/voice/data/datasources/voice_remote_datasource.dart';
-import 'package:afiete/feature/voice/data/repositories/voice_repository_impl.dart';
-import 'package:afiete/feature/voice/domain/repositories/voice_repository.dart';
-import 'package:afiete/feature/voice/domain/usecase/end_voice_call_usecase.dart';
-import 'package:afiete/feature/voice/domain/usecase/get_voice_calls_usecase.dart';
-import 'package:afiete/feature/voice/domain/usecase/start_voice_call_usecase.dart';
 import 'package:afiete/feature/report/data/datasources/report_remote_datasource.dart';
 import 'package:afiete/feature/report/data/repositories/report_repository_impl.dart';
 import 'package:afiete/feature/report/domain/usecases/report_usecase.dart';
@@ -184,74 +172,23 @@ Future<void> init() async {
       sl<AuthRepository>(),
     ),
   );
-
-  // // Chat data sources
-  // sl.registerLazySingleton<ChatRemoteDataSource>(
-  //   () => useMockDataSources
-  //       ? ChatMockDataSourceImpl()
-  //       : ChatRemoteDataSourceImpl(dio: sl<Dio>()),
-  // );
-
-  // // Chat repositories
-  // sl.registerLazySingleton<ChatRepository>(
-  //   () => ChatRepositoryImpl(dataSource: sl<ChatRemoteDataSource>()),
-  // );
-
-  // Chat use cases
-  sl.registerLazySingleton<GetChatMessagesUseCase>(
-    () => GetChatMessagesUseCase(sl<ChatRepository>()),
-  );
-  sl.registerLazySingleton<SendChatMessageUseCase>(
-    () => SendChatMessageUseCase(sl<ChatRepository>()),
-  );
-  sl.registerLazySingleton<MarkChatMessageReadUseCase>(
-    () => MarkChatMessageReadUseCase(sl<ChatRepository>()),
+  sl.registerFactory<ChatCubit>(
+    () => ChatCubit(
+      getChatRoom: GetChatRoom(sl<ChatRepository>()),
+      getMessagesStream: GetMessagesStream(sl<ChatRepository>()),
+      sendMessage: SendMessage(sl<ChatRepository>()),
+    ),
   );
 
-  // Voice call data sources
-  sl.registerLazySingleton<VoiceRemoteDataSource>(
-    () => useMockDataSources
-        ? VoiceMockDataSourceImpl()
-        : VoiceRemoteDataSourceImpl(dio: sl<Dio>()),
+  // Chat Repository
+  sl.registerLazySingleton<ChatRepository>(
+    () => ChatRepositoryImpl(
+      sl<ChatRemoteDataSource>(),
+    ),
   );
-
-  // Voice call repositories
-  sl.registerLazySingleton<VoiceRepository>(
-    () => VoiceRepositoryImpl(dataSource: sl<VoiceRemoteDataSource>()),
-  );
-
-  // Voice call use cases
-  sl.registerLazySingleton<GetVoiceCallsUseCase>(
-    () => GetVoiceCallsUseCase(sl<VoiceRepository>()),
-  );
-  sl.registerLazySingleton<StartVoiceCallUseCase>(
-    () => StartVoiceCallUseCase(sl<VoiceRepository>()),
-  );
-  sl.registerLazySingleton<EndVoiceCallUseCase>(
-    () => EndVoiceCallUseCase(sl<VoiceRepository>()),
-  );
-
-  // Video call data sources
-  sl.registerLazySingleton<VideoRemoteDataSource>(
-    () => useMockDataSources
-        ? VideoMockDataSourceImpl()
-        : VideoRemoteDataSourceImpl(dio: sl<Dio>()),
-  );
-
-  // Video call repositories
-  sl.registerLazySingleton<VideoRepository>(
-    () => VideoRepositoryImpl(dataSource: sl<VideoRemoteDataSource>()),
-  );
-
-  // Video call use cases
-  sl.registerLazySingleton<GetVideoCallsUseCase>(
-    () => GetVideoCallsUseCase(sl<VideoRepository>()),
-  );
-  sl.registerLazySingleton<StartVideoCallUseCase>(
-    () => StartVideoCallUseCase(sl<VideoRepository>()),
-  );
-  sl.registerLazySingleton<EndVideoCallUseCase>(
-    () => EndVideoCallUseCase(sl<VideoRepository>()),
+  // Chat data sources
+  sl.registerLazySingleton<ChatRemoteDataSource>(
+    () => ChatRemoteDataSourceImpl(dio: sl<Dio>()),
   );
 
   // Booking Assessments data sources

@@ -1,56 +1,56 @@
-import 'package:afiete/core/network/api_endpoints.dart';
-import 'package:afiete/feature/video/data/models/video_call_model.dart';
-import 'package:dio/dio.dart';
+// import 'package:afiete/core/network/api_endpoints.dart';
+// import 'package:afiete/feature/video/data/models/video_call_model.dart';
+// import 'package:dio/dio.dart';
 
-abstract class VideoRemoteDataSource {
-  Future<List<VideoCallModel>> getCallHistory(String patientId);
+// abstract class VideoRemoteDataSource {
+//   Future<List<VideoCallModel>> getCallHistory(String patientId);
 
-  Future<VideoCallModel> startCall({
-    required String doctorId,
-    required String patientId,
-    required dynamic sessionId,
-  });
+//   Future<VideoCallModel> startCall({
+//     required String doctorId,
+//     required String patientId,
+//     required dynamic sessionId,
+//   });
 
-  Future<VideoCallModel> endCall(String callId);
-}
+//   Future<VideoCallModel> endCall(String callId);
+// }
 
-class VideoRemoteDataSourceImpl implements VideoRemoteDataSource {
-  final Dio dio;
+// class VideoRemoteDataSourceImpl implements VideoRemoteDataSource {
+//   final Dio dio;
 
-  const VideoRemoteDataSourceImpl({required this.dio});
+//   const VideoRemoteDataSourceImpl({required this.dio});
 
-  @override
-  Future<List<VideoCallModel>> getCallHistory(String patientId) async {
-    final response = await dio.get(
-      ApiEndpoints.videoCalls,
-      queryParameters: {'patientId': patientId},
-    );
-    final data = response.data as List<dynamic>;
-    return data
-        .map((item) => VideoCallModel.fromJson(item as Map<String, dynamic>))
-        .toList(growable: false);
-  }
+//   @override
+//   Future<List<VideoCallModel>> getCallHistory(String patientId) async {
+//     final response = await dio.get(
+//       ApiEndpoints.videoCalls,
+//       queryParameters: {'patientId': patientId},
+//     );
+//     final data = response.data as List<dynamic>;
+//     return data
+//         .map((item) => VideoCallModel.fromJson(item as Map<String, dynamic>))
+//         .toList(growable: false);
+//   }
 
-  @override
-  Future<VideoCallModel> startCall({
-    required String doctorId,
-    required String patientId,
-    required dynamic sessionId,
-  }) async {
-    final response = await dio.post(
-      ApiEndpoints.videoCallsStart,
-      data: {
-        'doctorId': doctorId,
-        'patientId': patientId,
-        'sessionId': sessionId,
-      },
-    );
-    return VideoCallModel.fromJson(response.data as Map<String, dynamic>);
-  }
+//   @override
+//   Future<VideoCallModel> startCall({
+//     required String doctorId,
+//     required String patientId,
+//     required dynamic sessionId,
+//   }) async {
+//     final response = await dio.post(
+//       ApiEndpoints.videoCallsStart,
+//       data: {
+//         'doctorId': doctorId,
+//         'patientId': patientId,
+//         'sessionId': sessionId,
+//       },
+//     );
+//     return VideoCallModel.fromJson(response.data as Map<String, dynamic>);
+//   }
 
-  @override
-  Future<VideoCallModel> endCall(String callId) async {
-    final response = await dio.post(ApiEndpoints.videoCallsEnd(callId));
-    return VideoCallModel.fromJson(response.data as Map<String, dynamic>);
-  }
-}
+//   @override
+//   Future<VideoCallModel> endCall(String callId) async {
+//     final response = await dio.post(ApiEndpoints.videoCallsEnd(callId));
+//     return VideoCallModel.fromJson(response.data as Map<String, dynamic>);
+//   }
+// }

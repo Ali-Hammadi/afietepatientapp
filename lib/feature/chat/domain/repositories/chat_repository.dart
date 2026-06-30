@@ -1,18 +1,13 @@
-import 'package:afiete/core/error/failure.dart';
-import 'package:afiete/feature/chat/domain/entities/chat_entity.dart';
-import 'package:dartz/dartz.dart';
+import 'package:afiete/feature/chat/domain/entities/chat_message.dart';
+import 'package:afiete/feature/chat/domain/entities/chat_room.dart';
 
 abstract class ChatRepository {
-  Future<Either<Failure, List<ChatMessageEntity>>> getMessages(
-    String conversationId,
-  );
+  Future<ChatRoom> getRoomForAppointment(String appointmentId);
+  Stream<List<ChatMessage>> getMessagesStream(String chatId);
 
-  Future<Either<Failure, ChatMessageEntity>> sendMessage({
-    required String conversationId,
+  Future<void> sendMessage({
+    required String chatId,
     required String senderId,
-    required String receiverId,
-    required String message,
+    required String text,
   });
-
-  Future<Either<Failure, void>> markMessageAsRead(String messageId);
 }

@@ -1,49 +1,27 @@
-import 'package:afiete/feature/chat/domain/entities/chat_entity.dart';
+// lib/features/chat/data/models/chat_message_model.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../domain/entities/chat_message.dart';
 
-class ChatMessageModel extends ChatMessageEntity {
+class ChatMessageModel extends ChatMessage {
   const ChatMessageModel({
     required super.id,
-    required super.conversationId,
     required super.senderId,
-    required super.receiverId,
-    required super.message,
-    required super.sentAt,
-    required super.isRead,
+    required super.senderRole,
+    required super.text,
+    super.createdAt,
   });
 
-  factory ChatMessageModel.fromJson(Map<String, dynamic> json) {
+  factory ChatMessageModel.fromSnapshot(
+    QueryDocumentSnapshot<Map<String, dynamic>> snapshot,
+  ) {
+    final data = snapshot.data();
+    final timestamp = data['createdAt'];
     return ChatMessageModel(
-      id: json['id'] as String,
-      conversationId: json['conversationId'] as String,
-      senderId: json['senderId'] as String,
-      receiverId: json['receiverId'] as String,
-      message: json['message'] as String,
-      sentAt: DateTime.parse(json['sentAt'] as String),
-      isRead: json['isRead'] as bool? ?? false,
+      id: snapshot.id,
+      senderId: data['senderId']?.toString() ?? '',
+      senderRole: data['senderRole']?.toString() ?? '',
+      text: data['text']?.toString() ?? '',
+      createdAt: timestamp is Timestamp ? timestamp.toDate() : null,
     );
-  }
-
-  factory ChatMessageModel.fromEntity(ChatMessageEntity entity) {
-    return ChatMessageModel(
-      id: entity.id,
-      conversationId: entity.conversationId,
-      senderId: entity.senderId,
-      receiverId: entity.receiverId,
-      message: entity.message,
-      sentAt: entity.sentAt,
-      isRead: entity.isRead,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'conversationId': conversationId,
-      'senderId': senderId,
-      'receiverId': receiverId,
-      'message': message,
-      'sentAt': sentAt.toIso8601String(),
-      'isRead': isRead,
-    };
   }
 }
