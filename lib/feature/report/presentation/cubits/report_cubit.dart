@@ -19,33 +19,49 @@ class ReportCubit extends Cubit<ReportState> {
     required this.createUserReportUseCase,
   }) : super(const ReportInitial());
 
+  /// جلب لوحة تحكم التقارير بالكامل
   Future<void> loadReportsDashboard() async {
+    // ✅ التحقق من عدم إغلاق الـ Cubit قبل البدء
+    if (isClosed) return;
     emit(const ReportsDashboardLoading());
 
     final configResult = await getReportConfigUseCase();
+
+    // ✅ التحقق بعد كل عملية async
+    if (isClosed) return;
+
     final reportsResult = await getMyReportsUseCase();
+    if (isClosed) return;
 
     configResult.fold(
-      (failure) => emit(ReportsError(failure.errorMessage)),
+      (failure) {
+        if (!isClosed) emit(ReportsError(failure.errorMessage));
+      },
       (config) {
         reportsResult.fold(
-          (failure) => emit(ReportsError(failure.errorMessage)),
+          (failure) {
+            if (!isClosed) emit(ReportsError(failure.errorMessage));
+          },
           (reportsMap) {
-            emit(ReportsDashboardLoaded(
-              config: config,
-              appReports: reportsMap['app_reports'] as List<AppReport>,
-              userReports: reportsMap['user_reports'] as List<UserReport>,
-            ));
+            if (!isClosed) {
+              emit(ReportsDashboardLoaded(
+                config: config,
+                appReports: reportsMap['app_reports'] as List<AppReport>,
+                userReports: reportsMap['user_reports'] as List<UserReport>,
+              ));
+            }
           },
         );
       },
     );
   }
 
+  /// إنشاء بلاغ تقني أو اقتراح للتطبيق
   Future<void> submitAppReport({
     required String reason,
     required String description,
   }) async {
+    if (isClosed) return;
     emit(const ReportActionLoading());
 
     final result = await createAppReportUseCase(
@@ -53,19 +69,29 @@ class ReportCubit extends Cubit<ReportState> {
       description: description,
     );
 
+    if (isClosed) return;
+
     result.fold(
-      (failure) => emit(ReportsError(failure.errorMessage)),
-      (_) => emit(const ReportSubmitSuccess(
-          "تم إرسال البلاغ التقني بنجاح وسيتم مراجعته.")),
+      (failure) {
+        if (!isClosed) emit(ReportsError(failure.errorMessage));
+      },
+      (_) {
+        if (!isClosed) {
+          emit(const ReportSubmitSuccess(
+              "تم إرسال البلاغ التقني بنجاح وسيتم مراجعته."));
+        }
+      },
     );
   }
 
+  /// إنشاء بلاغ ضد مستخدم آخر
   Future<void> submitUserReport({
     required String reportType,
     required String targetName,
     required String reason,
     required String description,
   }) async {
+    if (isClosed) return;
     emit(const ReportActionLoading());
 
     final result = await createUserReportUseCase(
@@ -75,10 +101,18 @@ class ReportCubit extends Cubit<ReportState> {
       description: description,
     );
 
+    if (isClosed) return;
+
     result.fold(
-      (failure) => emit(ReportsError(failure.errorMessage)),
-      (_) => emit(const ReportSubmitSuccess(
-          "تم إرسال البلاغ ضد المستخدم بنجاح وسيتم مراجعته.")),
+      (failure) {
+        if (!isClosed) emit(ReportsError(failure.errorMessage));
+      },
+      (_) {
+        if (!isClosed) {
+          emit(const ReportSubmitSuccess(
+              "تم إرسال البلاغ ضد المستخدم بنجاح وسيتم مراجعته."));
+        }
+      },
     );
   }
 }

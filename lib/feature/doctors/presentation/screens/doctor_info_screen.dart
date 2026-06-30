@@ -224,7 +224,10 @@ class _DoctorInfoState extends State<DoctorInfo> {
                           Navigator.pushNamed(
                             context,
                             MyRoutes.reportScreen,
-                            arguments: ReportScreenArgs(),
+                            arguments: ReportScreenArgs(
+                              reportedUsername: doctor.doctorUsername,
+                              targetName: doctor.name,
+                            ),
                           );
                         },
                       ),

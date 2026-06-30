@@ -35,6 +35,7 @@ import 'package:afiete/feature/prespection/presentation/pages/patient_prescripti
 import 'package:afiete/feature/prespection/presentation/pages/patient_prescriptions_screen.dart';
 import 'package:afiete/feature/report/presentation/cubits/report_cubit.dart';
 import 'package:afiete/feature/report/presentation/screens/report_history_screen.dart';
+import 'package:afiete/feature/report/presentation/screens/report_issue_screen.dart';
 import 'package:afiete/feature/report/presentation/screens/report_screen.dart';
 import 'package:afiete/feature/settings/presentation/screens/contact_us_screen.dart';
 import 'package:afiete/feature/settings/presentation/screens/privacy_screen.dart';
@@ -281,7 +282,10 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => AssessmentsResultScreen(state: args),
         );
-
+      case MyRoutes.reportIssueScreen:
+        return MaterialPageRoute(
+          builder: (_) => const ReportIssueScreen(),
+        );
       case MyRoutes.reportScreen:
         final args = settings.arguments;
 
@@ -443,6 +447,8 @@ class MyRoutes {
   // Report Screens
   static const String reportScreen = "/reportScreen";
   static const String reportHistoryScreen = "/reportHistoryScreen";
+  static const String reportIssueScreen = '/report-issue';
+
   // Articles Screens
   static const String articlesListScreen = "/articlesListScreen";
   static const String articleDetailsScreen = "/articleDetailsScreen";

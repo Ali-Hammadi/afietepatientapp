@@ -153,7 +153,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 icon: Icons.report_problem_outlined,
                 title: SettingsStrings.reportsTitle,
                 onTap: () {
-                  Navigator.pushNamed(context, MyRoutes.reportHistoryScreen);
+                  Navigator.pushNamed(context, MyRoutes.reportIssueScreen);
                 },
               ),
               const SizedBox(height: 12),

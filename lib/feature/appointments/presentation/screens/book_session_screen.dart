@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-enum _BookingStep { date, time, duration, type }
+enum _BookingStep { date, time, type }
 
 class BookSessionScreen extends StatefulWidget {
   final DoctorEntity doctor;
@@ -49,15 +49,6 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
   List<DateTime> get _nextDays {
     final today = DateUtils.dateOnly(DateTime.now());
     return List.generate(14, (i) => today.add(Duration(days: i)));
-  }
-
-  List<int> get _availableDurations {
-    if (widget.doctor.availableDurations.isEmpty) {
-      return const [1, 2];
-    }
-    final durations =
-        widget.doctor.availableDurations.where((e) => e > 0).toList()..sort();
-    return durations.isEmpty ? const [1, 2] : durations;
   }
 
   List<String> get _availableSessionTypes {
@@ -123,8 +114,7 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
             !_isLoadingAllDays;
       case _BookingStep.time:
         return _selectedSlot != null;
-      case _BookingStep.duration:
-        return _selectedDurationSlots != null;
+
       case _BookingStep.type:
         return _selectedSessionType != null && !_isSubmitting;
     }
@@ -136,11 +126,9 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
         setState(() => _step = _BookingStep.time);
         return;
       case _BookingStep.time:
-        setState(() => _step = _BookingStep.duration);
-        return;
-      case _BookingStep.duration:
         setState(() => _step = _BookingStep.type);
         return;
+
       case _BookingStep.type:
         await _submitBooking();
         return;
@@ -222,11 +210,9 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
       case _BookingStep.time:
         setState(() => _step = _BookingStep.date);
         return;
-      case _BookingStep.duration:
-        setState(() => _step = _BookingStep.time);
-        return;
+
       case _BookingStep.type:
-        setState(() => _step = _BookingStep.duration);
+        setState(() => _step = _BookingStep.time);
         return;
     }
   }
@@ -310,8 +296,7 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
         return _buildDateStep(localeCode);
       case _BookingStep.time:
         return _buildTimeStep(localeCode);
-      case _BookingStep.duration:
-        return _buildDurationStep();
+
       case _BookingStep.type:
         return _buildTypeStep();
     }
@@ -414,26 +399,6 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
     );
   }
 
-  Widget _buildDurationStep() {
-    return ListView.separated(
-      key: const ValueKey('duration-step'),
-      itemCount: _availableDurations.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
-      itemBuilder: (context, index) {
-        final slots = _availableDurations[index];
-        final minutes = slots * 30;
-        final isSelected = _selectedDurationSlots == slots;
-        return _OptionCard(
-          title: SettingsStrings.minutesLabel(minutes),
-          subtitle: SettingsStrings.definedByProviderAvailability,
-          isSelected: isSelected,
-          onTap: () => setState(() => _selectedDurationSlots = slots),
-          leading: Icons.schedule,
-        );
-      },
-    );
-  }
-
   Widget _buildTypeStep() {
     return ListView.separated(
       key: const ValueKey('type-step'),
@@ -462,8 +427,7 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
         return SettingsStrings.chooseDayTitle;
       case _BookingStep.time:
         return SettingsStrings.chooseTimeTitle;
-      case _BookingStep.duration:
-        return SettingsStrings.chooseSessionDurationTitle;
+
       case _BookingStep.type:
         return SettingsStrings.chooseSessionTypeTitle;
     }

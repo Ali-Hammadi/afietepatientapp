@@ -89,8 +89,8 @@ class _ReportScreenState extends State<ReportScreen> {
                 backgroundColor: Colors.green,
               ),
             );
-            context.read<ReportCubit>().loadReportsDashboard();
-            Navigator.pop(context);
+
+            Navigator.pop(context, true);
           } else if (state is ReportsError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(

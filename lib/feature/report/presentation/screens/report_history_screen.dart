@@ -20,6 +20,12 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _loadData();
+  }
+
+  // ✅ دالة منفصلة لتحميل البيانات
+  Future<void> _loadData() async {
+    if (!mounted) return;
     context.read<ReportCubit>().loadReportsDashboard();
   }
 
@@ -48,7 +54,11 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen>
           ],
         ),
       ),
-      body: BlocBuilder<ReportCubit, ReportState>(
+      body: BlocConsumer<ReportCubit, ReportState>(
+        // ✅ إضافة listener للتعامل مع نتيجة Navigator.pop
+        listener: (context, state) {
+          // يمكن إضافة منطق إضافي هنا إذا لزم الأمر
+        },
         builder: (context, state) {
           if (state is ReportsDashboardLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -56,45 +66,66 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen>
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  state.message,
-                  style: const TextStyle(color: Colors.red),
-                  textAlign: TextAlign.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      state.message,
+                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: _loadData,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text("إعادة المحاولة"),
+                    ),
+                  ],
                 ),
               ),
             );
           } else if (state is ReportsDashboardLoaded) {
-            return TabBarView(
-              controller: _tabController,
-              children: [
-                state.appReports.isEmpty
-                    ? const Center(child: Text("لا توجد بلاغات تقنية سابقة."))
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(AppStyles.padding),
-                        itemCount: state.appReports.length,
-                        itemBuilder: (context, index) => CustomReportCard(
-                          report: state.appReports[index],
-                          onTap: () => _showDetailsBottomSheet(
-                            context,
-                            state.appReports[index].description,
+            return RefreshIndicator(
+              // ✅ إضافة RefreshIndicator للتحديث اليدوي
+              onRefresh: _loadData,
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  state.appReports.isEmpty
+                      ? const Center(child: Text("لا توجد بلاغات تقنية سابقة."))
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(AppStyles.padding),
+                          itemCount: state.appReports.length,
+                          itemBuilder: (context, index) => CustomReportCard(
+                            report: state.appReports[index],
+                            onTap: () => _showDetailsBottomSheet(
+                              context,
+                              state.appReports[index].description,
+                            ),
                           ),
                         ),
-                      ),
-                state.userReports.isEmpty
-                    ? const Center(
-                        child: Text("لم تقم بتقديم أي شكوى سلوكية سابقة."))
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(AppStyles.padding),
-                        itemCount: state.userReports.length,
-                        itemBuilder: (context, index) => CustomReportCard(
-                          report: state.userReports[index],
-                          onTap: () => _showDetailsBottomSheet(
-                            context,
-                            state.userReports[index].description,
+                  state.userReports.isEmpty
+                      ? const Center(
+                          child: Text("لم تقم بتقديم أي شكوى سلوكية سابقة."))
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(AppStyles.padding),
+                          itemCount: state.userReports.length,
+                          itemBuilder: (context, index) => CustomReportCard(
+                            report: state.userReports[index],
+                            onTap: () => _showDetailsBottomSheet(
+                              context,
+                              state.userReports[index].description,
+                            ),
                           ),
                         ),
-                      ),
-              ],
+                ],
+              ),
             );
           }
           return const Center(child: Text("لا توجد بيانات"));
