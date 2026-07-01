@@ -141,7 +141,16 @@ abstract class ApiEndpoints {
   // === Voice call Endpoints ===
   // ===============================================================================================
   // === Chat Endpoints ===
-  static String chatMessages(String appointmentId) =>
-      '/api/chat/appointments/$appointmentId/';
+  // static String chatMessages(String appointmentId) =>
+  //     '/api/chat/appointments/$appointmentId/';
+
+  static String firebaseChatToken = '/api/chat/firebase-token/';
+
+  // static const String chatRoomStart = 'api/chat/rooms/start/';
+  // static const String chatRoom = 'api/chat/rooms/';
+
+  static String appointmentChatRoom(String appointmentId) {
+    return 'api/chat/appointments/${Uri.encodeComponent(appointmentId)}/';
+  }
   // ===============================================================================================
 }

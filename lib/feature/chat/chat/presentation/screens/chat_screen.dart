@@ -1,26 +1,26 @@
-// lib/features/chat/presentation/screens/chat_screen.dart
 import 'package:afiete/core/constants/app_colors.dart';
 import 'package:afiete/core/di/injection_container.dart';
-
+import 'package:afiete/feature/chat/chat/data/model/chat_model.dart';
+import 'package:afiete/feature/chat/chat/data/repositories/chat_repository.dart';
+import 'package:afiete/feature/chat/chat/data/services/chat_services.dart';
+import 'package:afiete/feature/chat/chat/presentation/cubit/chat_cubit.dart';
+import 'package:afiete/feature/chat/presentation/cubit/chat_cubit.dart'
+    hide ChatCubit;
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../domain/entities/chat_message.dart';
-import '../cubit/chat_cubit.dart';
-import '../cubit/chat_state.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({
     super.key,
     required this.appointmentId,
-    required this.doctorName,
-    required this.patientId,
+    required this.patientName,
+    this.repository,
   });
 
   final String appointmentId;
-  final String doctorName;
-  final String patientId;
+  final String patientName;
+  final ChatRepository? repository;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -30,16 +30,14 @@ class _ChatScreenState extends State<ChatScreen> {
   late final ChatCubit cubit;
   final messageController = TextEditingController();
   final scrollController = ScrollController();
-  final dio = Dio();
 
   @override
   void initState() {
     super.initState();
-    cubit = sl<ChatCubit>()
-      ..openAppointmentChat(
-        widget.appointmentId,
-        currentUserId: widget.patientId,
-      );
+
+    cubit = ChatCubit(
+      widget.repository ?? ChatRepository(ChatService(dio: sl<Dio>())),
+    )..openAppointmentChat(widget.appointmentId);
   }
 
   @override
@@ -63,9 +61,8 @@ class _ChatScreenState extends State<ChatScreen> {
       value: cubit,
       child: Scaffold(
         appBar: AppBar(
-          // إزالة context.t واستبدالها بنص عادي
           title: Text(
-            widget.doctorName.trim().isEmpty ? 'Chat' : widget.doctorName,
+            widget.patientName.trim().isEmpty ? ('Chat') : widget.patientName,
           ),
         ),
         body: SafeArea(
@@ -85,18 +82,17 @@ class _ChatScreenState extends State<ChatScreen> {
             builder: (context, state) {
               if (state is ChatLoading || state is ChatInitial) {
                 return Center(
-                  child:
-                      CircularProgressIndicator(color: AppColors.primaryColor),
+                  child: CircularProgressIndicator(
+                    color: AppColors.primaryColor,
+                  ),
                 );
               }
               if (state is ChatError) {
                 return _ChatMessagePanel(
                   icon: Icons.error_outline,
                   message: state.message,
-                  onRetry: () => cubit.openAppointmentChat(
-                    widget.appointmentId,
-                    currentUserId: widget.patientId,
-                  ),
+                  onRetry: () =>
+                      cubit.openAppointmentChat(widget.appointmentId),
                 );
               }
               if (state is! ChatLoaded) {
@@ -112,8 +108,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           )
                         : ListView.separated(
                             controller: scrollController,
-                            // استخدام أرقام عادية بدلاً من automaticWidth
-                            padding: const EdgeInsets.all(16.0),
+                            padding: EdgeInsets.all((16)),
                             itemBuilder: (context, index) {
                               final message = state.messages[index];
                               return _MessageBubble(
@@ -121,8 +116,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 isMe: message.senderId == state.currentUserId,
                               );
                             },
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 10.0),
+                            separatorBuilder: (_, __) => SizedBox(height: (10)),
                             itemCount: state.messages.length,
                           ),
                   ),
@@ -137,13 +131,10 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-// ==================== الـ Widgets الخاصة ====================
-
 class _MessageBubble extends StatelessWidget {
   const _MessageBubble({required this.message, required this.isMe});
 
-  // استخدام الكيان الخاص بك مباشرة بدلاً من dynamic
-  final ChatMessage message;
+  final ChatMessageModel message;
   final bool isMe;
 
   @override
@@ -157,14 +148,14 @@ class _MessageBubble extends StatelessWidget {
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 285.0),
+        constraints: BoxConstraints(maxWidth: (285)),
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: bubbleColor,
-            borderRadius: BorderRadius.circular(8.0),
+            borderRadius: BorderRadius.circular((8)),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: EdgeInsets.all((12)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -177,7 +168,7 @@ class _MessageBubble extends StatelessWidget {
                   ),
                 ),
                 if (message.createdAt != null) ...[
-                  const SizedBox(height: 5.0),
+                  SizedBox(height: (5)),
                   Text(
                     _time(message.createdAt!),
                     style: theme.textTheme.labelSmall?.copyWith(
@@ -218,7 +209,7 @@ class _Composer extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: EdgeInsets.all((12)),
         child: Row(
           children: [
             Expanded(
@@ -227,8 +218,8 @@ class _Composer extends StatelessWidget {
                 minLines: 1,
                 maxLines: 4,
                 textInputAction: TextInputAction.newline,
-                decoration: const InputDecoration(
-                  hintText: 'Type a message...',
+                decoration: InputDecoration(
+                  hintText: ('Type a message...'),
                   prefixIcon: Icon(
                     Icons.chat_bubble_outline,
                     color: AppColors.primaryColor,
@@ -236,11 +227,11 @@ class _Composer extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 10.0),
+            SizedBox(width: (10)),
             IconButton.filled(
               onPressed: onSend,
               icon: const Icon(Icons.send_outlined),
-              tooltip: 'Send',
+              tooltip: ('Send'),
             ),
           ],
         ),
@@ -264,18 +255,18 @@ class _ChatMessagePanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: EdgeInsets.all((24)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              size: 42.0,
+              size: (42),
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(height: 10.0),
+            SizedBox(height: (10)),
             Text(
-              message,
+              (message),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -283,11 +274,11 @@ class _ChatMessagePanel extends StatelessWidget {
                   ),
             ),
             if (onRetry != null) ...[
-              const SizedBox(height: 14.0),
+              SizedBox(height: (14)),
               OutlinedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_outlined),
-                label: const Text('Refresh'),
+                label: Text(('Refresh')),
               ),
             ],
           ],

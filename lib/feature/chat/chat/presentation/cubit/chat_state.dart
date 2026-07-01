@@ -1,6 +1,4 @@
-// lib/features/chat/presentation/cubit/chat_state.dart
-import '../../domain/entities/chat_room.dart';
-import '../../domain/entities/chat_message.dart';
+part of 'chat_cubit.dart';
 
 sealed class ChatState {
   const ChatState();
@@ -15,16 +13,19 @@ class ChatLoading extends ChatState {
 }
 
 class ChatLoaded extends ChatState {
-  const ChatLoaded(
-      {required this.room,
-      required this.messages,
-      required this.currentUserId});
-  final ChatRoom room;
-  final List<ChatMessage> messages;
+  const ChatLoaded({
+    required this.room,
+    required this.messages,
+    required this.currentUserId,
+  });
+
+  final ChatRoomModel room;
+  final List<ChatMessageModel> messages;
   final String currentUserId;
 }
 
 class ChatError extends ChatState {
   const ChatError(this.message);
+
   final String message;
 }

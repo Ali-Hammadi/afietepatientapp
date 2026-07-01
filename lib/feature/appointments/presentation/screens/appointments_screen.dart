@@ -383,6 +383,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
       context,
       appointment,
       doctorName: appointment.doctorName,
+      currentUserId: appointment.patientUsername,
     );
   }
 

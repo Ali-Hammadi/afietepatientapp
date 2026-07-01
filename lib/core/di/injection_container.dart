@@ -27,11 +27,6 @@ import 'package:afiete/feature/articles/data/datasources/articles_remote_datasou
 import 'package:afiete/feature/appointments/domain/usecase/appointments_usecase.dart';
 import 'package:afiete/feature/appointments/presentation/cubits/appointments_cubit.dart';
 import 'package:afiete/feature/chat/data/datasources/chat_remote_datasource.dart';
-import 'package:afiete/feature/chat/data/repositories/chat_repository_impl.dart';
-import 'package:afiete/feature/chat/domain/repositories/chat_repository.dart';
-import 'package:afiete/feature/chat/domain/usecases/chat_usecase.dart';
-
-import 'package:afiete/feature/chat/presentation/cubit/chat_cubit.dart';
 import 'package:afiete/feature/doctors/data/datasources/doctors_remote_datasource.dart';
 import 'package:afiete/feature/doctors/data/repositories/doctors_repository_impl.dart';
 import 'package:afiete/feature/doctors/domain/repositories/doctors_repository.dart';
@@ -172,20 +167,7 @@ Future<void> init() async {
       sl<AuthRepository>(),
     ),
   );
-  sl.registerFactory<ChatCubit>(
-    () => ChatCubit(
-      getChatRoom: GetChatRoom(sl<ChatRepository>()),
-      getMessagesStream: GetMessagesStream(sl<ChatRepository>()),
-      sendMessage: SendMessage(sl<ChatRepository>()),
-    ),
-  );
 
-  // Chat Repository
-  sl.registerLazySingleton<ChatRepository>(
-    () => ChatRepositoryImpl(
-      sl<ChatRemoteDataSource>(),
-    ),
-  );
   // Chat data sources
   sl.registerLazySingleton<ChatRemoteDataSource>(
     () => ChatRemoteDataSourceImpl(dio: sl<Dio>()),

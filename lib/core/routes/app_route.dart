@@ -214,7 +214,6 @@ class AppRouter {
         }
         return MaterialPageRoute(
           builder: (_) => ChatScreen(
-            patientId: args.patientUsername,
             appointmentId: args.appointmentId,
             doctorName: args.doctorName,
           ),
@@ -404,12 +403,12 @@ class ReportScreenArgs {
 }
 
 class ChatConversationArgs {
-  final String patientUsername;
+  final String currentUserId;
   final String appointmentId;
   final String doctorName;
 
   const ChatConversationArgs({
-    required this.patientUsername,
+    required this.currentUserId,
     required this.appointmentId,
     required this.doctorName,
   });

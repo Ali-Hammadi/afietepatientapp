@@ -1,16 +1,23 @@
-// lib/features/chat/data/models/chat_room_model.dart
-import '../../domain/entities/chat_room.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ChatRoomModel extends ChatRoom {
+class ChatRoomModel {
   const ChatRoomModel({
-    required super.chatId,
-    required super.appointmentId,
-    required super.doctorId,
-    required super.patientId,
-    required super.doctorUsername,
-    required super.patientUsername,
-    required super.canJoin,
+    required this.chatId,
+    required this.appointmentId,
+    required this.doctorId,
+    required this.patientId,
+    required this.doctorUsername,
+    required this.patientUsername,
+    required this.canJoin,
   });
+
+  final String chatId;
+  final String appointmentId;
+  final String doctorId;
+  final String patientId;
+  final String doctorUsername;
+  final String patientUsername;
+  final bool canJoin;
 
   factory ChatRoomModel.fromJson(Map<String, dynamic> json) {
     return ChatRoomModel(
@@ -23,7 +30,7 @@ class ChatRoomModel extends ChatRoom {
           _readString(json, const ['doctor_username', 'doctorUsername']) ?? '',
       patientUsername:
           _readString(json, const ['patient_username', 'patientUsername']) ??
-              '',
+          '',
       canJoin: _readBool(json, const ['can_join', 'canJoin']),
     );
   }
@@ -49,5 +56,35 @@ class ChatRoomModel extends ChatRoom {
       }
     }
     return false;
+  }
+}
+
+class ChatMessageModel {
+  const ChatMessageModel({
+    required this.id,
+    required this.senderId,
+    required this.senderRole,
+    required this.text,
+    this.createdAt,
+  });
+
+  final String id;
+  final String senderId;
+  final String senderRole;
+  final String text;
+  final DateTime? createdAt;
+
+  factory ChatMessageModel.fromSnapshot(
+    QueryDocumentSnapshot<Map<String, dynamic>> snapshot,
+  ) {
+    final data = snapshot.data();
+    final timestamp = data['createdAt'];
+    return ChatMessageModel(
+      id: snapshot.id,
+      senderId: data['senderId']?.toString() ?? '',
+      senderRole: data['senderRole']?.toString() ?? '',
+      text: data['text']?.toString() ?? '',
+      createdAt: timestamp is Timestamp ? timestamp.toDate() : null,
+    );
   }
 }

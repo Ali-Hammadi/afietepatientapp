@@ -208,7 +208,7 @@ class _MySessionsScreenState extends State<MySessionsScreen> {
     chat_nav.ChatSessionNavigator.openFromSession(
       context,
       session,
-      patientUsername: 'current_patient',
+      currentUserId: session.username,
     );
   }
 

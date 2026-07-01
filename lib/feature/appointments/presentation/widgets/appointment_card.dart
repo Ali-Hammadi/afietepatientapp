@@ -203,6 +203,7 @@ class CustomAppointmentCard extends StatelessWidget {
       context,
       appointment,
       doctorName: doctor?.name ?? appointment.doctorName,
+      currentUserId: appointment.patientUsername,
     );
   }
 }
