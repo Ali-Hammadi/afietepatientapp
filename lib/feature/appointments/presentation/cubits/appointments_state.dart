@@ -29,13 +29,35 @@ class AppointmentsLoading extends AppointmentsState {
 }
 
 class AppointmentsLoaded extends AppointmentsState {
-  final List<AppointmentEntity> appointments;
+  final List<AppointmentEntity> upcomingAppointments;
+  final List<AppointmentEntity> pastAppointments;
+  final List<AppointmentEntity> missedAppointments;
+  final List<AppointmentEntity> canceledAppointments;
   final List<DoctorEntity>? doctors;
 
-  const AppointmentsLoaded(this.appointments, {this.doctors = const []});
+  const AppointmentsLoaded(
+    this.upcomingAppointments,
+    this.pastAppointments,
+    this.missedAppointments,
+    this.canceledAppointments, {
+    this.doctors = const [],
+  });
+
+  List<AppointmentEntity> get appointments => [
+        ...upcomingAppointments,
+        ...pastAppointments,
+        ...missedAppointments,
+        ...canceledAppointments,
+      ];
 
   @override
-  List<Object> get props => [appointments, doctors ?? const <DoctorEntity>[]];
+  List<Object> get props => [
+        upcomingAppointments,
+        pastAppointments,
+        missedAppointments,
+        canceledAppointments,
+        doctors ?? const <DoctorEntity>[],
+      ];
 }
 
 class AppointmentsError extends AppointmentsState {

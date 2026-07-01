@@ -569,9 +569,7 @@ Future<void> init() async {
   sl.registerLazySingleton<GetAllArticlesUseCase>(
     () => GetAllArticlesUseCase(sl<ArticlesRepository>()),
   );
-  sl.registerLazySingleton<GetArticleByIdUseCase>(
-    () => GetArticleByIdUseCase(sl<ArticlesRepository>()),
-  );
+
   sl.registerLazySingleton<LikeArticleUseCase>(
     () => LikeArticleUseCase(sl<ArticlesRepository>()),
   );
@@ -588,7 +586,6 @@ Future<void> init() async {
       getTrendingArticlesUseCase: sl<GetTrendingArticlesUseCase>(),
       getArticlesByDoctorUseCase: sl<GetArticlesByDoctorUseCase>(),
       getAllArticlesUseCase: sl<GetAllArticlesUseCase>(),
-      getArticleByIdUseCase: sl<GetArticleByIdUseCase>(),
       reactToArticleUseCase: sl<ReactToArticleUseCase>(),
       getRecommendedArticlesUseCase: sl<GetRecommendedArticlesUseCase>(),
     ),

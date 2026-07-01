@@ -16,7 +16,6 @@ abstract class ArticlesRepository {
     int page = 1,
     int pageSize = 10,
   });
-  Future<Either<Failure, ArticleEntity>> getArticleById(String articleId);
   Future<Either<Failure, void>> reactToArticle(
       String articleId, String reaction);
   Future<Either<Failure, void>> likeArticle(String articleId);

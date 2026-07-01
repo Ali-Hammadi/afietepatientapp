@@ -21,7 +21,8 @@ abstract class SettingsStrings {
   static String get enterDoctorUsername =>
       _t('Please enter doctor Username', 'الرجاء إدخال اسم مستخدم الطبيب');
   static String get doctorUsername => _t('DoctorUsername', 'اسم مستخدم الطبيب');
-
+  static String get noCanceledAppointments =>
+      _t('No canceled appointments available.', 'لا توجد مواعيد ملغاة متاحة.');
   static String get settingsSubtitle =>
       _t('Account, preferences and security', 'الحساب والتفضيلات والأمان');
   static String get medicalProfileTitle => _t('Medical Profile', 'الملف الطبي');
@@ -101,6 +102,8 @@ abstract class SettingsStrings {
         'Are you sure you want to cancel this session?',
         'هل أنت متأكد أنك تريد إلغاء هذه الجلسة؟',
       );
+
+  static String get canceled => _t('canceled', 'تم الإلغاء');
   static String get no => _t('No', 'لا');
   static String get yesCancel => _t('Yes, Cancel', 'نعم، إلغاء');
   static String get addReview => _t('Add Review', 'إضافة تقييم');

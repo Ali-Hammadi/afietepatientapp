@@ -41,7 +41,6 @@ import 'package:afiete/feature/settings/presentation/screens/contact_us_screen.d
 import 'package:afiete/feature/settings/presentation/screens/privacy_screen.dart';
 import 'package:afiete/feature/settings/presentation/screens/profile_info_screen.dart';
 import 'package:afiete/feature/settings/presentation/screens/settings_screen.dart';
-import 'package:afiete/feature/sessions/presentation/screens/my_sessions_screen.dart';
 import 'package:afiete/feature/splash/presentation/views/splash_screen.dart';
 import 'package:afiete/feature/auth/presentation/views/signup_screen.dart';
 import 'package:afiete/feature/auth/presentation/views/login_screen.dart';
@@ -198,8 +197,6 @@ class AppRouter {
           );
         }
         return MaterialPageRoute(builder: (_) => PaymentScreen(request: args));
-      case MyRoutes.mySessionsScreen:
-        return MaterialPageRoute(builder: (_) => const MySessionsScreen());
       case MyRoutes.chatScreen:
         final args = settings.arguments;
         if (args is! ChatConversationArgs) {

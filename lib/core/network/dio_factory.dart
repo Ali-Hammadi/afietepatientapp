@@ -9,9 +9,9 @@ import 'package:afiete/core/reset/nuclear_reset_helper.dart';
 
 abstract class DioFactory {
   // static const String baseUrl = 'https://alihammadi.pythonanywhere.com/';
-  static const String baseUrl = 'http://127.0.0.1:8000/';
-  // static const String baseUrl =
-  // 'https://seventy-unlined-freefall.ngrok-free.dev/';
+  // static const String baseUrl = 'http://127.0.0.1:8000/';
+  static const String baseUrl =
+      'https://seventy-unlined-freefall.ngrok-free.dev/';
 
   static Completer<bool>? _refreshCompleter;
 
@@ -45,6 +45,8 @@ abstract class DioFactory {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           final token = await TokenStorage.getAccessToken();
+          print(
+              '🔥 [Dio Interceptor] Sending Token for ${options.uri}: Token is ${token != null ? "Present (${token.substring(0, 10)}...)" : "NULL"}');
 
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
@@ -68,6 +70,7 @@ abstract class DioFactory {
               MyRoutes.splashScreen,
               (route) => false,
             );
+            return handler.reject(err);
           }
 
           // ✅ Handle both 401 and 403 token errors
@@ -111,6 +114,7 @@ abstract class DioFactory {
               MyRoutes.splashScreen,
               (route) => false,
             );
+            return handler.reject(err);
           }
 
           final cleanMessage = _mapDioErrorToMessage(err);
@@ -155,7 +159,7 @@ abstract class DioFactory {
 
       final response = await refreshDio.post<Map<String, dynamic>>(
         ApiEndpoints.refreshToken,
-        data: {ApiEndpoints.refreshToken: refreshToken},
+        data: {"refresh_token": refreshToken},
       );
 
       final refreshedAccessToken = _extractAccessToken(response.data) ??

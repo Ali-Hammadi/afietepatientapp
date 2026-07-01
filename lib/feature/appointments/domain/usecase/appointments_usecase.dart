@@ -1,10 +1,12 @@
 import 'package:afiete/core/error/failure.dart';
 import 'package:afiete/core/usecases/usecase.dart';
+import 'package:afiete/feature/appointments/data/datasources/appointments_remote_datasource.dart';
 import 'package:afiete/feature/appointments/domain/entities/appointment_entity.dart';
 import 'package:afiete/feature/appointments/domain/repositories/appointments_repository.dart';
 import 'package:afiete/feature/appointments/domain/values/consultation_fee.dart';
 import 'package:dartz/dartz.dart';
 
+// ✅ باقي الكلاس كما هي بدون تغيير
 class CreateAppointmentParams {
   final dynamic appointmentId;
   final String doctorUsername;
@@ -50,24 +52,24 @@ class CreateAppointmentUseCase
 }
 
 //==================================================================================================
-class GetAppointmentsUseCase
-    implements UseCase<List<AppointmentEntity>, NoParams> {
+class GetAppointmentsUseCase implements UseCase<AppointmentsData, NoParams> {
+  // ✅ تغيير نوع الإرجاع
   final AppointmentsRepository repository;
 
   const GetAppointmentsUseCase(this.repository);
 
   @override
-  Future<Either<Failure, List<AppointmentEntity>>> call(NoParams params) {
+  Future<Either<Failure, AppointmentsData>> call(NoParams params) {
     return repository.getAppointments();
   }
 }
 
 //==================================================================================================
+// ✅ باقي الكلاسات كما هي بدون تغيير
 class CancelAppointmentParams {
   final dynamic appointmentId;
   const CancelAppointmentParams({required this.appointmentId});
 }
-//==================================================================================================
 
 class CancelAppointmentUseCase
     implements UseCase<void, CancelAppointmentParams> {
@@ -81,7 +83,6 @@ class CancelAppointmentUseCase
   }
 }
 
-//==================================================================================================
 class RescheduleAppointmentParams {
   final dynamic appointmentId;
   final DateTime newScheduledAt;
@@ -98,7 +99,6 @@ class RescheduleAppointmentParams {
   });
 }
 
-//==================================================================================================
 class RescheduleAppointmentUseCase
     implements UseCase<AppointmentEntity, RescheduleAppointmentParams> {
   final AppointmentsRepository repository;
@@ -117,7 +117,6 @@ class RescheduleAppointmentUseCase
   }
 }
 
-//==================================================================================================
 class GetAvailableSlotsParams {
   final String doctorUsername;
   final String date;
@@ -127,7 +126,6 @@ class GetAvailableSlotsParams {
   });
 }
 
-//==================================================================================================
 class GetAvailableSlotsUseCase
     implements UseCase<List<dynamic>, GetAvailableSlotsParams> {
   final AppointmentsRepository repository;
@@ -142,4 +140,3 @@ class GetAvailableSlotsUseCase
     );
   }
 }
-//==================================================================================================

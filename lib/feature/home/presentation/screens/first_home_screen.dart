@@ -79,6 +79,21 @@ class _FirstHomeScreenState extends State<FirstHomeScreen> {
                 context.read<ArticlesCubit>().loadArticlesForHome();
               },
             ),
+            BlocListener<ArticlesCubit, ArticlesState>(
+              listenWhen: (previous, current) =>
+                  current is ArticlesReactionError,
+              listener: (context, state) {
+                if (state is ArticlesReactionError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.message),
+                      backgroundColor: Colors.red,
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
+            ),
           ],
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppStyles.padding),
@@ -120,12 +135,17 @@ class _FirstHomeScreenState extends State<FirstHomeScreen> {
                   BlocBuilder<ArticlesCubit, ArticlesState>(
                     builder: (context, articlesState) {
                       print("STATE = ${articlesState.runtimeType}");
+
                       if (articlesState is ArticlesLoading ||
                           articlesState is ArticlesInitial) {
                         return const Padding(
                           padding: EdgeInsets.symmetric(vertical: 24.0),
                           child: Center(child: CircularProgressIndicator()),
                         );
+                      }
+
+                      if (articlesState is ArticlesReactionError) {
+                        return const ArticlesHomeSection();
                       }
                       if (articlesState is ArticlesError) {
                         return const SizedBox.shrink();

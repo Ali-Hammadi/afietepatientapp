@@ -3,8 +3,33 @@ import 'package:afiete/feature/appointments/domain/values/consultation_fee.dart'
 import 'package:afiete/core/network/api_endpoints.dart';
 import 'package:dio/dio.dart';
 
+// ✅ كلاس جديد لحفظ 3 قوائم منفصلة
+class AppointmentsData {
+  final List<AppointmentModel> upcoming;
+  final List<AppointmentModel> past;
+  final List<AppointmentModel> missed;
+  final List<AppointmentModel> canceled; // ✅ جديد
+
+  AppointmentsData({
+    required this.upcoming,
+    required this.past,
+    required this.missed,
+    required this.canceled, // ✅ جديد
+  });
+
+  // ✅ دالة مساعدة للحصول على كل المواعيد (للتوافق مع الكود الحالي)
+  List<AppointmentModel> get allAppointments => [
+        ...upcoming,
+        ...past,
+        ...missed,
+        ...canceled, // ✅ جديد
+      ];
+
+  List<AppointmentModel> get appointments => allAppointments;
+}
+
 abstract class AppointmentsRemoteDataSource {
-  Future<List<AppointmentModel>> getAppointments();
+  Future<AppointmentsData> getAppointments(); // ✅ تغيير نوع الإرجاع
 
   Future<AppointmentModel> createAppointment({
     required int appointmentId,
@@ -46,52 +71,92 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
   AppointmentsRemoteDataSourceImpl({required Dio dio}) : _dio = dio;
 
   @override
-  Future<List<AppointmentModel>> getAppointments() async {
+  Future<AppointmentsData> getAppointments() async {
     try {
+      // ✅ جلب 4 endpoints بالتوازي
       final responses = await Future.wait([
-        _dio.get(ApiEndpoints.myAppointments),
-        _dio.get(ApiEndpoints.historyAppointments),
+        _dio.get(ApiEndpoints.upcomingAppointments),
+        _dio.get(ApiEndpoints.pastAppointments),
         _dio.get(ApiEndpoints.missedAppointments),
+        _dio.get(ApiEndpoints.canceledAppointments),
       ].map((future) => future.catchError((_) => Response(
             requestOptions: RequestOptions(path: ''),
             statusCode: 500,
           ))));
 
-      final List<AppointmentModel> allAppointments = [];
+      // ✅ دالة مساعدة لتحويل الاستجابة إلى قائمة AppointmentModel
+      List<AppointmentModel> parseResponse(Response response) {
+        if (response.statusCode != 200) return [];
 
-      for (var response in responses) {
-        if (response.statusCode == 200) {
-          final data = response.data;
-          List<dynamic> list = [];
+        final data = response.data;
+        List<dynamic> list = [];
 
-          if (data is List) {
-            list = data;
-          } else if (data is Map<String, dynamic> && data['results'] is List) {
-            list = data['results'] as List;
-          } else if (data is Map<String, dynamic> &&
-              data['appointments'] is List) {
-            list = data['appointments'] as List;
-          }
+        if (data is List) {
+          list = data;
+        } else if (data is Map<String, dynamic> && data['results'] is List) {
+          list = data['results'] as List;
+        } else if (data is Map<String, dynamic> &&
+            data['appointments'] is List) {
+          list = data['appointments'] as List;
+        }
 
-          allAppointments.addAll(
-            list
-                .map((json) =>
-                    AppointmentModel.fromJson(json as Map<String, dynamic>))
-                .toList(),
-          );
+        return list
+            .map((json) =>
+                AppointmentModel.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
+
+      final myAppointments = parseResponse(responses[0]);
+      final historyAppointments = parseResponse(responses[1]);
+      final missedAppointments = parseResponse(responses[2]);
+      final canceled = parseResponse(responses[3]); // ✅ جديد
+
+      // ✅ فلترة myAppointments بناءً على التاريخ
+      final now = DateTime.now().toUtc();
+      final today = DateTime(now.year, now.month, now.day);
+
+      final upcoming = <AppointmentModel>[];
+      final past = <AppointmentModel>[];
+
+      for (final appointment in myAppointments) {
+        final appointmentDate = appointment.scheduledAt.toUtc();
+        final appointmentDay = DateTime(
+          appointmentDate.year,
+          appointmentDate.month,
+          appointmentDate.day,
+        );
+
+        if (appointmentDay.isBefore(today)) {
+          // ✅ الموعد في الماضي
+          past.add(appointment);
+        } else {
+          // ✅ الموعد في المستقبل أو اليوم
+          upcoming.add(appointment);
         }
       }
-      return allAppointments;
+
+      // ✅ إضافة المواعيد من history و missed
+      past.addAll(historyAppointments);
+      final missed = missedAppointments;
+
+      return AppointmentsData(
+        upcoming: upcoming,
+        past: past,
+        missed: missed,
+        canceled:
+            canceled, // ✅ جديد، يمكن تحديثه لاحقًا إذا كان هناك endpoint للمواعيد الملغاة
+      );
     } on DioException {
       rethrow;
     } catch (e) {
       throw DioException(
-        requestOptions: RequestOptions(path: ApiEndpoints.myAppointments),
+        requestOptions: RequestOptions(path: 'appointments'),
         error: e,
       );
     }
   }
 
+  // ✅ باقي الدوال كما هي بدون تغيير
   @override
   Future<AppointmentModel> createAppointment({
     required int appointmentId,
@@ -250,7 +315,6 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
     required bool hasNextSession,
   }) async {
     try {
-      // نستخدم الاند بوينت الصحيح من ملفك
       await _dio.patch(
         ApiEndpoints.hasNextAppointment(appointmentId.toString()),
         data: {'has_next_session': hasNextSession},

@@ -35,9 +35,9 @@ class SessionsRemoteDataSourceImpl implements SessionsRemoteDataSource {
   @override
   Future<List<SessionModel>> getUpcomingSessions() async {
     try {
-      final response = await _dio.get(ApiEndpoints.myAppointments);
+      final response = await _dio.get(ApiEndpoints.upcomingAppointments);
       if (response.statusCode == 200) {
-        final List<dynamic> data = response.data['sessions'] ?? [];
+        final List<dynamic> data = response.data['results'] ?? [];
         return data
             .map(
               (session) =>
@@ -54,7 +54,7 @@ class SessionsRemoteDataSourceImpl implements SessionsRemoteDataSource {
       rethrow;
     } catch (e) {
       throw DioException(
-        requestOptions: RequestOptions(path: ApiEndpoints.myAppointments),
+        requestOptions: RequestOptions(path: ApiEndpoints.upcomingAppointments),
         error: e,
         type: DioExceptionType.unknown,
       );
@@ -64,9 +64,9 @@ class SessionsRemoteDataSourceImpl implements SessionsRemoteDataSource {
   @override
   Future<List<SessionModel>> getPastSessions() async {
     try {
-      final response = await _dio.get(ApiEndpoints.historyAppointments);
+      final response = await _dio.get(ApiEndpoints.pastAppointments);
       if (response.statusCode == 200) {
-        final List<dynamic> data = response.data['sessions'] ?? [];
+        final List<dynamic> data = response.data['results'] ?? [];
         return data
             .map(
               (session) =>
@@ -83,7 +83,7 @@ class SessionsRemoteDataSourceImpl implements SessionsRemoteDataSource {
       rethrow;
     } catch (e) {
       throw DioException(
-        requestOptions: RequestOptions(path: ApiEndpoints.historyAppointments),
+        requestOptions: RequestOptions(path: ApiEndpoints.pastAppointments),
         error: e,
         type: DioExceptionType.unknown,
       );

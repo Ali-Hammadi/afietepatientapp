@@ -27,7 +27,12 @@ class DoctorsCubit extends Cubit<DoctorsState> {
   Future<void> initializeData() async {
     emit(const DoctorsLoading());
 
+    // 1. أول عملية await (جلب التخصصات)
     final specialtiesResult = await getSpecialtiesUseCase(NoParams());
+
+    // ✅ حماية: إذا تم إغلاق الـ Cubit أثناء الانتظار، توقف فوراً
+    if (isClosed) return;
+
     specialtiesResult.fold(
       (failure) => emit(DoctorsError(failure.errorMessage)),
       (specialties) {
@@ -37,7 +42,12 @@ class DoctorsCubit extends Cubit<DoctorsState> {
 
     if (state is DoctorsError) return;
 
+    // 2. ثاني عملية await (جلب الأطباء)
     final doctorsResult = await getAllDoctorsUseCase(NoParams());
+
+    // ✅ حماية: إذا تم إغلاق الـ Cubit أثناء الانتظار، توقف فوراً
+    if (isClosed) return;
+
     doctorsResult.fold(
       (failure) => emit(DoctorsError(failure.errorMessage)),
       (doctors) {
@@ -51,13 +61,21 @@ class DoctorsCubit extends Cubit<DoctorsState> {
   Future<void> loadAllDoctors() async {
     emit(const DoctorsLoading());
     _lastSpecialtyId = null; // إعادة التعيين عند طلب الجميع
+
     final result = await getAllDoctorsUseCase(NoParams());
+
+    // ✅ التحقق مما إذا كان الـ Cubit لا يزال مفتوحاً قبل إصدار الحالة
+    if (isClosed) return;
+
     result.fold(
       (failure) => emit(DoctorsError(failure.errorMessage)),
-      (doctors) => emit(DoctorsLoaded(doctors, _cachedSpecialties,
-          selectedSpecialtyId: null)),
+      (doctors) => emit(DoctorsLoaded(
+        doctors,
+        _cachedSpecialties,
+        selectedSpecialtyId: null,
+      )),
     );
-  } // إصلاح: تم إغلاق الدالة هنا بنجاح وفصلها عن بقية الدوال الكلاسية
+  }
 
   Future<void> loadDoctorsBySpecialty(int specialtyId) async {
     emit(const DoctorsLoading());

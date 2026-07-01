@@ -8,7 +8,6 @@ abstract class ArticlesRemoteDataSource {
   Future<List<ArticleModel>> getArticlesByDoctor(String doctorUsername);
   Future<List<ArticleModel>> getAllArticles(
       {required int page, int pageSize = 10});
-  Future<ArticleModel> getArticleById(String articleId);
   Future<void> reactToArticle(String articleId, String reaction);
 }
 
@@ -32,7 +31,7 @@ class ArticlesRemoteDataSourceImpl implements ArticlesRemoteDataSource {
   @override
   Future<List<ArticleModel>> getArticlesByDoctor(String doctorUsername) async {
     final response =
-        await _dio.get(ApiEndpoints.articlesByDoctor(doctorUsername));
+        await _dio.get(ApiEndpoints.doctorArticles(doctorUsername));
     return _parseArticleList(response.data);
   }
 
@@ -44,12 +43,6 @@ class ArticlesRemoteDataSourceImpl implements ArticlesRemoteDataSource {
       queryParameters: {'page': page, 'page_size': pageSize},
     );
     return _parseArticleList(response.data);
-  }
-
-  @override
-  Future<ArticleModel> getArticleById(String articleId) async {
-    final response = await _dio.get(ApiEndpoints.articleById(articleId));
-    return ArticleModel.fromJson(_parseArticleMap(response.data));
   }
 
   @override
@@ -88,20 +81,5 @@ class ArticlesRemoteDataSourceImpl implements ArticlesRemoteDataSource {
     print("Articles parsed = ${articles.length}");
 
     return articles;
-  }
-
-  Map<String, dynamic> _parseArticleMap(dynamic data) {
-    if (data is Map) {
-      final nested = data['data'] ?? data['article'] ?? data['result'];
-      if (nested is Map) return Map<String, dynamic>.from(nested);
-      return Map<String, dynamic>.from(data);
-    }
-    if (data is List && data.isNotEmpty && data.first is Map) {
-      return Map<String, dynamic>.from(data.first as Map);
-    }
-    throw DioException(
-      requestOptions: RequestOptions(path: 'article_parsing'),
-      error: 'Invalid response layout structure',
-    );
   }
 }

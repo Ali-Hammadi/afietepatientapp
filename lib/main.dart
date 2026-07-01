@@ -22,7 +22,6 @@ import 'feature/chat/presentation/cubit/chat_cubit.dart';
 import 'feature/doctors/presentation/cubits/doctors_cubit.dart';
 import 'feature/payment/presentation/cubit/payment_cubit.dart';
 import 'feature/report/presentation/cubits/report_cubit.dart';
-import 'feature/sessions/presentation/cubits/sessions_cubit.dart';
 import 'feature/settings/presentation/cubits/settings_cubit.dart';
 
 void main() async {
@@ -105,7 +104,6 @@ class _MyAppState extends State<MyApp> {
           BlocProvider<ChatCubit>(create: (_) => sl<ChatCubit>()),
           BlocProvider<PaymentCubit>(create: (_) => sl<PaymentCubit>()),
           BlocProvider<ReportCubit>(create: (_) => sl<ReportCubit>()),
-          BlocProvider<SessionsCubit>(create: (_) => sl<SessionsCubit>()),
           BlocProvider<SettingsCubit>(create: (_) => sl<SettingsCubit>()),
           BlocProvider<ArticlesCubit>(create: (_) => sl<ArticlesCubit>()),
         ],

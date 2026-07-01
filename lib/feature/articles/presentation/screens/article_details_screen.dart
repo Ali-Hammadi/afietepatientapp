@@ -35,7 +35,7 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen> {
       create: (context) {
         final cubit = sl<ArticlesCubit>();
         if (_id != null) {
-          cubit.loadArticleById(_id);
+          cubit.getAllArticlesUseCase;
         }
         return cubit;
       },

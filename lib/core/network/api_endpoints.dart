@@ -28,37 +28,30 @@ abstract class ApiEndpoints {
   static const String accessToken = '/api/auth/token/verify/';
   // ===============================================================================================
   // === Appointments  ===
-
+// === Appointments ===
+  static const String upcomingAppointments =
+      '/api/patient/appointments/upcoming/';
   static const String createAppointment = '/api/patient/appointments/book/';
-
-  static const String myAppointments = '/api/patient/appointments/my-list/';
-
-  static const String historyAppointments =
-      '/api/patient/appointments/history/';
-
+  static const String pastAppointments = '/api/patient/appointments/history/';
+  static const String canceledAppointments =
+      '/api/patient/appointments/canceled/';
   static const String missedAppointments = '/api/patient/appointments/missed/';
 
   static String myAppointment(String id) => '/api/patient/appointments/$id/';
-
   static String cancelAppointment(String id) =>
       '/api/patient/appointments/$id/cancel/';
-
   static String reschedualAppointment(String id) =>
       '/api/patient/appointments/$id/reschedule/';
-
   static String hasNextAppointment(String id) =>
       '/api/patient/appointments/$id/next-session/';
-
   static String appointmentRefund(String id) =>
       '/api/patient/appointments/$id/refund/';
-  // === Appointments Payments (المدفوعات) ===
 
+// === Appointments Payments ===
   static const String appointmentPayment =
       '/api/patient/appointments/payments/create/';
-
   static const String oldAppointmentPayment =
       '/api/patient/appointments/payments/history/';
-
   // ===============================================================================================
   // === Reports ===
   static const String reportsConfig = '/api/reports/config/';
@@ -116,9 +109,9 @@ abstract class ApiEndpoints {
   // ===============================================================================================
   // === Articles ===
 
-  static String articleById(String id) => '/api/patient/articles/$id/';
-  static String articlesByDoctor(String username) =>
-      '/api/patient/articles/doctor/$username/';
+  // static String articleById(String id) => '/api/patient/articles/$id/';
+  static String doctorArticles(String username) =>
+      '/api/patient/articles/$username/';
   static const String articlesRecommended =
       '/api/patient/articles/recommended/';
   static const String articlesFeed = '/api/patient/articles/feed/';

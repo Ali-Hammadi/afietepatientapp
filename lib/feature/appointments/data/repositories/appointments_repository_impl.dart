@@ -12,15 +12,14 @@ class AppointmentsRepositoryImpl implements AppointmentsRepository {
   const AppointmentsRepositoryImpl({required this.dataSource});
 
   @override
-  Future<Either<Failure, List<AppointmentEntity>>> getAppointments() async {
+  Future<Either<Failure, AppointmentsData>> getAppointments() async {
     try {
       final result = await dataSource.getAppointments();
-      return Right<Failure, List<AppointmentEntity>>(result);
+      return Right<Failure, AppointmentsData>(result);
     } on DioException catch (e) {
-      return Left<Failure, List<AppointmentEntity>>(
-          ServerFailure.fromDioError(e));
+      return Left<Failure, AppointmentsData>(ServerFailure.fromDioError(e));
     } catch (_) {
-      return Left<Failure, List<AppointmentEntity>>(
+      return Left<Failure, AppointmentsData>(
         ServerFailure('Unable to load appointments right now.'),
       );
     }
@@ -57,10 +56,13 @@ class AppointmentsRepositoryImpl implements AppointmentsRepository {
     required String sessionType,
   }) async {
     try {
+      // ✅ احسب مدة الجلسة بالدقائق (كل slot = 30 دقيقة)
+      final totalMinutes = durationSlots * 30;
+
       final result = await dataSource.createAppointment(
         slotStart: scheduledAt.toIso8601String().split('T')[1].substring(0, 5),
         slotEnd: scheduledAt
-            .add(Duration(minutes: durationSlots))
+            .add(Duration(minutes: totalMinutes))
             .toIso8601String()
             .split('T')[1]
             .substring(0, 5),

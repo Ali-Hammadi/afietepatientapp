@@ -20,7 +20,7 @@ class AppointmentsScreen extends StatefulWidget {
 }
 
 class _AppointmentsScreenState extends State<AppointmentsScreen> {
-  bool isUpcoming = true;
+  int _selectedTabIndex = 0; // 0: Upcoming, 1: Past, 2: Canceled
 
   @override
   void initState() {
@@ -31,7 +31,6 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
       if (cubit.state is AppointmentsInitial) {
         cubit.loadAppointments();
       }
-
       cubit.startDoctorRescheduleListener();
     });
   }
@@ -41,13 +40,11 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // 🟢 حفظ مرجع الـ Cubit هنا بشكل آمن طالما الـ context ما زال حياً
     _appointmentsCubit = context.read<AppointmentsCubit>();
   }
 
   @override
   void dispose() {
-    // 🟢 استدعاء الدالة باستخدام المرجع المحفوظ بدون استخدام الـ context الميت
     _appointmentsCubit.stopDoctorRescheduleListener();
     super.dispose();
   }
@@ -93,26 +90,27 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           Expanded(
             child: _buildTabItem(
               title: SettingsStrings.upcoming,
-              isSelected: isUpcoming,
+              isSelected: _selectedTabIndex == 0,
               colorScheme: colorScheme,
-              onTap: () {
-                setState(() {
-                  isUpcoming = true;
-                });
-              },
+              onTap: () => setState(() => _selectedTabIndex = 0),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
           Expanded(
             child: _buildTabItem(
               title: SettingsStrings.past,
-              isSelected: !isUpcoming,
+              isSelected: _selectedTabIndex == 1,
               colorScheme: colorScheme,
-              onTap: () {
-                setState(() {
-                  isUpcoming = false;
-                });
-              },
+              onTap: () => setState(() => _selectedTabIndex = 1),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildTabItem(
+              title: SettingsStrings.canceled,
+              isSelected: _selectedTabIndex == 2,
+              colorScheme: colorScheme,
+              onTap: () => setState(() => _selectedTabIndex = 2),
             ),
           ),
         ],
@@ -220,23 +218,27 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     required BuildContext context,
     required AppointmentsLoaded state,
   }) {
-    final filteredAppointments = state.appointments.where((appointment) {
-      final statusLower = appointment.status.toLowerCase();
-      final pastStatuses = [
-        'completed',
-        'cancelled',
-        'expired',
-        'missed',
-        'refunded'
-      ];
-      bool isPastRecord = pastStatuses.contains(statusLower);
+    List<AppointmentEntity> filteredAppointments;
 
-      if (appointment.hasNextSession) {
-        isPastRecord = false;
-      }
-
-      return isUpcoming ? !isPastRecord : isPastRecord;
-    }).toList();
+    switch (_selectedTabIndex) {
+      case 0: // Upcoming
+        filteredAppointments = state.upcomingAppointments;
+        break;
+      case 1: // Past
+        filteredAppointments = [
+          ...state.pastAppointments,
+          ...state.missedAppointments,
+        ].where((appointment) {
+          final statusLower = appointment.status.toLowerCase();
+          return statusLower != 'cancelled' && statusLower != 'canceled';
+        }).toList();
+        break;
+      case 2: // Canceled
+        filteredAppointments = state.canceledAppointments;
+        break;
+      default:
+        filteredAppointments = [];
+    }
 
     if (filteredAppointments.isEmpty) {
       return RefreshIndicator(
@@ -249,9 +251,11 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             const SizedBox(height: 120),
             Center(
               child: Text(
-                isUpcoming
+                _selectedTabIndex == 0
                     ? SettingsStrings.noUpcomingAppointments
-                    : SettingsStrings.noPastAppointments,
+                    : _selectedTabIndex == 1
+                        ? SettingsStrings.noPastAppointments
+                        : SettingsStrings.noCanceledAppointments,
               ),
             ),
           ],
@@ -276,25 +280,34 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           return CustomAppointmentCard(
             doctor: matchedDoctor,
             appointment: appointment,
-            isPast: !isUpcoming,
-            onAddReview: matchedDoctor == null
+            isPast: _selectedTabIndex == 1,
+            isCanceled: _selectedTabIndex == 2,
+            onAddReview: _selectedTabIndex != 1
                 ? null
                 : () => _showReviewSheet(
                       appointmentId: appointment.appointmentId,
-                      doctorUsername: matchedDoctor.doctorUsername,
+                      doctorUsername: appointment.doctorUsername,
                     ),
-            onBookAgain: matchedDoctor == null
+            onBookAgain: _selectedTabIndex != 1
                 ? null
-                : () => _handleBookAgain(doctor: matchedDoctor),
-            onReschedule: matchedDoctor == null
+                : () => _handleBookAgain(
+                      doctor: matchedDoctor ??
+                          _buildFallbackDoctor(appointment: appointment),
+                    ),
+            onReschedule: _selectedTabIndex != 0
                 ? null
                 : () => _handleReschedule(
                       appointmentId: appointment.appointmentId,
-                      doctor: matchedDoctor,
+                      doctor: matchedDoctor ??
+                          _buildFallbackDoctor(appointment: appointment),
                     ),
-            onCancel: () => _confirmCancel(context,
-                appointmentId: appointment.appointmentId),
-            onJoinSession: () => _handleJoinSession(appointment),
+            onCancel: _selectedTabIndex == 0
+                ? () => _confirmCancel(context,
+                    appointmentId: appointment.appointmentId)
+                : null,
+            onJoinSession: _selectedTabIndex == 0
+                ? () => _handleJoinSession(appointment)
+                : null,
           );
         },
       ),
@@ -314,6 +327,14 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     }
 
     return null;
+  }
+
+  DoctorEntity _buildFallbackDoctor({required AppointmentEntity appointment}) {
+    return DoctorEntity(
+      doctorUsername: appointment.doctorUsername,
+      name: appointment.doctorName,
+      specialties: const [],
+    );
   }
 
   Future<void> _handleReschedule({

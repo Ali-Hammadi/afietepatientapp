@@ -62,16 +62,6 @@ class GetAllArticlesUseCase {
   }
 }
 
-class GetArticleByIdUseCase {
-  final ArticlesRepository repository;
-
-  GetArticleByIdUseCase(this.repository);
-
-  Future<Either<Failure, ArticleEntity>> call(String articleId) {
-    return repository.getArticleById(articleId);
-  }
-}
-
 class LikeArticleUseCase {
   final ArticlesRepository repository;
 

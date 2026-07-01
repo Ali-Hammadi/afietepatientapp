@@ -1,10 +1,12 @@
 import 'package:afiete/core/error/failure.dart';
+import 'package:afiete/feature/appointments/data/datasources/appointments_remote_datasource.dart';
 import 'package:afiete/feature/appointments/domain/entities/appointment_entity.dart';
 import 'package:afiete/feature/appointments/domain/values/consultation_fee.dart';
 import 'package:dartz/dartz.dart';
 
 abstract class AppointmentsRepository {
-  Future<Either<Failure, List<AppointmentEntity>>> getAppointments();
+  Future<Either<Failure, AppointmentsData>>
+      getAppointments(); // ✅ تغيير نوع الإرجاع
 
   Future<Either<Failure, List<dynamic>>> getAvailableSlots({
     required String doctorUsername,

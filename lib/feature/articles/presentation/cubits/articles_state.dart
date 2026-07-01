@@ -79,3 +79,13 @@ class ArticleReactionUpdated extends ArticlesState {
   @override
   List<Object?> get props => [article];
 }
+
+class ArticlesReactionError extends ArticlesState {
+  final String message;
+  final String source;
+
+  const ArticlesReactionError({
+    required this.message,
+    required this.source,
+  });
+}

@@ -2,8 +2,9 @@ import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/di/injection_container.dart';
 import 'package:afiete/core/routes/app_route.dart';
-import 'package:afiete/feature/chat/presentation/helpers/chat_session_navigator.dart';
 import 'package:afiete/feature/doctors/domain/usecase/get_doctors_usecase.dart';
+import 'package:afiete/feature/chat/presentation/helpers/chat_session_navigator.dart'
+    as chat_nav;
 import 'package:afiete/feature/sessions/domain/entities/session_entity.dart';
 import 'package:afiete/feature/sessions/presentation/cubits/sessions_cubit.dart';
 import 'package:afiete/feature/sessions/presentation/widgets/review_bottom_sheet.dart';
@@ -204,7 +205,7 @@ class _MySessionsScreenState extends State<MySessionsScreen> {
   }
 
   void _handleJoinSession(SessionEntity session) {
-    ChatSessionNavigator.openFromSession(
+    chat_nav.ChatSessionNavigator.openFromSession(
       context,
       session,
       patientId: 'current_patient',

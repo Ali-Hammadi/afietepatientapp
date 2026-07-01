@@ -137,9 +137,15 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
 
   Future<void> _submitBooking() async {
     final scheduledAt = _selectedDateTime;
+
+    print('🔍 DEBUG: scheduledAt = $scheduledAt');
+    print('🔍 DEBUG: _selectedDurationSlots = $_selectedDurationSlots');
+    print('🔍 DEBUG: _selectedSessionType = $_selectedSessionType');
+
     if (scheduledAt == null ||
         _selectedDurationSlots == null ||
         _selectedSessionType == null) {
+      print('❌ DEBUG: Failed validation check!');
       return;
     }
 
@@ -157,6 +163,9 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
         DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
     final cubit = context.read<AppointmentsCubit>();
+
+    print('🔍 DEBUG: Calling createAppointmentDraft...');
+
     await cubit.createAppointmentDraft(
       appointmentId: generatedAppointmentId,
       doctorUsername: widget.doctor.doctorUsername,
@@ -172,7 +181,11 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
     setState(() => _isSubmitting = false);
 
     final state = cubit.state;
+    print(
+        '🔍 DEBUG: After createAppointmentDraft, state = ${state.runtimeType}');
+
     if (state is AppointmentsError) {
+      print('❌ DEBUG: AppointmentsError: ${state.message}');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(state.message)),
       );
@@ -187,6 +200,9 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
       _selectedSessionType!,
     );
 
+    print('🔍 DEBUG: Navigating to payment screen...');
+    print('🔍 DEBUG: amount = $amount');
+
     Navigator.pushNamed(
       context,
       MyRoutes.paymentScreen,
@@ -200,6 +216,8 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
         method: PaymentMethod.card,
       ),
     );
+
+    print('✅ DEBUG: Navigation completed!');
   }
 
   void _onBack() {
@@ -414,7 +432,13 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
               ? SettingsStrings.bookingFeePerSession(fee.toDouble())
               : SettingsStrings.sessionAvailableLabel,
           isSelected: isSelected,
-          onTap: () => setState(() => _selectedSessionType = type),
+          onTap: () {
+            setState(() {
+              _selectedSessionType = type;
+
+              _selectedDurationSlots = 1;
+            });
+          },
           leading: SessionType.icon(type),
         );
       },

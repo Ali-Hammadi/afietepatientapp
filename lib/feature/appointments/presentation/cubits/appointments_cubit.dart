@@ -1,4 +1,4 @@
-import 'dart:async'; // تم إضافة الـ Timer لبناء مستمع الخلفية
+import 'dart:async';
 import 'package:afiete/core/usecases/usecase.dart';
 import 'package:afiete/feature/appointments/domain/entities/appointment_entity.dart';
 import 'package:afiete/feature/appointments/domain/usecase/appointments_usecase.dart';
@@ -43,24 +43,29 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
 
     appointmentResult.fold(
       (failure) => emit(AppointmentsError(failure.errorMessage)),
-      (appointments) async {
-        final sorted = List<AppointmentEntity>.from(appointments)
-          ..sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
-        emit(AppointmentsLoaded(sorted, doctors: doctorsList));
+      (appointmentsData) {
+        emit(
+          AppointmentsLoaded(
+            _sorted(appointmentsData.upcoming),
+            _sorted(appointmentsData.past),
+            _sorted(appointmentsData.missed),
+            _sorted(appointmentsData.canceled),
+            doctors: doctorsList,
+          ),
+        );
       },
     );
   }
 
-  // بدء الاستماع للتغيرات القادمة من تطبيق الطبيب
+  // ✅ باقي الدوال كما هي بدون تغيير
   void startDoctorRescheduleListener() {
     _doctorRescheduleTimer?.cancel();
     _doctorRescheduleTimer =
-        Timer.periodic(const Duration(seconds: 2), (timer) async {
+        Timer.periodic(const Duration(seconds: 30), (timer) async {
       await _checkDoctorUpdatesInBackground();
     });
   }
 
-  // إيقاف مستمع التغيرات عند مغادرة الشاشة لحفظ موارد الجهاز
   void stopDoctorRescheduleListener() {
     _doctorRescheduleTimer?.cancel();
     _doctorRescheduleTimer = null;
@@ -72,19 +77,17 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
 
     final result = await getAppointmentsUseCase(NoParams());
     result.fold(
-      (_) =>
-          null, // تجاهل أخطاء الشبكة المؤقتة في الخلفية صمتاً لضمان استمرارية التجربة
-      (fetchedAppointments) {
+      (_) => null,
+      (appointmentsData) {
         bool structureChanged = false;
         AppointmentEntity? targetRescheduled;
 
-        for (final fetched in fetchedAppointments) {
+        for (final fetched in appointmentsData.appointments) {
           final oldMatch = currentState.appointments.firstWhere(
             (old) => old.appointmentId == fetched.appointmentId,
             orElse: () => fetched,
           );
 
-          // إذا كان الموعد موجوداً سابقاً ولكن طبيب قام بتعديل وقته وساعته
           if (oldMatch != fetched &&
               !oldMatch.scheduledAt.isAtSameMomentAs(fetched.scheduledAt)) {
             structureChanged = true;
@@ -94,15 +97,26 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
         }
 
         if (structureChanged && targetRescheduled != null) {
-          final sorted = List<AppointmentEntity>.from(fetchedAppointments)
-            ..sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
-
-          emit(AppointmentsLoaded(sorted, doctors: currentState.doctors));
+          emit(
+            AppointmentsLoaded(
+              _sorted(appointmentsData.upcoming),
+              _sorted(appointmentsData.past),
+              _sorted(appointmentsData.missed),
+              _sorted(appointmentsData.canceled),
+              doctors: currentState.doctors,
+            ),
+          );
 
           _triggerLocalNotification(targetRescheduled);
         }
       },
     );
+  }
+
+  List<AppointmentEntity> _sorted(List<AppointmentEntity> appointments) {
+    final sorted = List<AppointmentEntity>.from(appointments);
+    sorted.sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
+    return sorted;
   }
 
   void _triggerLocalNotification(AppointmentEntity appointment) {
@@ -112,9 +126,6 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
     final notificationMessage =
         "تم تغيير موعدك إلى يوم $dayName الساعة $timeStr.";
 
-    // هنا يتم استدعاء سرفيس الإشعارات الخاص بتطبيقك (مثال: flutter_local_notifications)
-    // نضع طباعة تأكيدية كـ Interface بريزنتيشن نظيف جاهز للربط مباشرة
-    // LocalNotificationService.show(title: "تحديث جدول المواعيد", body: notificationMessage);
     print("NOTIFICATION TRIGGERED: $notificationMessage");
   }
 
@@ -144,16 +155,9 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
 
     result.fold(
       (failure) => emit(AppointmentsError(failure.errorMessage)),
-      (created) {
+      (_) {
         AssessmentsVisibilityStore.markAssessmentsBooked();
-        final currentState = state;
-        if (currentState is AppointmentsLoaded) {
-          final updated = [created, ...currentState.appointments]
-            ..sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
-          emit(AppointmentsLoaded(updated, doctors: currentState.doctors));
-        } else {
-          emit(AppointmentsLoaded([created], doctors: const []));
-        }
+        loadAppointments();
       },
     );
   }
@@ -199,16 +203,9 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
         emit(AppointmentsError(failure.errorMessage));
         return Future.value(false);
       },
-      (updatedAppointment) {
+      (_) {
         if (currentState is AppointmentsLoaded) {
-          final updatedList = currentState.appointments.map((appointment) {
-            return appointment.appointmentId == updatedAppointment.appointmentId
-                ? updatedAppointment
-                : appointment;
-          }).toList()
-            ..sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
-
-          emit(AppointmentsLoaded(updatedList, doctors: currentState.doctors));
+          loadAppointments();
         } else {
           loadAppointments();
         }

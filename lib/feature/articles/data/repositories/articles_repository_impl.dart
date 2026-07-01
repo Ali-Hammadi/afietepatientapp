@@ -84,22 +84,6 @@ class ArticlesRepositoryImpl implements ArticlesRepository {
   }
 
   @override
-  Future<Either<Failure, ArticleEntity>> getArticleById(
-      String articleId) async {
-    try {
-      final article = await remoteDataSource.getArticleById(articleId);
-      return Right(article.toEntity());
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 404) {
-        return Left(ServerFailure('Article not found.'));
-      }
-      return Left(ServerFailure.fromDioError(e));
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
-  }
-
-  @override
   Future<Either<Failure, void>> reactToArticle(
       String articleId, String reaction) async {
     try {

@@ -8,7 +8,6 @@ class ArticlesCubit extends Cubit<ArticlesState> {
   final GetTrendingArticlesUseCase getTrendingArticlesUseCase;
   final GetAllArticlesUseCase getAllArticlesUseCase;
   final GetArticlesByDoctorUseCase getArticlesByDoctorUseCase;
-  final GetArticleByIdUseCase getArticleByIdUseCase;
   final ReactToArticleUseCase reactToArticleUseCase;
 
   ArticlesCubit({
@@ -16,7 +15,6 @@ class ArticlesCubit extends Cubit<ArticlesState> {
     required this.getTrendingArticlesUseCase,
     required this.getAllArticlesUseCase,
     required this.getArticlesByDoctorUseCase,
-    required this.getArticleByIdUseCase,
     required this.reactToArticleUseCase,
   }) : super(const ArticlesInitial());
 
@@ -259,42 +257,48 @@ class ArticlesCubit extends Cubit<ArticlesState> {
   }
 
   // =========================
-  // ARTICLE DETAILS
-  // =========================
-  Future<void> loadArticleById(String articleId) async {
-    emit(const ArticleDetailsLoading());
-
-    final result = await getArticleByIdUseCase(articleId);
-
-    result.fold(
-      (failure) => emit(ArticlesError(
-        message: failure.errorMessage,
-        step: "details",
-      )),
-      (article) => emit(ArticleDetailsLoaded(article)),
-    );
-  }
-
-  // =========================
   // REACTIONS (LIKE / DISLIKE)
   // =========================
   Future<void> reactToArticle(String articleId, String reaction) async {
+    final currentState = state;
+
     final result = await reactToArticleUseCase(articleId, reaction);
 
     result.fold(
-      (failure) => emit(ArticlesError(
-        message: failure.errorMessage,
-        step: "reaction",
-      )),
+      (failure) {
+        // ✅ لا تغير الحالة إذا كانت Loaded، فقط أظهر رسالة خطأ
+        if (currentState is ArticlesLoaded) {
+          emit(ArticlesReactionError(
+            message: failure.errorMessage,
+            source: _currentSource,
+          ));
+          // أعد الحالة السابقة فوراً
+          emit(currentState);
+        } else {
+          emit(ArticlesError(
+            message: failure.errorMessage,
+            step: "reaction",
+          ));
+        }
+      },
       (_) async {
-        final updated = await getArticleByIdUseCase(articleId);
+        final updated = await getAllArticlesUseCase(
+          page: 1,
+          pageSize: _pageSize,
+        );
 
         updated.fold(
-          (failure) => emit(ArticlesError(
-            message: failure.errorMessage,
-            step: "reaction-refresh",
-          )),
-          (article) => _updateLocal(article),
+          (failure) {
+            // ✅ نفس المنطق هنا
+            if (currentState is ArticlesLoaded) {
+              emit(ArticlesReactionError(
+                message: failure.errorMessage,
+                source: _currentSource,
+              ));
+              emit(currentState);
+            }
+          },
+          (articles) => _updateLocal(articles.first),
         );
       },
     );
