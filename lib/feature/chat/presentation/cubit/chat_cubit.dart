@@ -18,6 +18,7 @@ class ChatCubit extends Cubit<ChatState> {
 
   StreamSubscription? _subscription;
   ChatRoom? _room;
+  String? _currentUserId; // 💡 متغير لحفظ الآيدي الفعلي للمستخدم
 
   Future<void> openAppointmentChat(
     String appointmentId, {
@@ -29,13 +30,14 @@ class ChatCubit extends Cubit<ChatState> {
       _room = room;
       await _subscription?.cancel();
 
-      final resolvedCurrentUserId = currentUserId ?? room.patientId;
+      // 💡 نحتفظ بالآيدي الممرر من الشاشة أو القادم من الغرفة
+      _currentUserId = currentUserId ?? room.patientId;
 
       _subscription = getMessagesStream(room.chatId).listen(
         (messages) => emit(ChatLoaded(
           room: room,
           messages: messages,
-          currentUserId: resolvedCurrentUserId,
+          currentUserId: _currentUserId!, // ✅ نمرر الآيدي الفعلي المستقر
         )),
         onError: (error) => emit(ChatError(error.toString())),
       );
@@ -46,11 +48,14 @@ class ChatCubit extends Cubit<ChatState> {
 
   Future<void> send(String text) async {
     final room = _room;
-    if (room == null) return;
+    // 💡 نتحقق من وجود الغرفة ومن وجود آيدي صالح للمستخدم
+    if (room == null || _currentUserId == null || _currentUserId!.isEmpty)
+      return;
     try {
       await sendMessage(
         chatId: room.chatId,
-        senderId: room.patientId,
+        senderId:
+            _currentUserId!, // ✅ نرسل الآيدي الحقيقي للمستخدم وليس النص الفارغ
         text: text,
       );
     } catch (error) {

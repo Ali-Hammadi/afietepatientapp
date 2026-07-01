@@ -1,12 +1,11 @@
 // lib/features/chat/presentation/screens/chat_screen.dart
 import 'package:afiete/core/constants/app_colors.dart';
-import 'package:afiete/feature/chat/data/datasources/chat_remote_datasource.dart';
-import 'package:afiete/feature/chat/domain/usecases/chat_usecase.dart';
+import 'package:afiete/core/di/injection_container.dart';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../data/repositories/chat_repository_impl.dart';
 import '../../domain/entities/chat_message.dart';
 import '../cubit/chat_cubit.dart';
 import '../cubit/chat_state.dart';
@@ -31,19 +30,13 @@ class _ChatScreenState extends State<ChatScreen> {
   late final ChatCubit cubit;
   final messageController = TextEditingController();
   final scrollController = ScrollController();
+  final dio = Dio();
 
   @override
   void initState() {
     super.initState();
-    final repository = ChatRepositoryImpl(
-      ChatRemoteDataSourceImpl(dio: Dio()),
-    );
-
-    cubit = ChatCubit(
-      getChatRoom: GetChatRoom(repository),
-      getMessagesStream: GetMessagesStream(repository),
-      sendMessage: SendMessage(repository),
-    )..openAppointmentChat(
+    cubit = sl<ChatCubit>()
+      ..openAppointmentChat(
         widget.appointmentId,
         currentUserId: widget.patientId,
       );

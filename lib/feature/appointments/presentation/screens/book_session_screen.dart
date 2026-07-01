@@ -86,8 +86,17 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
 
       if (!mounted) return;
 
+      final now = DateTime.now();
+
       setState(() {
-        _allDaysSlotsMap = tempMap;
+        _allDaysSlotsMap = {
+          for (final entry in tempMap.entries)
+            entry.key: _filterAvailableSlotsForDay(
+              entry.key,
+              entry.value,
+              now,
+            ),
+        };
         _filteredDays = days.where((day) {
           final slots = _allDaysSlotsMap[day] ?? [];
           return slots.isNotEmpty;
@@ -408,10 +417,14 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
       itemBuilder: (context, index) {
         final slot = _daySlots[index];
         final isSelected = _selectedSlot == slot;
+        final isPastSlot = !_isSlotAvailableForDateTime(
+          slot.toStartDateTime(_selectedDate ?? DateTime.now()),
+        );
         return _ChipCard(
           label: slot.displayLabel(),
           isSelected: isSelected,
-          onTap: () => setState(() => _selectedSlot = slot),
+          isEnabled: !isPastSlot,
+          onTap: isPastSlot ? null : () => setState(() => _selectedSlot = slot),
         );
       },
     );
@@ -455,6 +468,27 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
       case _BookingStep.type:
         return SettingsStrings.chooseSessionTypeTitle;
     }
+  }
+
+  List<DoctorTimeSlot> _filterAvailableSlotsForDay(
+    DateTime day,
+    List<DoctorTimeSlot> slots,
+    DateTime now,
+  ) {
+    return slots
+        .where((slot) => _isSlotAvailableForDateTime(
+              slot.toStartDateTime(day),
+              now: now,
+            ))
+        .toList();
+  }
+
+  bool _isSlotAvailableForDateTime(
+    DateTime slotStart, {
+    DateTime? now,
+  }) {
+    final currentTime = now ?? DateTime.now();
+    return slotStart.isAfter(currentTime);
   }
 }
 
@@ -560,11 +594,13 @@ class _OptionCard extends StatelessWidget {
 class _ChipCard extends StatelessWidget {
   final String label;
   final bool isSelected;
-  final VoidCallback onTap;
+  final bool isEnabled;
+  final VoidCallback? onTap;
 
   const _ChipCard({
     required this.label,
     required this.isSelected,
+    required this.isEnabled,
     required this.onTap,
   });
 
@@ -574,13 +610,15 @@ class _ChipCard extends StatelessWidget {
 
     return InkWell(
       borderRadius: BorderRadius.circular(10),
-      onTap: onTap,
+      onTap: isEnabled ? onTap : null,
       child: Container(
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: isSelected
-              ? colorScheme.primary
-              : colorScheme.primaryContainer.withValues(alpha: 0.35),
+          color: !isEnabled
+              ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.7)
+              : isSelected
+                  ? colorScheme.primary
+                  : colorScheme.primaryContainer.withValues(alpha: 0.35),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: colorScheme.outline.withValues(alpha: 0.55),
@@ -589,7 +627,11 @@ class _ChipCard extends StatelessWidget {
         child: Text(
           label,
           style: AppStyles.bodySmall.copyWith(
-            color: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
+            color: !isEnabled
+                ? colorScheme.onSurface.withValues(alpha: 0.45)
+                : isSelected
+                    ? colorScheme.onPrimary
+                    : colorScheme.onSurface,
           ),
           textAlign: TextAlign.center,
         ),

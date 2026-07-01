@@ -14,11 +14,10 @@ class ChatSessionNavigator {
     required String sessionType,
     required DateTime scheduledAt,
   }) {
-    final nowUtc = DateTime.now().toUtc();
-    final scheduledUtc = scheduledAt.toUtc();
-    final canJoinFrom = scheduledUtc.subtract(const Duration(minutes: 1));
+    final now = DateTime.now();
+    final canJoinFrom = scheduledAt.subtract(const Duration(minutes: 1));
 
-    if (nowUtc.isBefore(canJoinFrom)) {
+    if (now.isBefore(canJoinFrom)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(

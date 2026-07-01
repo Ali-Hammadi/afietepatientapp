@@ -17,8 +17,8 @@ class SessionModel extends SessionEntity {
   factory SessionModel.fromJson(Map<String, dynamic> json) {
     final scheduledAtRaw = _readString(json, const ['scheduledAt', 'date']);
     final scheduledAt = scheduledAtRaw != null
-        ? DateTime.parse(scheduledAtRaw).toUtc()
-        : DateTime.now().toUtc();
+        ? DateTime.parse(scheduledAtRaw)
+        : DateTime.now();
 
     final username = _readString(
           json,

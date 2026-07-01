@@ -28,10 +28,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   @override
   Future<ChatRoom> getRoomForAppointment(String appointmentId) async {
     try {
-      final response = await dio.get(
-        ApiEndpoints.chatMessages,
-        queryParameters: {'appointment_id': appointmentId},
-      );
+      final response = await dio.get(ApiEndpoints.chatMessages(appointmentId));
       final normalized = _normalizeMap(response.data);
       final model = ChatRoomModel.fromJson(normalized);
 
@@ -39,12 +36,12 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           model.appointmentId.trim().isNotEmpty) {
         return model;
       }
-    } catch (_) {
-      // Fallback to a local room so the user can still enter the chat.
+    } catch (e) {
+      print("🔴 ChatRemoteDataSource Error: $e");
     }
 
     return ChatRoomModel(
-      chatId: appointmentId,
+      chatId: 'appointment_$appointmentId',
       appointmentId: appointmentId,
       doctorId: '',
       patientId: '',
@@ -69,8 +66,9 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
     // 🔴 نستخدم senderId الممرر، والدور هو 'patient'
     await chatRef.collection('messages').add({
-      'senderId': senderId,
-      'senderRole': 'patient',
+      'senderId': senderId.startsWith('user_')
+          ? senderId
+          : 'user_$senderId', // ✅ توافق تام      'senderRole': 'patient',
       'text': cleanText,
       'type': 'text',
       'createdAt': FieldValue.serverTimestamp(),
@@ -99,8 +97,9 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
   Map<String, dynamic> _normalizeMap(Object? data) {
     if (data is Map<String, dynamic>) return data;
-    if (data is Map)
+    if (data is Map) {
       return data.map((key, value) => MapEntry(key.toString(), value));
+    }
     return const <String, dynamic>{};
   }
 }

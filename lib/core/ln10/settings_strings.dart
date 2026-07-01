@@ -49,8 +49,16 @@ abstract class SettingsStrings {
       _t('Terms & Privacy', 'الشروط والخصوصية');
 
   static String get reportOnApp => _t('App Issue', 'مشكلة في التطبيق ');
+  static String get reportOnAppDescription => _t(
+        'Report any technical issues or problems with the app.',
+        'الإبلاغ عن أي مشاكل تقنية أو أعطال في التطبيق.',
+      );
   static String get reportOnUser => _t('Report On User', 'بلاغ على مستخدم  ');
+  static String get reportOnUserDescription =>
+      _t('Report On User Description', 'تفاصيل البلاغ على المستخدم');
   static String get reportOnSession => _t('Session Issue', 'مشكلة في الجلسة  ');
+  static String get reportOnSessionDescription =>
+      _t('Session Issue Description', 'تفاصيل مشكلة الجلسة');
   static String get contactUsTitle => _t('Contact us', 'تواصل معنا');
   static String get reportsTitle => _t('Reports', 'التقارير');
   static String get logoutTitle => _t('Log out', 'تسجيل الخروج');
@@ -62,6 +70,8 @@ abstract class SettingsStrings {
         'You will need to sign in again to access the app.',
         'ستحتاج إلى تسجيل الدخول مرة أخرى للوصول إلى التطبيق.',
       );
+  static String get reportOnAppDetails =>
+      _t('Report on App details', 'تفاصيل الإبلاغ عن التطبيق');
   static String get logoutSuccess =>
       _t('Logged out successfully', 'تم تسجيل الخروج بنجاح');
   static String get homeNavLabel => _t('Home', 'الرئيسية');
@@ -103,6 +113,12 @@ abstract class SettingsStrings {
         'هل أنت متأكد أنك تريد إلغاء هذه الجلسة؟',
       );
 
+  static String get noReports =>
+      _t("No previous technical reports.", '"لا توجد بلاغات تقنية سابقة."');
+
+  static String get noUserReports =>
+      _t("No previous user reports.", '"لا توجد بلاغات مستخدم سابقة."');
+
   static String get canceled => _t('canceled', 'تم الإلغاء');
   static String get no => _t('No', 'لا');
   static String get yesCancel => _t('Yes, Cancel', 'نعم، إلغاء');
@@ -137,9 +153,8 @@ abstract class SettingsStrings {
       _t('Payment successful: $reference', 'تم الدفع بنجاح: $reference');
   static String get reportDoctorTitle =>
       _t('Report Doctor', 'الإبلاغ عن الطبيب');
-
   static String get selectDoctor => _t('Select Doctor', 'اختر الطبيب');
-
+  static String get createReport => _t('Create Report', 'إنشاء بلاغ');
   static String get unCompletedReportInformation => _t(
       'The report informations are\'t complete. ',
       'بيانات البلاغ مطلوبة وغير مكتملة.');
@@ -154,6 +169,9 @@ abstract class SettingsStrings {
         'Report any issues you experienced during your session.',
         'أبلغ عن أي مشاكل واجهتها أثناء الجلسة.',
       );
+
+  static String get fetchReasons =>
+      _t('Fetching reasons', 'جاري جلب قائمة الأسباب..');
   static String get reportIssueDescription => _t(
         'Let us know about any technical issues or problems with the app.',
         'أخبرنا عن أي مشاكل تقنية أو أعطال في التطبيق.',
@@ -313,7 +331,7 @@ abstract class SettingsStrings {
   static String get holdLabel => _t('Hold', 'حبس');
   static String get exhaleLabel => _t('Exhale', 'زفير');
   static String get restLabel => _t('Rest', 'راحة');
-
+  static String get by => _t('by', 'بواسطة');
   // Breathing Exercise Titles
   static String get boxBreathingTitle =>
       _t('Box Breathing', 'تمرين التنفس الصندوقي');
@@ -1053,6 +1071,7 @@ abstract class SettingsStrings {
       _t('Create your account', 'أنشئ حسابك');
   static String get nicknameLabel => _t('Nickname', 'الاسم المستعار');
   static String get usernameLabel => _t('Username', 'اسم المستخدم');
+  static String get usernameHint => _t('ali_234', 'ali_234');
   static String get nameRequired => _t('Name is required', 'الاسم مطلوب');
   static String get nameMinTwoChars => _t(
         'Name must be at least 2 characters',

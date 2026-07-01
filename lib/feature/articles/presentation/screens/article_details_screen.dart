@@ -87,7 +87,7 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'بواسطة: ${article.doctor.name}',
+                    '${SettingsStrings.by} ${article.doctor.name}',
                     style: AppStyles.bodyMedium
                         .copyWith(color: colorScheme.outline),
                   ),

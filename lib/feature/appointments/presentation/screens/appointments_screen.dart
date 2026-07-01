@@ -277,13 +277,14 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             appointment.doctorUsername,
           );
           final isCompleted = appointment.status.toLowerCase() == 'completed';
+          final canReview = isCompleted;
 
           return CustomAppointmentCard(
             doctor: matchedDoctor,
             appointment: appointment,
             isPast: _selectedTabIndex == 1,
             isCanceled: _selectedTabIndex == 2,
-            onAddReview: _selectedTabIndex != 1 || !isCompleted
+            onAddReview: _selectedTabIndex != 1 || !canReview
                 ? null
                 : () => _showReviewSheet(
                       appointmentId: appointment.appointmentId,

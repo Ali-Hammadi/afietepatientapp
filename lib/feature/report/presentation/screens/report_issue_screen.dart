@@ -1,6 +1,7 @@
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/routes/app_route.dart';
+import 'package:afiete/core/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 
 class ReportIssueScreen extends StatelessWidget {
@@ -44,7 +45,7 @@ class ReportIssueScreen extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        "اختر نوع البلاغ الذي تريد تقديمه. جميع البلاغات سرية وستتم مراجعتها من قبل الإدارة.",
+                        SettingsStrings.reportIssueDescription,
                         style: AppStyles.bodyMedium,
                       ),
                     ),
@@ -52,71 +53,56 @@ class ReportIssueScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-
               Text(
-                "أنواع البلاغات المتاحة:",
+                SettingsStrings.reportIssue,
                 style: AppStyles.headingMedium,
               ),
               const SizedBox(height: 16),
-
-              // بطاقة البلاغ التقني
               _buildReportTypeCard(
                 context: context,
                 icon: Icons.bug_report,
-                title: "بلاغ تقني / اقتراح",
-                description:
-                    "الإبلاغ عن مشكلة في التطبيق أو تقديم اقتراح للتحسين",
+                title: SettingsStrings.reportOnApp,
+                description: SettingsStrings.reportOnAppDescription,
                 onTap: () {
                   Navigator.pushNamed(
                     context,
                     MyRoutes.reportScreen,
-                    // بدون arguments = بلاغ تقني
                   );
                 },
               ),
               const SizedBox(height: 12),
-
-              // بطاقة البلاغ عن طبيب
               _buildReportTypeCard(
                 context: context,
                 icon: Icons.medical_services,
-                title: "بلاغ عن طبيب",
-                description: "الإبلاغ عن سلوك غير مهني أو مخالفات من طبيب",
+                title: SettingsStrings.reportOnUser,
+                description: SettingsStrings.reportOnUserDescription,
                 onTap: () => _showUsernameInputDialog(
                   context,
                   reportType: 'doctor',
-                  title: "أدخل اسم المستخدم الخاص بالطبيب",
+                  title: SettingsStrings.reportOnUser,
                 ),
               ),
               const SizedBox(height: 12),
-
-              // بطاقة البلاغ عن جلسة
               _buildReportTypeCard(
                 context: context,
                 icon: Icons.event_busy,
-                title: "بلاغ عن جلسة/موعد",
-                description:
-                    "الإبلاغ عن مشكلة في موعد محدد (عدم حضور، إلغاء متأخر)",
+                title: SettingsStrings.reportOnSession,
+                description: SettingsStrings.reportOnSessionDescription,
                 onTap: () => _showUsernameInputDialog(
                   context,
                   reportType: 'session',
-                  title: "أدخل اسم المستخدم الخاص بالطبيب/المريض",
+                  title: SettingsStrings.reportOnSessionDescription,
                 ),
               ),
-              const SizedBox(height: 16),
-
-              // زر عرض سجل البلاغات
-              OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.pushNamed(context, MyRoutes.reportHistoryScreen);
-                },
-                icon: const Icon(Icons.history),
-                label: const Text("عرض سجل البلاغات السابقة"),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  side: BorderSide(color: colorScheme.primary),
-                ),
-              ),
+              const SizedBox(height: 32),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                CustomButton(
+                    widget: Text(SettingsStrings.reportHistoryTitle),
+                    onPressed: () {
+                      Navigator.pushNamed(
+                          context, MyRoutes.reportHistoryScreen);
+                    }),
+              ]),
             ],
           ),
         ),
@@ -207,18 +193,18 @@ class ReportIssueScreen extends StatelessWidget {
           children: [
             TextField(
               controller: usernameController,
-              decoration: const InputDecoration(
-                labelText: "اسم المستخدم (Username)",
-                hintText: "مثال: dr_ahmed_123",
+              decoration: InputDecoration(
+                labelText: SettingsStrings.usernameLabel,
+                hintText: SettingsStrings.usernameHint,
                 border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: displayNameController,
-              decoration: const InputDecoration(
-                labelText: "الاسم المعروض (اختياري)",
-                hintText: "مثال: د. أحمد محمد",
+              decoration: InputDecoration(
+                labelText: SettingsStrings.nameOnCardHint,
+                hintText: SettingsStrings.nameOnCardHint,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -227,14 +213,14 @@ class ReportIssueScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text("إلغاء"),
+            child: Text(SettingsStrings.cancel),
           ),
           ElevatedButton(
             onPressed: () {
               final username = usernameController.text.trim();
               if (username.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("الرجاء إدخال اسم المستخدم")),
+                  SnackBar(content: Text(SettingsStrings.enterDoctorUsername)),
                 );
                 return;
               }
@@ -251,7 +237,7 @@ class ReportIssueScreen extends StatelessWidget {
                 ),
               );
             },
-            child: const Text("متابعة"),
+            child: Text(SettingsStrings.next),
           ),
         ],
       ),

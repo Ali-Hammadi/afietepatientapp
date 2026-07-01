@@ -38,7 +38,7 @@ class CustomAppointmentCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final dateText = DateFormat('EEE, dd MMM yyyy - hh:mm a')
-        .format(appointment.scheduledAt);
+        .format(appointment.scheduledAt.toLocal());
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),

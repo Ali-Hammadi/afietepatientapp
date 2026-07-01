@@ -42,9 +42,9 @@ class AppointmentModel extends AppointmentEntity {
           'unknown_patient',
       doctorName: extractedDoctorName,
       scheduledAt: json['date'] != null
-          ? DateTime.parse(json['date'] as String).toUtc()
+          ? DateTime.parse(json['date'] as String)
           : json['scheduledAt'] != null
-              ? DateTime.parse(json['scheduledAt'] as String).toUtc() // 🟢
+              ? DateTime.parse(json['scheduledAt'] as String)
               : DateTime.now(),
       durationSlots:
           json['duration_slots'] as int? ?? json['durationSlots'] as int? ?? 1,

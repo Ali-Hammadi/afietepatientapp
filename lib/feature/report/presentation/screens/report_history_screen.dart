@@ -23,7 +23,6 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen>
     _loadData();
   }
 
-  // ✅ دالة منفصلة لتحميل البيانات
   Future<void> _loadData() async {
     if (!mounted) return;
     context.read<ReportCubit>().loadReportsDashboard();
@@ -55,10 +54,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen>
         ),
       ),
       body: BlocConsumer<ReportCubit, ReportState>(
-        // ✅ إضافة listener للتعامل مع نتيجة Navigator.pop
-        listener: (context, state) {
-          // يمكن إضافة منطق إضافي هنا إذا لزم الأمر
-        },
+        listener: (context, state) {},
         builder: (context, state) {
           if (state is ReportsDashboardLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -84,7 +80,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen>
                     ElevatedButton.icon(
                       onPressed: _loadData,
                       icon: const Icon(Icons.refresh),
-                      label: const Text("إعادة المحاولة"),
+                      label: Text(SettingsStrings.retry),
                     ),
                   ],
                 ),
@@ -92,13 +88,12 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen>
             );
           } else if (state is ReportsDashboardLoaded) {
             return RefreshIndicator(
-              // ✅ إضافة RefreshIndicator للتحديث اليدوي
               onRefresh: _loadData,
               child: TabBarView(
                 controller: _tabController,
                 children: [
                   state.appReports.isEmpty
-                      ? const Center(child: Text("لا توجد بلاغات تقنية سابقة."))
+                      ? Center(child: Text(SettingsStrings.noReports))
                       : ListView.builder(
                           padding: const EdgeInsets.all(AppStyles.padding),
                           itemCount: state.appReports.length,
@@ -111,8 +106,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen>
                           ),
                         ),
                   state.userReports.isEmpty
-                      ? const Center(
-                          child: Text("لم تقم بتقديم أي شكوى سلوكية سابقة."))
+                      ? Center(child: Text(SettingsStrings.noUserReports))
                       : ListView.builder(
                           padding: const EdgeInsets.all(AppStyles.padding),
                           itemCount: state.userReports.length,
@@ -128,7 +122,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen>
               ),
             );
           }
-          return const Center(child: Text("لا توجد بيانات"));
+          return Center(child: Text(SettingsStrings.noReports));
         },
       ),
     );

@@ -42,7 +42,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDP2-Bhmbh45CNgpoowHgMoQ8dZ390h-lA',
-    appId: '1:113063880812:android:6bac6d49c06d3a28a55049',
+    appId: '1:113063880812:android:0577fb64eca1405da55049',
     messagingSenderId: '113063880812',
     projectId: 'afiete-chat',
     storageBucket: 'afiete-chat.firebasestorage.app',

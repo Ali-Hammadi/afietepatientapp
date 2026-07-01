@@ -141,6 +141,7 @@ abstract class ApiEndpoints {
   // === Voice call Endpoints ===
   // ===============================================================================================
   // === Chat Endpoints ===
-  static const String chatMessages = '/api/chat/firebase-token/';
+  static String chatMessages(String appointmentId) =>
+      '/api/chat/appointments/$appointmentId/';
   // ===============================================================================================
 }

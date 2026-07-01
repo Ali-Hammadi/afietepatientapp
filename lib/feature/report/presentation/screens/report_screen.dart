@@ -1,4 +1,5 @@
 import 'package:afiete/core/constants/styles.dart';
+import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/widget/custom_button.dart';
 import 'package:afiete/feature/report/domain/entities/report_config.dart';
 import 'package:afiete/feature/report/presentation/cubits/report_cubit.dart';
@@ -41,14 +42,14 @@ class _ReportScreenState extends State<ReportScreen> {
   void _submitAction() {
     if (_contentController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("الرجاء كتابة تفاصيل البلاغ")),
+        SnackBar(content: Text(SettingsStrings.unCompletedReportInformation)),
       );
       return;
     }
 
     if (_selectedReason == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("الرجاء اختيار سبب البلاغ")),
+        SnackBar(content: Text(SettingsStrings.selectReason)),
       );
       return;
     }
@@ -72,13 +73,13 @@ class _ReportScreenState extends State<ReportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final isUserReporting = widget.reportedUsername != null;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            isUserReporting ? "إبلاغ عن مخالفة سلوكية" : "بلاغ تقني / اقتراح"),
+        title: Text(isUserReporting
+            ? SettingsStrings.reportDoctorTitle
+            : SettingsStrings.reportIssueTitle),
       ),
       body: BlocConsumer<ReportCubit, ReportState>(
         listener: (context, state) {
@@ -116,7 +117,6 @@ class _ReportScreenState extends State<ReportScreen> {
             padding: const EdgeInsets.all(AppStyles.padding),
             children: [
               if (isUserReporting) ...[
-                // تنبيه للمستخدم
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -124,31 +124,23 @@ class _ReportScreenState extends State<ReportScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    "أنت تقوم بتقديم بلاغ ضد: ${widget.targetName ?? 'هذا المستخدم'}.\nسيتم التحقق من وجود جلسة مشتركة بينكما.",
-                    style: TextStyle(
-                      color: theme.colorScheme.error,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    "${SettingsStrings.reportDoctorTitle} ${widget.targetName ?? ''}.\n${SettingsStrings.reportOnSession}",
+                    style: AppStyles.headingMedium.copyWith(color: Colors.red),
                   ),
                 ),
                 const SizedBox(height: 20),
-
-                // عنوان قسم اختيار النوع
                 Text(
-                  "اختر نوع البلاغ:",
+                  SettingsStrings.reportIssue,
                   style: AppStyles.bodyLarge.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 12),
-
-                // خيارات نوع البلاغ مع الوصف
                 _buildReportTypeCard(
                   context: context,
                   value: 'doctor',
-                  title: 'بلاغ عن طبيب',
-                  description:
-                      'استخدم هذا الخيار للإبلاغ عن سلوك غير مهني أو مخالفات من الطبيب نفسه',
+                  title: SettingsStrings.reportDoctorTitle,
+                  description: SettingsStrings.reportDoctorDescription,
                   icon: Icons.medical_services,
                   isSelected: _selectedUserReportType == 'doctor',
                 ),
@@ -156,25 +148,27 @@ class _ReportScreenState extends State<ReportScreen> {
                 _buildReportTypeCard(
                   context: context,
                   value: 'session',
-                  title: 'بلاغ عن جلسة/موعد',
-                  description:
-                      'استخدم هذا الخيار للإبلاغ عن مشاكل متعلقة بموعد محدد (عدم الحضور، إلغاء متأخر، إلخ)',
+                  title: SettingsStrings.reportSessionTitle,
+                  description: SettingsStrings.reportSessionDescription,
                   icon: Icons.event_busy,
                   isSelected: _selectedUserReportType == 'session',
                 ),
                 const SizedBox(height: 20),
               ],
-
-              // عنوان قسم اختيار السبب
               Text(
-                "اختر سبب البلاغ:",
+                SettingsStrings.selectReason,
                 style: AppStyles.bodyLarge.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
               availableReasons.isEmpty
-                  ? const Text("جاري جلب قائمة الأسباب...")
+                  ? Center(
+                      child: Text(
+                        SettingsStrings.fetchReasons,
+                        style: AppStyles.bodyMedium,
+                      ),
+                    )
                   : ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -194,21 +188,17 @@ class _ReportScreenState extends State<ReportScreen> {
                       },
                     ),
               const SizedBox(height: 20),
-
-              // حقل التفاصيل
               CustomReportFormWidget(
-                label: "شرح تفصيلي للمشكلة",
-                hintText: "يرجى كتابة تفاصيل دقيقة لمساعدتنا في التحقيق...",
+                label: SettingsStrings.reportDetailsTitle,
+                hintText: SettingsStrings.reportDescriptionHint,
                 controller: _contentController,
               ),
               const SizedBox(height: 24),
-
-              // زر الإرسال
               CustomButton(
                 widget: state is ReportActionLoading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        "إرسال البلاغ",
+                    : Text(
+                        SettingsStrings.submitReport,
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                 onPressed: state is ReportActionLoading ? null : _submitAction,
@@ -220,7 +210,6 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
-  // دالة لبناء بطاقة اختيار نوع البلاغ مع الوصف
   Widget _buildReportTypeCard({
     required BuildContext context,
     required String value,
@@ -250,7 +239,6 @@ class _ReportScreenState extends State<ReportScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // الأيقونة
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
@@ -267,7 +255,6 @@ class _ReportScreenState extends State<ReportScreen> {
             ),
             const SizedBox(width: 12),
 
-            // النص والعنوان
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
