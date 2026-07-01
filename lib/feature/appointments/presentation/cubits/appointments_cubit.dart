@@ -57,7 +57,6 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
     );
   }
 
-  // ✅ باقي الدوال كما هي بدون تغيير
   void startDoctorRescheduleListener() {
     _doctorRescheduleTimer?.cancel();
     _doctorRescheduleTimer =

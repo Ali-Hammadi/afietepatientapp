@@ -21,7 +21,7 @@ class ChatSessionNavigator {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Session starts at ${scheduledAt.toLocal()}. You can join when the time comes.',
+            'Session starts at $scheduledAt. You can join when the time comes.',
           ),
         ),
       );

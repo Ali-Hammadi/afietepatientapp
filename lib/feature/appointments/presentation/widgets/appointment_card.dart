@@ -38,7 +38,7 @@ class CustomAppointmentCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final dateText = DateFormat('EEE, dd MMM yyyy - hh:mm a')
-        .format(appointment.scheduledAt.toLocal());
+        .format(appointment.scheduledAt);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -59,7 +59,9 @@ class CustomAppointmentCard extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundImage: const AssetImage(ImageLinks.man1),
+                  backgroundImage: doctor?.imageUrl != null
+                      ? NetworkImage(doctor!.imageUrl!)
+                      : const AssetImage(ImageLinks.appIcon) as ImageProvider,
                   radius: 30,
                   backgroundColor:
                       colorScheme.primaryContainer.withValues(alpha: 0.35),
