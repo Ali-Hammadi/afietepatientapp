@@ -10,12 +10,24 @@ class ReviewModel extends ReviewEntity {
   });
 
   factory ReviewModel.fromJson(Map<String, dynamic> json) {
+    final rawId = json['id'] ?? json['reviewId'] ?? json['pk'] ?? '';
+    final rawSessionId =
+        json['sessionId'] ?? json['session_id'] ?? json['appointmentId'] ?? '';
+    final rawRating = json['rating'] ?? json['score'] ?? 0;
+    final rawComment = json['comment'] ?? json['review'] ?? '';
+    final rawCreatedAt = json['createdAt'] ??
+        json['created_at'] ??
+        DateTime.now().toUtc().toIso8601String();
+
     return ReviewModel(
-      id: json['id'] as String,
-      sessionId: json['sessionId'] as String,
-      rating: json['rating'] as int,
-      comment: json['comment'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      id: rawId.toString(),
+      sessionId: rawSessionId.toString(),
+      rating: rawRating is int
+          ? rawRating
+          : int.tryParse(rawRating.toString()) ?? 0,
+      comment: rawComment.toString(),
+      createdAt:
+          DateTime.tryParse(rawCreatedAt.toString()) ?? DateTime.now().toUtc(),
     );
   }
 

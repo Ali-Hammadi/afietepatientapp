@@ -118,8 +118,8 @@ class _MySessionsScreenState extends State<MySessionsScreen> {
                     context: context,
                     isScrollControlled: true,
                     builder: (_) => CustomReviewBottomSheet(
-                      sessionId: session.id,
-                      username: session.username,
+                      appointmentId: session.id,
+                      hasNextSession: false,
                     ),
                   );
                 }
@@ -208,7 +208,7 @@ class _MySessionsScreenState extends State<MySessionsScreen> {
     chat_nav.ChatSessionNavigator.openFromSession(
       context,
       session,
-      patientId: 'current_patient',
+      patientUsername: 'current_patient',
     );
   }
 

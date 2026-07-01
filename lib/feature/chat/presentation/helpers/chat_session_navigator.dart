@@ -9,16 +9,20 @@ class ChatSessionNavigator {
     required BuildContext context,
     required dynamic sessionId,
     required String username,
-    required String patientId,
+    required String patientUsername,
     required String doctorName,
     required String sessionType,
     required DateTime scheduledAt,
   }) {
-    if (DateTime.now().isBefore(scheduledAt)) {
+    final nowUtc = DateTime.now().toUtc();
+    final scheduledUtc = scheduledAt.toUtc();
+    final canJoinFrom = scheduledUtc.subtract(const Duration(minutes: 1));
+
+    if (nowUtc.isBefore(canJoinFrom)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Session starts at $scheduledAt. You can join when the time comes.',
+            'Session starts at ${scheduledAt.toLocal()}. You can join when the time comes.',
           ),
         ),
       );
@@ -39,19 +43,24 @@ class ChatSessionNavigator {
     Navigator.pushNamed(
       context,
       MyRoutes.chatScreen,
+      arguments: ChatConversationArgs(
+        appointmentId: sessionId.toString(),
+        doctorName: doctorName,
+        patientUsername: patientUsername,
+      ),
     );
   }
 
   static void openFromSession(
     BuildContext context,
     SessionEntity session, {
-    required String patientId,
+    required String patientUsername,
   }) {
     openIfChatSession(
       context: context,
       sessionId: session.id,
       username: session.username,
-      patientId: patientId,
+      patientUsername: patientUsername,
       doctorName: session.doctorName,
       sessionType: session.sessionType,
       scheduledAt: session.scheduledAt,
@@ -67,7 +76,7 @@ class ChatSessionNavigator {
       context: context,
       sessionId: appointment.appointmentId,
       username: appointment.doctorUsername,
-      patientId: appointment.patientId,
+      patientUsername: appointment.patientUsername,
       doctorName: doctorName,
       sessionType: appointment.sessionType,
       scheduledAt: appointment.scheduledAt,

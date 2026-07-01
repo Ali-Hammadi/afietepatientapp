@@ -27,8 +27,31 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
   @override
   Future<ChatRoom> getRoomForAppointment(String appointmentId) async {
-    final response = await dio.get(ApiEndpoints.chatMessages);
-    return ChatRoomModel.fromJson(_normalizeMap(response.data));
+    try {
+      final response = await dio.get(
+        ApiEndpoints.chatMessages,
+        queryParameters: {'appointment_id': appointmentId},
+      );
+      final normalized = _normalizeMap(response.data);
+      final model = ChatRoomModel.fromJson(normalized);
+
+      if (model.chatId.trim().isNotEmpty &&
+          model.appointmentId.trim().isNotEmpty) {
+        return model;
+      }
+    } catch (_) {
+      // Fallback to a local room so the user can still enter the chat.
+    }
+
+    return ChatRoomModel(
+      chatId: appointmentId,
+      appointmentId: appointmentId,
+      doctorId: '',
+      patientId: '',
+      doctorUsername: '',
+      patientUsername: '',
+      canJoin: true,
+    );
   }
 
   @override

@@ -19,18 +19,23 @@ class ChatCubit extends Cubit<ChatState> {
   StreamSubscription? _subscription;
   ChatRoom? _room;
 
-  Future<void> openAppointmentChat(String appointmentId) async {
+  Future<void> openAppointmentChat(
+    String appointmentId, {
+    String? currentUserId,
+  }) async {
     emit(const ChatLoading());
     try {
       final room = await getChatRoom(appointmentId);
       _room = room;
       await _subscription?.cancel();
 
+      final resolvedCurrentUserId = currentUserId ?? room.patientId;
+
       _subscription = getMessagesStream(room.chatId).listen(
         (messages) => emit(ChatLoaded(
           room: room,
           messages: messages,
-          currentUserId: room.patientId, // 🔴 نستخدم patientId من الـ Room
+          currentUserId: resolvedCurrentUserId,
         )),
         onError: (error) => emit(ChatError(error.toString())),
       );

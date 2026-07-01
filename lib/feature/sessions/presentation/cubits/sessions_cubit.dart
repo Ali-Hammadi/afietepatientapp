@@ -85,18 +85,23 @@ class SessionsCubit extends Cubit<SessionsState> {
     );
   }
 
-  Future<void> submitReview({
-    required dynamic sessionId,
-    required String doctorId,
+  Future<bool> submitReview({
+    required dynamic appointmentId,
     required int rating,
-    required String comment,
+    String? comment,
   }) async {
     final result = await addReviewUseCase(
-      AddReviewParams(sessionId: sessionId, rating: rating, comment: comment),
+      AddReviewParams(
+        appointmentId: appointmentId,
+        rating: rating,
+        comment: comment,
+      ),
     );
     result.fold(
       (failure) => emit(SessionsError(failure.errorMessage)),
       (_) => emit(const ReviewSubmitted()),
     );
+
+    return result.isRight();
   }
 }

@@ -23,8 +23,8 @@ abstract class SessionsRepository {
   });
 
   Future<Either<Failure, ReviewEntity>> addReview({
-    required dynamic sessionId,
+    required dynamic appointmentId,
     required int rating,
-    required String comment,
+    String? comment,
   });
 }

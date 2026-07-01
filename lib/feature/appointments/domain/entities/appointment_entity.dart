@@ -4,7 +4,7 @@ import 'package:afiete/feature/appointments/domain/values/consultation_fee.dart'
 class AppointmentEntity extends Equatable {
   final dynamic appointmentId;
   final String doctorUsername;
-  final String patientId;
+  final String patientUsername;
   final String doctorName;
   final DateTime scheduledAt;
   final int durationSlots;
@@ -17,7 +17,7 @@ class AppointmentEntity extends Equatable {
   const AppointmentEntity({
     required this.appointmentId,
     required this.doctorUsername,
-    required this.patientId,
+    required this.patientUsername,
     required this.doctorName,
     required this.scheduledAt,
     required this.durationSlots,
@@ -36,7 +36,7 @@ class AppointmentEntity extends Equatable {
   List<Object?> get props => [
         appointmentId,
         doctorUsername,
-        patientId,
+        patientUsername,
         doctorName,
         scheduledAt,
         durationSlots,

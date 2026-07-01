@@ -6,7 +6,6 @@ abstract class TokenStorage {
   static const String _legacyTokenKey = 'auth_token';
 
   static Future<void> saveToken(String token) async {
-    // Backward-compatible helper for callers that only have one token.
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_accessTokenKey, token);
     await prefs.setString(_legacyTokenKey, token);

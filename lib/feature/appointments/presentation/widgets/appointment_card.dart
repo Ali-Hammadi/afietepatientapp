@@ -13,7 +13,7 @@ class CustomAppointmentCard extends StatelessWidget {
   final AppointmentEntity appointment;
   final DoctorEntity? doctor;
   final bool isPast;
-  final bool isCanceled; // ✅ جديد
+  final bool isCanceled;
   final VoidCallback? onAddReview;
   final VoidCallback? onBookAgain;
   final VoidCallback? onReschedule;
@@ -24,7 +24,7 @@ class CustomAppointmentCard extends StatelessWidget {
     super.key,
     required this.appointment,
     required this.isPast,
-    this.isCanceled = false, // ✅ جديد
+    this.isCanceled = false,
     this.doctor,
     this.onAddReview,
     this.onBookAgain,
@@ -47,7 +47,7 @@ class CustomAppointmentCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppStyles.borderRadius),
         side: BorderSide(
           color: isCanceled
-              ? colorScheme.error.withValues(alpha: 0.5) // ✅ لون مختلف للملغاة
+              ? colorScheme.error.withValues(alpha: 0.5)
               : colorScheme.outline.withValues(alpha: 0.25),
         ),
       ),
@@ -150,7 +150,7 @@ class CustomAppointmentCard extends StatelessWidget {
                   runSpacing: 8,
                   alignment: WrapAlignment.start,
                   children: [
-                    if (isPast) ...[
+                    if (isPast && onAddReview != null)
                       CustomButton(
                         widget: Text(
                           SettingsStrings.addReview,
@@ -159,6 +159,7 @@ class CustomAppointmentCard extends StatelessWidget {
                         ),
                         onPressed: onAddReview,
                       ),
+                    if (isPast)
                       CustomButton(
                         widget: Text(
                           SettingsStrings.bookAgain,
@@ -166,8 +167,8 @@ class CustomAppointmentCard extends StatelessWidget {
                               .copyWith(color: colorScheme.onPrimary),
                         ),
                         onPressed: onBookAgain,
-                      ),
-                    ] else ...[
+                      )
+                    else ...[
                       CustomButton(
                         widget: Text(
                           SettingsStrings.joinSession,

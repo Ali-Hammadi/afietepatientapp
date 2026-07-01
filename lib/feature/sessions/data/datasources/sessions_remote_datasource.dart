@@ -21,9 +21,9 @@ abstract class SessionsRemoteDataSource {
   });
 
   Future<ReviewModel> addReview({
-    required dynamic sessionId,
+    required dynamic appointmentId,
     required int rating,
-    required String comment,
+    String? comment,
   });
 }
 
@@ -183,18 +183,54 @@ class SessionsRemoteDataSourceImpl implements SessionsRemoteDataSource {
 
   @override
   Future<ReviewModel> addReview({
-    required dynamic sessionId,
+    required dynamic appointmentId,
     required int rating,
-    required String comment,
+    String? comment,
   }) async {
     try {
+      final body = <String, dynamic>{
+        'rating': rating,
+      };
+
+      final normalizedComment = comment?.trim();
+      if (normalizedComment != null && normalizedComment.isNotEmpty) {
+        body['comment'] = normalizedComment;
+      }
+
       final response = await _dio.post(
-        ApiEndpoints.rateAppointment(sessionId),
-        data: {'sessionId': sessionId, 'rating': rating, 'comment': comment},
+        ApiEndpoints.rateAppointment(appointmentId.toString()),
+        data: body,
       );
       if (response.statusCode == 201) {
-        return ReviewModel.fromJson(response.data as Map<String, dynamic>);
+        final data = response.data;
+        if (data is Map<String, dynamic>) {
+          return ReviewModel.fromJson(data);
+        }
+
+        return ReviewModel(
+          id: '',
+          sessionId: appointmentId.toString(),
+          rating: rating,
+          comment: normalizedComment ?? '',
+          createdAt: DateTime.now().toUtc(),
+        );
       }
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        final data = response.data;
+        if (data is Map<String, dynamic>) {
+          return ReviewModel.fromJson(data);
+        }
+
+        return ReviewModel(
+          id: '',
+          sessionId: appointmentId.toString(),
+          rating: rating,
+          comment: normalizedComment ?? '',
+          createdAt: DateTime.now().toUtc(),
+        );
+      }
+
       throw DioException(
         requestOptions: response.requestOptions,
         response: response,
@@ -204,8 +240,9 @@ class SessionsRemoteDataSourceImpl implements SessionsRemoteDataSource {
       rethrow;
     } catch (e) {
       throw DioException(
-        requestOptions:
-            RequestOptions(path: ApiEndpoints.rateAppointment(sessionId)),
+        requestOptions: RequestOptions(
+          path: ApiEndpoints.rateAppointment(appointmentId.toString()),
+        ),
         error: e,
         type: DioExceptionType.unknown,
       );

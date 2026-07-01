@@ -5,7 +5,7 @@ class AppointmentModel extends AppointmentEntity {
   const AppointmentModel({
     required super.appointmentId,
     required super.doctorUsername,
-    required super.patientId,
+    required super.patientUsername,
     required super.doctorName,
     required super.scheduledAt,
     required super.durationSlots,
@@ -37,7 +37,7 @@ class AppointmentModel extends AppointmentEntity {
       appointmentId:
           json['id'] as dynamic ?? json['appointmentId'] as dynamic ?? 0,
       doctorUsername: extractedUsername,
-      patientId: json['patient_username'] as String? ??
+      patientUsername: json['patient_username'] as String? ??
           json['patientId'] as String? ??
           'unknown_patient',
       doctorName: extractedDoctorName,
@@ -77,7 +77,7 @@ class AppointmentModel extends AppointmentEntity {
     return AppointmentModel(
       appointmentId: entity.appointmentId,
       doctorUsername: entity.doctorUsername,
-      patientId: entity.patientId,
+      patientUsername: entity.patientUsername,
       doctorName: entity.doctorName,
       scheduledAt: entity.scheduledAt,
       durationSlots: entity.durationSlots,

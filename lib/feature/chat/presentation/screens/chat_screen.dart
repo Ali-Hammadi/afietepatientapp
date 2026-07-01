@@ -16,10 +16,12 @@ class ChatScreen extends StatefulWidget {
     super.key,
     required this.appointmentId,
     required this.doctorName,
+    required this.patientId,
   });
 
   final String appointmentId;
   final String doctorName;
+  final String patientId;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -41,7 +43,10 @@ class _ChatScreenState extends State<ChatScreen> {
       getChatRoom: GetChatRoom(repository),
       getMessagesStream: GetMessagesStream(repository),
       sendMessage: SendMessage(repository),
-    )..openAppointmentChat(widget.appointmentId);
+    )..openAppointmentChat(
+        widget.appointmentId,
+        currentUserId: widget.patientId,
+      );
   }
 
   @override
@@ -95,8 +100,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 return _ChatMessagePanel(
                   icon: Icons.error_outline,
                   message: state.message,
-                  onRetry: () =>
-                      cubit.openAppointmentChat(widget.appointmentId),
+                  onRetry: () => cubit.openAppointmentChat(
+                    widget.appointmentId,
+                    currentUserId: widget.patientId,
+                  ),
                 );
               }
               if (state is! ChatLoaded) {

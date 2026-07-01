@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CustomReviewBottomSheet extends StatefulWidget {
-  final dynamic sessionId;
-  final String username;
+  final dynamic appointmentId;
+  final bool hasNextSession;
 
   const CustomReviewBottomSheet({
     super.key,
-    required this.sessionId,
-    required this.username,
+    required this.appointmentId,
+    required this.hasNextSession,
   });
 
   @override
@@ -22,9 +22,23 @@ class CustomReviewBottomSheet extends StatefulWidget {
 class _CustomReviewBottomSheetState extends State<CustomReviewBottomSheet> {
   int _rating = 0;
   final _commentController = TextEditingController();
+  bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _commentController.addListener(_onCommentChanged);
+  }
+
+  void _onCommentChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   @override
   void dispose() {
+    _commentController.removeListener(_onCommentChanged);
     _commentController.dispose();
     super.dispose();
   }
@@ -73,44 +87,81 @@ class _CustomReviewBottomSheetState extends State<CustomReviewBottomSheet> {
                   },
                 ),
               ),
-              const SizedBox(height: 24),
-              Text(SettingsStrings.writeComment, style: AppStyles.headingSmall),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _commentController,
-                maxLines: 6,
-                scrollPadding: EdgeInsets.only(bottom: bottomInset + 24),
-                decoration: InputDecoration(
-                  hintText: SettingsStrings.writeCommentHint,
-                  hintStyle: AppStyles.bodySmall,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  fillColor: colorScheme.primaryContainer.withValues(
-                    alpha: 0.45,
+              if (!widget.hasNextSession) ...[
+                const SizedBox(height: 24),
+                Text(SettingsStrings.writeComment,
+                    style: AppStyles.headingSmall),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _commentController,
+                  maxLines: 6,
+                  scrollPadding: EdgeInsets.only(bottom: bottomInset + 24),
+                  decoration: InputDecoration(
+                    hintText: SettingsStrings.writeCommentHint,
+                    hintStyle: AppStyles.bodySmall,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: colorScheme.primaryContainer.withValues(
+                      alpha: 0.45,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
+              ] else ...[
+                const SizedBox(height: 24),
+                Text(
+                  'Stars only for sessions that still have a next session.',
+                  style: AppStyles.bodySmall,
+                ),
+                const SizedBox(height: 20),
+              ],
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  onPressed: _rating > 0 && _commentController.text.isNotEmpty
+                  onPressed: _rating > 0
                       ? () async {
-                          await context.read<SessionsCubit>().submitReview(
-                                sessionId: widget.sessionId,
-                                doctorId: widget.username,
-                                rating: _rating,
-                                comment: _commentController.text,
-                              );
-                          if (context.mounted) {
+                          setState(() => _isSubmitting = true);
+
+                          final success =
+                              await context.read<SessionsCubit>().submitReview(
+                                    appointmentId: widget.appointmentId,
+                                    rating: _rating,
+                                    comment: widget.hasNextSession
+                                        ? null
+                                        : _commentController.text.trim().isEmpty
+                                            ? null
+                                            : _commentController.text.trim(),
+                                  );
+
+                          if (!context.mounted) {
+                            return;
+                          }
+
+                          setState(() => _isSubmitting = false);
+
+                          if (success) {
                             Navigator.pop(context);
+                          } else {
+                            final state = context.read<SessionsCubit>().state;
+                            final message = state is SessionsError
+                                ? state.message
+                                : 'Review could not be submitted.';
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(message)),
+                            );
                           }
                         }
                       : null,
-                  child: Text(SettingsStrings.submit),
+                  child: _isSubmitting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(SettingsStrings.submit),
                 ),
               ),
             ],

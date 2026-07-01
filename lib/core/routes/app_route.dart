@@ -214,7 +214,10 @@ class AppRouter {
         }
         return MaterialPageRoute(
           builder: (_) => ChatScreen(
-              appointmentId: args.appointmentId, doctorName: args.doctorName),
+            patientId: args.patientUsername,
+            appointmentId: args.appointmentId,
+            doctorName: args.doctorName,
+          ),
         );
 
       case MyRoutes.notesListScreen:
@@ -375,24 +378,20 @@ class AppRouter {
 }
 
 class ReportScreenArgs {
-  final String?
-      reportedUsername; // null للبلاغات التقنية، username للبلاغات السلوكية
-  final String? targetName; // اسم المستخدم للعرض الشكلي (اختياري)
+  final String? reportedUsername;
+  final String? targetName;
 
   const ReportScreenArgs({
     this.reportedUsername,
     this.targetName,
   });
 
-  // Factory constructor لإنشاء args للبلاغات التقنية
   factory ReportScreenArgs.appReport() {
     return const ReportScreenArgs(
       reportedUsername: null,
       targetName: null,
     );
   }
-
-  // Factory constructor لإنشاء args للبلاغات السلوكية
   factory ReportScreenArgs.userReport({
     required String username,
     String? displayName,
@@ -405,10 +404,12 @@ class ReportScreenArgs {
 }
 
 class ChatConversationArgs {
+  final String patientUsername;
   final String appointmentId;
   final String doctorName;
 
   const ChatConversationArgs({
+    required this.patientUsername,
     required this.appointmentId,
     required this.doctorName,
   });

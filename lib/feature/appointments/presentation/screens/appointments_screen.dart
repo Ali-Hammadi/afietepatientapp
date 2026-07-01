@@ -276,17 +276,18 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             state.doctors,
             appointment.doctorUsername,
           );
+          final isCompleted = appointment.status.toLowerCase() == 'completed';
 
           return CustomAppointmentCard(
             doctor: matchedDoctor,
             appointment: appointment,
             isPast: _selectedTabIndex == 1,
             isCanceled: _selectedTabIndex == 2,
-            onAddReview: _selectedTabIndex != 1
+            onAddReview: _selectedTabIndex != 1 || !isCompleted
                 ? null
                 : () => _showReviewSheet(
                       appointmentId: appointment.appointmentId,
-                      doctorUsername: appointment.doctorUsername,
+                      hasNextSession: appointment.hasNextSession,
                     ),
             onBookAgain: _selectedTabIndex != 1
                 ? null
@@ -394,7 +395,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
 
   void _showReviewSheet({
     required dynamic appointmentId,
-    required String doctorUsername,
+    required bool hasNextSession,
   }) {
     showModalBottomSheet<void>(
       context: context,
@@ -403,8 +404,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
       builder: (_) => BlocProvider<SessionsCubit>(
         create: (_) => sl<SessionsCubit>(),
         child: CustomReviewBottomSheet(
-          sessionId: appointmentId,
-          username: doctorUsername,
+          appointmentId: appointmentId,
+          hasNextSession: hasNextSession,
         ),
       ),
     );

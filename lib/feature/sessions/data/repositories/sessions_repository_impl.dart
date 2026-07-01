@@ -92,13 +92,13 @@ class SessionsRepositoryImpl implements SessionsRepository {
 
   @override
   Future<Either<Failure, ReviewEntity>> addReview({
-    required dynamic sessionId,
+    required dynamic appointmentId,
     required int rating,
-    required String comment,
+    String? comment,
   }) async {
     try {
       final result = await dataSource.addReview(
-        sessionId: sessionId,
+        appointmentId: appointmentId,
         rating: rating,
         comment: comment,
       );

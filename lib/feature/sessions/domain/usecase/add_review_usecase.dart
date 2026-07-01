@@ -5,14 +5,14 @@ import 'package:afiete/feature/sessions/domain/repositories/sessions_repository.
 import 'package:dartz/dartz.dart';
 
 class AddReviewParams {
-  final dynamic sessionId;
+  final dynamic appointmentId;
   final int rating;
-  final String comment;
+  final String? comment;
 
   const AddReviewParams({
-    required this.sessionId,
+    required this.appointmentId,
     required this.rating,
-    required this.comment,
+    this.comment,
   });
 }
 
@@ -24,7 +24,7 @@ class AddReviewUseCase implements UseCase<ReviewEntity, AddReviewParams> {
   @override
   Future<Either<Failure, ReviewEntity>> call(AddReviewParams params) {
     return repository.addReview(
-      sessionId: params.sessionId,
+      appointmentId: params.appointmentId,
       rating: params.rating,
       comment: params.comment,
     );

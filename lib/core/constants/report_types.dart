@@ -1,7 +1,7 @@
 enum ReportType {
-  app, // بلاغ موجه للتطبيق ككل (مشاكل تقنية، دفع، إلخ)
-  doctor, // بلاغ سلوكي ضد طبيب من ملفه الشخصي
-  session, // بلاغ متعلق بجلسة أو موعد معين
+  app,
+  doctor,
+  session,
 }
 
 extension ReportTypeExtension on ReportType {
