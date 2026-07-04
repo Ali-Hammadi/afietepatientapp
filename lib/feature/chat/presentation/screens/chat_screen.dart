@@ -59,24 +59,35 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _testFirebaseConnection() async {
     try {
       print('🔥 Testing Firebase connection...');
-      print(' Course ID: ${widget.courseId}');
+      print('📱 Course ID: ${widget.courseId}');
 
-      // التحقق من Firebase Auth
+      // ✅ الخطوة 1: تسجيل الدخول أولاً
+      final cubit = context.read<ChatCubit>();
+      await cubit.ensureSignedIn(); // ✅ استدعاء الدالة الجديدة
+
+      // ✅ الخطوة 2: التحقق من Firebase Auth
       final user = FirebaseAuth.instance.currentUser;
       print('👤 Current User: ${user?.uid}');
 
-      // محاولة قراءة الكورس
+      if (user == null) {
+        print('❌ User not signed in to Firebase!');
+        return;
+      }
+
+      // ✅ الخطوة 3: الآن اقرأ Firestore
       final doc = await FirebaseFirestore.instance
           .collection('treatment_courses')
           .doc(widget.courseId)
           .get();
 
       print('✅ Course data: ${doc.data()}');
+      print('✅ doctor_uid: ${doc.data()?['doctor_uid']}');
+      print('✅ patient_uid: ${doc.data()?['patient_uid']}');
       print('✅ Can read: true');
     } catch (e) {
       print('❌ Error: $e');
       if (e is FirebaseException) {
-        print(' Code: ${e.code}');
+        print('❌ Code: ${e.code}');
         print('❌ Message: ${e.message}');
       }
     }

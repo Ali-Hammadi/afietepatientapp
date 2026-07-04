@@ -12,6 +12,24 @@ class ChatCubit extends Cubit<ChatState> {
   final ChatRepository _repository;
   StreamSubscription<List<ChatMessageModel>>? _subscription;
   ChatRoomModel? _room;
+  // ✅ دالة جديدة للتأكد من تسجيل الدخول
+  Future<void> ensureSignedIn() async {
+    try {
+      final currentUid = _repository.currentFirebaseUid;
+
+      if (currentUid != null && currentUid.isNotEmpty) {
+        print('✅ Already signed in: $currentUid');
+        return;
+      }
+
+      print('🔑 Signing in to Firebase...');
+      await _repository.signInWithBackendToken();
+      print('✅ Signed in: ${_repository.currentFirebaseUid}');
+    } catch (e) {
+      print('❌ Sign in failed: $e');
+      rethrow;
+    }
+  }
 
   Future<void> openCourseChat(String courseId) async {
     emit(const ChatLoading());

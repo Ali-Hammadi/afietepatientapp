@@ -12,6 +12,8 @@ abstract class ChatRemoteDataSource {
     required String courseId,
     required String text,
   });
+
+  Future<void> ensureSignedIn();
   String? get currentFirebaseUid;
 }
 
@@ -30,6 +32,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
   @override
   String? get currentFirebaseUid => _firebaseAuth.currentUser?.uid;
+
+  Future<void> ensureSignedIn() async {
+    await _ensureFirebaseSignedIn();
+  }
 
   @override
   Future<ChatRoomModel> roomForCourse(String courseId) async {

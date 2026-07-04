@@ -240,18 +240,24 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
                   ),
       ),
     );
+// lib/feature/articles/presentation/widgets/article_card_widget.dart
 
+// السطر 283 - إصلاح name
     final nameWidget = Text(
-      widget.article.doctor.name!,
+      widget.article.doctor.name ??
+          'Unknown Doctor', // ✅ إزالة ! وإضافة fallback
       style: AppStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
     );
 
+// السطر 291 - إصلاح specialization
     final metaWidget = Text.rich(
       TextSpan(
         children: [
           TextSpan(
             text: SettingsStrings.specialtyLabel(
-              widget.article.doctor.specialization,
+              widget.article.doctor.specialties.isNotEmpty
+                  ? widget.article.doctor.specialties.join(', ')
+                  : 'General', // ✅ استخدام specialties بدلاً من specialization
             ),
             style: AppStyles.bodySmall.copyWith(
               color: colorScheme.outlineVariant,

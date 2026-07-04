@@ -10,7 +10,9 @@ android {
     namespace = "com.example.afietepatientapp"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
-
+    buildFeatures {
+        buildConfig = false  // تعطيل BuildConfig غير المستخدم
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

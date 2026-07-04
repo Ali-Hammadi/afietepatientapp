@@ -180,29 +180,24 @@ Future<void> init() async {
   );
   sl.registerFactory<ChatCubit>(() => ChatCubit(sl<ChatRepository>()));
 
-  // Booking Assessments data sources
+  // Booking Assessments repositories
+  // ==========================================
+  // Appointments Section
+  // ==========================================
+
+  // Data sources
   sl.registerLazySingleton<AppointmentsRemoteDataSource>(
     () => AppointmentsRemoteDataSourceImpl(dio: sl<Dio>()),
   );
 
-  // Booking Assessments repositories
+  // Repository (تسجيل واحد فقط)
   sl.registerLazySingleton<AppointmentsRepository>(
     () => AppointmentsRepositoryImpl(
       dataSource: sl<AppointmentsRemoteDataSource>(),
     ),
   );
-  sl.registerLazySingleton<AppointmentsCubit>(
-    () => AppointmentsCubit(
-      getAppointmentsUseCase: sl(),
-      createAppointmentDraftUseCase: sl(),
-      getAllDoctorsUseCase: sl(),
-      cancelAppointmentUseCase: sl(),
-      rescheduleAppointmentUseCase: sl(),
-      getAvailableSlotsUseCase: sl(),
-    ),
-  );
 
-  // Booking Assessments use cases
+  // ✅ Use Cases (كانت مفقودة!)
   sl.registerLazySingleton<GetAppointmentsUseCase>(
     () => GetAppointmentsUseCase(sl<AppointmentsRepository>()),
   );
@@ -219,19 +214,21 @@ Future<void> init() async {
     () => GetAvailableSlotsUseCase(sl<AppointmentsRepository>()),
   );
 
+  // Course Repository
   sl.registerLazySingleton<CourseRepository>(
     () => CourseRepository(sl<Dio>()),
   );
 
-  // Booking Assessments cubits
+  // Cubit (تسجيل واحد فقط)
   sl.registerFactory<AppointmentsCubit>(
     () => AppointmentsCubit(
-        getAppointmentsUseCase: sl<GetAppointmentsUseCase>(),
-        createAppointmentDraftUseCase: sl<CreateAppointmentUseCase>(),
-        getAllDoctorsUseCase: sl<GetAllDoctorsUseCase>(),
-        cancelAppointmentUseCase: sl<CancelAppointmentUseCase>(),
-        rescheduleAppointmentUseCase: sl<RescheduleAppointmentUseCase>(),
-        getAvailableSlotsUseCase: sl<GetAvailableSlotsUseCase>()),
+      getAppointmentsUseCase: sl<GetAppointmentsUseCase>(),
+      createAppointmentDraftUseCase: sl<CreateAppointmentUseCase>(),
+      getAllDoctorsUseCase: sl<GetAllDoctorsUseCase>(),
+      cancelAppointmentUseCase: sl<CancelAppointmentUseCase>(),
+      rescheduleAppointmentUseCase: sl<RescheduleAppointmentUseCase>(),
+      getAvailableSlotsUseCase: sl<GetAvailableSlotsUseCase>(),
+    ),
   );
 
   // Payment data sources

@@ -1,3 +1,5 @@
+// lib/feature/articles/data/models/article_model.dart
+
 import 'package:afiete/feature/articles/domain/entities/article_entities.dart';
 import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 
@@ -5,7 +7,6 @@ class ArticleModel {
   final String id;
   final String title;
   final String content;
-
   final String summary;
   final String imageUrl;
   final String status;
@@ -32,7 +33,7 @@ class ArticleModel {
   });
 
   factory ArticleModel.fromJson(Map<String, dynamic> json) {
-    // 1. استخراج وتفكيك بيانات الطبيب المتداخلة بمرونة (استخدام Map.from بدلاً من الـ cast المباشر)
+    // 1. استخراج وتفكيك بيانات الطبيب المتداخلة
     final authorJson = json['author'] is Map
         ? Map<String, dynamic>.from(json['author'] as Map)
         : const <String, dynamic>{};
@@ -41,7 +42,7 @@ class ArticleModel {
         ? Map<String, dynamic>.from(authorJson['user'] as Map)
         : const <String, dynamic>{};
 
-    // 2. معالجة قائمة التخصصات بدقة كما تتوقعها الـ Entity (List<String>)
+    // 2. معالجة قائمة التخصصات
     List<String> specialtiesList = const [];
     if (json['specialization'] != null) {
       if (json['specialization'] is List) {
@@ -56,24 +57,28 @@ class ArticleModel {
           (authorJson['specialties'] as List).map((e) => e.toString()).toList();
     }
 
-    // 3. بناء كائن الـ DoctorEntity الكامل المتوافق مع تطبيق المواعيد الآخر
+    // 3. بناء DoctorEntity مع fallback values
     final doctorEntity = DoctorEntity(
-      doctorUsername: userJson['username']?.toString() ?? "",
-      email: userJson['email']?.toString(),
-      gender: userJson['gender']?.toString(),
+      doctorUsername: userJson['username']?.toString() ?? 'unknown_doctor',
+      email: userJson['email']?.toString() ?? '',
+      gender: userJson['gender']?.toString() ?? '',
       imageUrl: authorJson['photo']?.toString() ??
           json['doctor_image']?.toString() ??
           '',
-      phone: userJson['phone']?.toString(),
-      name: userJson['first_name']?.toString(),
-      age: userJson['age']?.toString(),
+      phone: userJson['phone']?.toString() ?? '',
+      name: userJson['first_name']?.toString() ??
+          userJson['username']?.toString() ??
+          'Unknown Doctor',
+      age: userJson['age']?.toString() ?? '',
       jobTitle: authorJson['job_title']?['title']?.toString() ??
-          authorJson['job_title']?.toString(),
+          authorJson['job_title']?.toString() ??
+          '',
       specialties: specialtiesList,
       experienceYears: int.tryParse(
-          authorJson['experience_years']?.toString() ??
-              authorJson['experience']?.toString() ??
-              '0'),
+              authorJson['experience_years']?.toString() ??
+                  authorJson['experience']?.toString() ??
+                  '0') ??
+          0,
       bio: authorJson['bio']?.toString() ?? '',
       sessionPrices: const [],
       schedules: const [],
@@ -81,10 +86,10 @@ class ArticleModel {
 
     final rawContent = json['content']?.toString() ?? '';
 
-    // 4. بناء الـ Model الكامل للمقالة
+    // 4. بناء الـ Model الكامل
     return ArticleModel(
       id: json['id']?.toString() ?? '',
-      title: json['title']?.toString() ?? '',
+      title: json['title']?.toString() ?? 'Untitled',
       content: rawContent,
       summary: json['summary']?.toString() ?? _buildSummary(rawContent),
       imageUrl:
@@ -103,7 +108,7 @@ class ArticleModel {
     );
   }
 
-  /// تحويل الـ Model إلى Entity لطبقة الـ Domain بسلامة تامة
+  /// ✅ تحويل الـ Model إلى Entity
   ArticleEntity toEntity() {
     return ArticleEntity(
       id: id,
@@ -113,8 +118,7 @@ class ArticleModel {
       imageUrl: imageUrl,
       status: status,
       reaction: reaction,
-      doctor:
-          doctor, // الآن يمرر الـ DoctorEntity الجديد الكامل لتطبيق المواعيد
+      doctor: doctor,
       createdAt: createdAt,
       likesCount: likesCount,
       dislikesCount: dislikesCount,
@@ -124,7 +128,7 @@ class ArticleModel {
     );
   }
 
-  /// دالة ذكية لتوليد خلاصة للمقال في حال عدم وجودها من الباك اند
+  /// دالة ذكية لتوليد خلاصة
   static String _buildSummary(String content) {
     final sanitized = content.replaceAll(RegExp(r'\s+'), ' ').trim();
     if (sanitized.isEmpty) return '';

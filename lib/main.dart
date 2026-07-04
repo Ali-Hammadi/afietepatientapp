@@ -25,6 +25,7 @@ import 'feature/report/presentation/cubits/report_cubit.dart';
 import 'feature/settings/presentation/cubits/settings_cubit.dart';
 
 void main() async {
+  print('main() called');
   WidgetsFlutterBinding.ensureInitialized();
   await init();
   final themeCubit = await ThemeCubit.create();

@@ -25,5 +25,9 @@ class ChatRepository {
     );
   }
 
+  Future<void> signInWithBackendToken() async {
+    await _remoteDataSource.ensureSignedIn();
+  }
+
   String? get currentFirebaseUid => _remoteDataSource.currentFirebaseUid;
 }
