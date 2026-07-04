@@ -12,7 +12,8 @@ class AppointmentEntity extends Equatable {
   final String sessionType;
   final String status;
   final bool requiresPayment;
-  final bool hasNextSession; // تم الإضافة هنا
+  final bool hasNextSession;
+  final String treatmentCourseId; // ✅ تم الإضافة
 
   const AppointmentEntity({
     required this.appointmentId,
@@ -25,7 +26,8 @@ class AppointmentEntity extends Equatable {
     required this.sessionType,
     required this.status,
     required this.requiresPayment,
-    required this.hasNextSession, // تم الإضافة هنا
+    required this.hasNextSession,
+    required this.treatmentCourseId, // ✅ تم الإضافة
   });
 
   DateTime get endAt => scheduledAt.add(Duration(minutes: durationSlots * 30));
@@ -44,6 +46,7 @@ class AppointmentEntity extends Equatable {
         sessionType,
         status,
         requiresPayment,
-        hasNextSession, // تم الإضافة هنا
+        hasNextSession,
+        treatmentCourseId, // ✅ تم الإضافة
       ];
 }

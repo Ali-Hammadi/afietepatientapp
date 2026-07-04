@@ -197,6 +197,7 @@ class AppRouter {
           );
         }
         return MaterialPageRoute(builder: (_) => PaymentScreen(request: args));
+// في app_router.dart، عدّل case chatScreen:
       case MyRoutes.chatScreen:
         final args = settings.arguments;
         if (args is! ChatConversationArgs) {
@@ -214,11 +215,10 @@ class AppRouter {
         }
         return MaterialPageRoute(
           builder: (_) => ChatScreen(
-            appointmentId: args.appointmentId,
+            courseId: args.courseId, // ✅ تغيير هنا
             doctorName: args.doctorName,
           ),
         );
-
       case MyRoutes.notesListScreen:
         return MaterialPageRoute(builder: (_) => const NotesListScreen());
       case MyRoutes.createNoteScreen:
@@ -402,16 +402,17 @@ class ReportScreenArgs {
   }
 }
 
+// lib/core/routes/chat_args.dart
 class ChatConversationArgs {
-  final String currentUserId;
-  final String appointmentId;
-  final String doctorName;
-
   const ChatConversationArgs({
-    required this.currentUserId,
-    required this.appointmentId,
+    required this.courseId,
     required this.doctorName,
+    required this.currentUserId,
   });
+
+  final String courseId;
+  final String doctorName;
+  final String currentUserId;
 }
 
 class MyRoutes {

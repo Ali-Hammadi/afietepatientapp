@@ -12,6 +12,7 @@ class SessionModel extends SessionEntity {
     required super.sessionType,
     required super.status,
     required super.isUpcoming,
+    required super.treatmentCourseId, // ✅ أضف هذا
   });
 
   factory SessionModel.fromJson(Map<String, dynamic> json) {
@@ -44,6 +45,14 @@ class SessionModel extends SessionEntity {
         ) ??
         30;
 
+    // ✅ استخراج treatmentCourseId
+    final treatmentCourseId = _readString(
+          json,
+          const ['treatment_course_id', 'treatmentCourseId', 'course_id'],
+        ) ??
+        _readNestedString(json['treatment_course'], const ['id']) ??
+        '';
+
     return SessionModel(
       id: _readString(json, const ['id', 'sessionId']) ?? '',
       username: username,
@@ -55,6 +64,7 @@ class SessionModel extends SessionEntity {
       sessionType: _readString(json, const ['sessionType', 'type']) ?? 'video',
       status: _readString(json, const ['status']) ?? 'pending',
       isUpcoming: scheduledAt.isAfter(DateTime.now()),
+      treatmentCourseId: treatmentCourseId, // ✅ أضف هذا
     );
   }
 
@@ -70,6 +80,7 @@ class SessionModel extends SessionEntity {
       sessionType: entity.sessionType,
       status: entity.status,
       isUpcoming: entity.isUpcoming,
+      treatmentCourseId: entity.treatmentCourseId, // ✅ أضف هذا
     );
   }
 
@@ -84,8 +95,11 @@ class SessionModel extends SessionEntity {
       'durationMinutes': durationMinutes,
       'sessionType': sessionType,
       'status': status,
+      'treatmentCourseId': treatmentCourseId, // ✅ أضف هذا
     };
   }
+
+  // ✅ أضف هذه الدوال المساعدة في نهاية الكلاس
 
   static String? _readString(
     Map<String, dynamic> json,

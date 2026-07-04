@@ -27,6 +27,9 @@ import 'package:afiete/feature/articles/data/datasources/articles_remote_datasou
 import 'package:afiete/feature/appointments/domain/usecase/appointments_usecase.dart';
 import 'package:afiete/feature/appointments/presentation/cubits/appointments_cubit.dart';
 import 'package:afiete/feature/chat/data/datasources/chat_remote_datasource.dart';
+import 'package:afiete/feature/chat/data/repositories/chat_repository.dart';
+import 'package:afiete/feature/chat/data/repositories/course_repository.dart';
+import 'package:afiete/feature/chat/presentation/cubit/chat_cubit.dart';
 import 'package:afiete/feature/doctors/data/datasources/doctors_remote_datasource.dart';
 import 'package:afiete/feature/doctors/data/repositories/doctors_repository_impl.dart';
 import 'package:afiete/feature/doctors/domain/repositories/doctors_repository.dart';
@@ -172,6 +175,10 @@ Future<void> init() async {
   sl.registerLazySingleton<ChatRemoteDataSource>(
     () => ChatRemoteDataSourceImpl(dio: sl<Dio>()),
   );
+  sl.registerLazySingleton<ChatRepository>(
+    () => ChatRepository(sl<ChatRemoteDataSource>()),
+  );
+  sl.registerFactory<ChatCubit>(() => ChatCubit(sl<ChatRepository>()));
 
   // Booking Assessments data sources
   sl.registerLazySingleton<AppointmentsRemoteDataSource>(
@@ -182,6 +189,16 @@ Future<void> init() async {
   sl.registerLazySingleton<AppointmentsRepository>(
     () => AppointmentsRepositoryImpl(
       dataSource: sl<AppointmentsRemoteDataSource>(),
+    ),
+  );
+  sl.registerLazySingleton<AppointmentsCubit>(
+    () => AppointmentsCubit(
+      getAppointmentsUseCase: sl(),
+      createAppointmentDraftUseCase: sl(),
+      getAllDoctorsUseCase: sl(),
+      cancelAppointmentUseCase: sl(),
+      rescheduleAppointmentUseCase: sl(),
+      getAvailableSlotsUseCase: sl(),
     ),
   );
 
@@ -200,6 +217,10 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<GetAvailableSlotsUseCase>(
     () => GetAvailableSlotsUseCase(sl<AppointmentsRepository>()),
+  );
+
+  sl.registerLazySingleton<CourseRepository>(
+    () => CourseRepository(sl<Dio>()),
   );
 
   // Booking Assessments cubits

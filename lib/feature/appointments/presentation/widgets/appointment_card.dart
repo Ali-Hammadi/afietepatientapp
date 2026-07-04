@@ -4,7 +4,7 @@ import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/widget/custom_button.dart';
 import 'package:afiete/feature/appointments/domain/constants/session_type.dart';
 import 'package:afiete/feature/appointments/domain/entities/appointment_entity.dart';
-import 'package:afiete/feature/chat/presentation/helpers/chat_session_navigator.dart';
+import 'package:afiete/feature/chat/presentation/navigator/chat_navigator.dart';
 import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -198,10 +198,21 @@ class CustomAppointmentCard extends StatelessWidget {
     );
   }
 
+// في نهاية الملف، عدّل هذه الدالة:
   void _handleJoinSession(BuildContext context) {
-    ChatSessionNavigator.openFromAppointment(
+    // ✅ استخدام treatmentCourseId بدلاً من appointmentId
+    if (appointment.treatmentCourseId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Treatment course not found for this appointment.'),
+        ),
+      );
+      return;
+    }
+
+    ChatNavigator.openCourseChat(
       context,
-      appointment,
+      courseId: appointment.treatmentCourseId, // ✅ تغيير هنا
       doctorName: doctor?.name ?? appointment.doctorName,
       currentUserId: appointment.patientUsername,
     );

@@ -2,20 +2,13 @@ import '../../domain/entities/prescription_medication.dart';
 
 class PrescriptionMedicationModel extends PrescriptionMedication {
   PrescriptionMedicationModel({
-    required int id,
-    required String medicationName,
-    required String dosage,
-    required String frequency,
-    required String duration,
-    required String notes,
-  }) : super(
-          id: id,
-          medicationName: medicationName,
-          dosage: dosage,
-          frequency: frequency,
-          duration: duration,
-          notes: notes,
-        );
+    required super.id,
+    required super.medicationName,
+    required super.dosage,
+    required super.frequency,
+    required super.duration,
+    required super.notes,
+  });
 
   factory PrescriptionMedicationModel.fromJson(Map<String, dynamic> json) {
     return PrescriptionMedicationModel(

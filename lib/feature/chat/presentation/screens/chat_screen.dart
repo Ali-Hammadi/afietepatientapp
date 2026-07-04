@@ -1,26 +1,34 @@
+// lib/feature/chat/presentation/screens/chat_screen.dart
 import 'package:afiete/core/constants/app_colors.dart';
 import 'package:afiete/core/di/injection_container.dart';
-import 'package:afiete/feature/chat/chat/data/model/chat_model.dart';
-import 'package:afiete/feature/chat/chat/data/repositories/chat_repository.dart';
-import 'package:afiete/feature/chat/chat/data/services/chat_services.dart';
-import 'package:afiete/feature/chat/chat/presentation/cubit/chat_cubit.dart';
-import 'package:afiete/feature/chat/presentation/cubit/chat_cubit.dart'
-    hide ChatCubit;
-import 'package:dio/dio.dart';
+import 'package:afiete/feature/chat/data/models/chat_message_model.dart';
+import 'package:afiete/feature/chat/data/repositories/course_repository.dart';
+import 'package:afiete/feature/chat/presentation/cubit/chat_cubit.dart';
+import 'package:afiete/feature/chat/presentation/widget/continue_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:afiete/feature/chat/data/repositories/chat_repository.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({
     super.key,
-    required this.appointmentId,
-    required this.patientName,
-    this.repository,
-  });
+    required this.courseId,
+    this.patientName,
+    this.doctorName,
+    this.chatRepository,
+  }) : assert(
+          patientName != null || doctorName != null,
+          'Either patientName or doctorName must be provided',
+        );
 
-  final String appointmentId;
-  final String patientName;
-  final ChatRepository? repository;
+  final String courseId;
+  final String? patientName;
+  final String? doctorName;
+  final ChatRepository? chatRepository;
+
+  String get otherUserName => patientName ?? doctorName ?? 'Chat';
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -28,16 +36,50 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   late final ChatCubit cubit;
+  late final CourseRepository courseRepository;
   final messageController = TextEditingController();
   final scrollController = ScrollController();
+  bool _hasShownContinueDialog = false;
 
   @override
   void initState() {
     super.initState();
 
-    cubit = ChatCubit(
-      widget.repository ?? ChatRepository(ChatService(dio: sl<Dio>())),
-    )..openAppointmentChat(widget.appointmentId);
+    // ✅ استخدام DI بدلاً من DioClient
+    final chatRepo = widget.chatRepository ?? sl<ChatRepository>();
+
+    cubit = ChatCubit(chatRepo)..openCourseChat(widget.courseId);
+
+    // ✅ استخدام DI لـ CourseRepository
+    courseRepository = sl<CourseRepository>();
+
+    _testFirebaseConnection();
+  }
+
+  Future<void> _testFirebaseConnection() async {
+    try {
+      print('🔥 Testing Firebase connection...');
+      print(' Course ID: ${widget.courseId}');
+
+      // التحقق من Firebase Auth
+      final user = FirebaseAuth.instance.currentUser;
+      print('👤 Current User: ${user?.uid}');
+
+      // محاولة قراءة الكورس
+      final doc = await FirebaseFirestore.instance
+          .collection('treatment_courses')
+          .doc(widget.courseId)
+          .get();
+
+      print('✅ Course data: ${doc.data()}');
+      print('✅ Can read: true');
+    } catch (e) {
+      print('❌ Error: $e');
+      if (e is FirebaseException) {
+        print(' Code: ${e.code}');
+        print('❌ Message: ${e.message}');
+      }
+    }
   }
 
   @override
@@ -55,6 +97,51 @@ class _ChatScreenState extends State<ChatScreen> {
     await cubit.send(text);
   }
 
+  void _showContinueCourseDialog() {
+    if (_hasShownContinueDialog) return;
+    _hasShownContinueDialog = true;
+
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (context) => ContinueCourseBottomSheet(
+        onContinue: () async {
+          final courseId = int.tryParse(widget.courseId);
+          if (courseId == null) return;
+
+          final success = await courseRepository.requestContinue(courseId);
+          if (!mounted) return;
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                success
+                    ? ('تم إرسال طلب المتابعة بنجاح')
+                    : ('فشل في إرسال الطلب'),
+              ),
+            ),
+          );
+        },
+        onDecline: () async {
+          final courseId = int.tryParse(widget.courseId);
+          if (courseId == null) return;
+
+          final success = await courseRepository.declineContinue(courseId);
+          if (!mounted) return;
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                success ? ('تم إنهاء الكورس العلاجي') : ('فشل في إنهاء الكورس'),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
@@ -62,8 +149,46 @@ class _ChatScreenState extends State<ChatScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            widget.patientName.trim().isEmpty ? ('Chat') : widget.patientName,
+            widget.otherUserName.trim().isEmpty
+                ? ('Chat')
+                : widget.otherUserName,
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.archive_outlined),
+              tooltip: ('End Course'),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (dialogContext) => AlertDialog(
+                    title: Text(('End Course')),
+                    content:
+                        Text(('Are you sure you want to end this course?')),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(dialogContext),
+                        child: Text(('Cancel')),
+                      ),
+                      FilledButton(
+                        onPressed: () async {
+                          Navigator.pop(dialogContext);
+                          final courseId = int.tryParse(widget.courseId);
+                          if (courseId != null) {
+                            final success =
+                                await courseRepository.endCourse(courseId);
+                            if (mounted && success) {
+                              Navigator.pop(context);
+                            }
+                          }
+                        },
+                        child: Text(('End')),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
         ),
         body: SafeArea(
           child: BlocConsumer<ChatCubit, ChatState>(
@@ -76,6 +201,10 @@ class _ChatScreenState extends State<ChatScreen> {
                     duration: const Duration(milliseconds: 220),
                     curve: Curves.easeOut,
                   );
+
+                  if (state.room.isArchived && !_hasShownContinueDialog) {
+                    _showContinueCourseDialog();
+                  }
                 });
               }
             },
@@ -91,15 +220,28 @@ class _ChatScreenState extends State<ChatScreen> {
                 return _ChatMessagePanel(
                   icon: Icons.error_outline,
                   message: state.message,
-                  onRetry: () =>
-                      cubit.openAppointmentChat(widget.appointmentId),
+                  onRetry: () => cubit.openCourseChat(widget.courseId),
                 );
               }
               if (state is! ChatLoaded) {
                 return const SizedBox.shrink();
               }
+
+              final isArchived = state.room.isArchived;
+
               return Column(
                 children: [
+                  if (isArchived)
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all((8)),
+                      color: Colors.grey.shade200,
+                      child: Text(
+                        ('This course is archived. You can only read messages.'),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                      ),
+                    ),
                   Expanded(
                     child: state.messages.isEmpty
                         ? const _ChatMessagePanel(
@@ -113,14 +255,15 @@ class _ChatScreenState extends State<ChatScreen> {
                               final message = state.messages[index];
                               return _MessageBubble(
                                 message: message,
-                                isMe: message.senderId == state.currentUserId,
+                                isMe: message.senderUid == state.currentUserId,
                               );
                             },
                             separatorBuilder: (_, __) => SizedBox(height: (10)),
                             itemCount: state.messages.length,
                           ),
                   ),
-                  _Composer(controller: messageController, onSend: _send),
+                  if (!isArchived)
+                    _Composer(controller: messageController, onSend: _send),
                 ],
               );
             },
@@ -131,6 +274,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
+// ... باقي الـ Widgets (_MessageBubble, _Composer, _ChatMessagePanel) تبقى كما هي ...
+// ... باقي الـ Widgets (_MessageBubble, _Composer, _ChatMessagePanel) تبقى كما هي ...
 class _MessageBubble extends StatelessWidget {
   const _MessageBubble({required this.message, required this.isMe});
 
@@ -148,14 +293,14 @@ class _MessageBubble extends StatelessWidget {
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: (285)),
+        constraints: const BoxConstraints(maxWidth: 285),
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: bubbleColor,
-            borderRadius: BorderRadius.circular((8)),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Padding(
-            padding: EdgeInsets.all((12)),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -168,7 +313,7 @@ class _MessageBubble extends StatelessWidget {
                   ),
                 ),
                 if (message.createdAt != null) ...[
-                  SizedBox(height: (5)),
+                  const SizedBox(height: 5),
                   Text(
                     _time(message.createdAt!),
                     style: theme.textTheme.labelSmall?.copyWith(
@@ -209,7 +354,7 @@ class _Composer extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: EdgeInsets.all((12)),
+        padding: const EdgeInsets.all(12),
         child: Row(
           children: [
             Expanded(
@@ -219,7 +364,7 @@ class _Composer extends StatelessWidget {
                 maxLines: 4,
                 textInputAction: TextInputAction.newline,
                 decoration: InputDecoration(
-                  hintText: ('Type a message...'),
+                  hintText: 'Type a message...',
                   prefixIcon: Icon(
                     Icons.chat_bubble_outline,
                     color: AppColors.primaryColor,
@@ -227,11 +372,11 @@ class _Composer extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(width: (10)),
+            const SizedBox(width: 10),
             IconButton.filled(
               onPressed: onSend,
               icon: const Icon(Icons.send_outlined),
-              tooltip: ('Send'),
+              tooltip: 'Send',
             ),
           ],
         ),
@@ -255,18 +400,18 @@ class _ChatMessagePanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all((24)),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              size: (42),
+              size: 42,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-            SizedBox(height: (10)),
+            const SizedBox(height: 10),
             Text(
-              (message),
+              message,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -274,11 +419,11 @@ class _ChatMessagePanel extends StatelessWidget {
                   ),
             ),
             if (onRetry != null) ...[
-              SizedBox(height: (14)),
+              const SizedBox(height: 14),
               OutlinedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_outlined),
-                label: Text(('Refresh')),
+                label: const Text('Refresh'),
               ),
             ],
           ],

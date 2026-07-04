@@ -5,7 +5,7 @@ import 'package:afiete/core/routes/app_route.dart';
 import 'package:afiete/feature/appointments/presentation/cubits/appointments_cubit.dart';
 import 'package:afiete/feature/appointments/presentation/widgets/appointment_card.dart';
 import 'package:afiete/feature/appointments/domain/entities/appointment_entity.dart';
-import 'package:afiete/feature/chat/presentation/helpers/chat_session_navigator.dart';
+import 'package:afiete/feature/chat/presentation/navigator/chat_navigator.dart';
 import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:afiete/feature/sessions/presentation/cubits/sessions_cubit.dart';
 import 'package:afiete/feature/sessions/presentation/widgets/review_bottom_sheet.dart';
@@ -32,6 +32,9 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         cubit.loadAppointments();
       }
       cubit.startDoctorRescheduleListener();
+      if (cubit.state is AppointmentsInitial) {
+        cubit.loadAppointments();
+      }
     });
   }
 
@@ -378,10 +381,21 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     }
   }
 
+// في نهاية الملف، عدّل هذه الدالة:
   void _handleJoinSession(AppointmentEntity appointment) {
-    ChatSessionNavigator.openFromAppointment(
+    // ✅ استخدام treatmentCourseId بدلاً من appointmentId
+    if (appointment.treatmentCourseId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Treatment course not found for this appointment.'),
+        ),
+      );
+      return;
+    }
+
+    ChatNavigator.openCourseChat(
       context,
-      appointment,
+      courseId: appointment.treatmentCourseId, // ✅ تغيير هنا
       doctorName: appointment.doctorName,
       currentUserId: appointment.patientUsername,
     );

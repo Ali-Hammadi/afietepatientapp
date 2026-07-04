@@ -11,6 +11,7 @@ class SessionEntity extends Equatable {
   final String sessionType;
   final String status;
   final bool isUpcoming;
+  final String treatmentCourseId; // ✅ موجود
 
   const SessionEntity({
     required this.id,
@@ -23,6 +24,7 @@ class SessionEntity extends Equatable {
     required this.sessionType,
     required this.status,
     required this.isUpcoming,
+    required this.treatmentCourseId, // ✅ موجود
   });
 
   DateTime get endAt => scheduledAt.add(Duration(minutes: durationMinutes));
@@ -49,5 +51,6 @@ class SessionEntity extends Equatable {
         sessionType,
         status,
         isUpcoming,
+        treatmentCourseId, // ✅ أضف هذا
       ];
 }

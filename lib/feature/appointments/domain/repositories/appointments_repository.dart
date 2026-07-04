@@ -3,10 +3,23 @@ import 'package:afiete/feature/appointments/data/datasources/appointments_remote
 import 'package:afiete/feature/appointments/domain/entities/appointment_entity.dart';
 import 'package:afiete/feature/appointments/domain/values/consultation_fee.dart';
 import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
 
 abstract class AppointmentsRepository {
-  Future<Either<Failure, AppointmentsData>>
-      getAppointments(); // ✅ تغيير نوع الإرجاع
+  final AppointmentsRemoteDataSource dataSource;
+  const AppointmentsRepository({required this.dataSource});
+  Future<Either<Failure, AppointmentsData>> getAppointments() async {
+    try {
+      final result = await dataSource.getAppointments(); // ✅ يستدعي dataSource
+      return Right<Failure, AppointmentsData>(result);
+    } on DioException catch (e) {
+      return Left<Failure, AppointmentsData>(ServerFailure.fromDioError(e));
+    } catch (_) {
+      return Left<Failure, AppointmentsData>(
+        ServerFailure('Unable to load appointments right now.'),
+      );
+    }
+  }
 
   Future<Either<Failure, List<dynamic>>> getAvailableSlots({
     required String doctorUsername,

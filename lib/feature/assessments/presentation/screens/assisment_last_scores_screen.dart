@@ -31,8 +31,9 @@ class AssessmentsLastScoresScreen extends StatelessWidget {
     if (s.contains('severe')) return SettingsStrings.severitySevere;
     if (s.contains('moderate')) return SettingsStrings.severityModerate;
     if (s.contains('mild')) return SettingsStrings.severityMild;
-    if (s.contains('minimal') || s.isEmpty)
+    if (s.contains('minimal') || s.isEmpty) {
       return SettingsStrings.severityMinimal;
+    }
     return severity;
   }
 

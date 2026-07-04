@@ -60,11 +60,11 @@ abstract class ApiEndpoints {
   static const String reportOnUser = '/api/reports/user/create/';
   // ===============================================================================================
   // === Rating & Comments ===
-  static String rateAppointment(String appointment_id) =>
-      '/api/patient/ratings/$appointment_id/create/';
+  static String rateAppointment(String appointmentId) =>
+      '/api/patient/ratings/$appointmentId/create/';
   static String ratings = "/api/patient/ratings/";
-  static String rateDoctorByUsername(String doctor_username) =>
-      '/api/patient/ratings/$doctor_username/';
+  static String rateDoctorByUsername(String doctorUsername) =>
+      '/api/patient/ratings/$doctorUsername/';
 
   // ===============================================================================================
   // === Assessments ===
@@ -116,8 +116,8 @@ abstract class ApiEndpoints {
       '/api/patient/articles/recommended/';
   static const String articlesFeed = '/api/patient/articles/feed/';
   static const String articlesTrending = '/api/patient/articles/trending/';
-  static String articleReact(String article_id) =>
-      '/api/patient/articles/$article_id/react/';
+  static String articleReact(String articleId) =>
+      '/api/patient/articles/$articleId/react/';
   // ===============================================================================================
   // === Relax endpoints (per API spec) ===
   static const String relaxBreathingExercises =
@@ -140,17 +140,33 @@ abstract class ApiEndpoints {
   // ===============================================================================================
   // === Voice call Endpoints ===
   // ===============================================================================================
-  // === Chat Endpoints ===
-  // static String chatMessages(String appointmentId) =>
-  //     '/api/chat/appointments/$appointmentId/';
 
-  static String firebaseChatToken = '/api/chat/firebase-token/';
+  // ====================
+  // Chat Endpoints
+  // ====================
 
-  // static const String chatRoomStart = 'api/chat/rooms/start/';
-  // static const String chatRoom = 'api/chat/rooms/';
+  // ====================
+  // Course Endpoints
+  // ====================
+  static const String patientActiveCourse = '/api/courses/patient/active/';
+  static String patientEndCourse(int courseId) =>
+      '/api/courses/patient/$courseId/end/';
+  static String patientRequestContinue(int courseId) =>
+      '/api/courses/patient/$courseId/request-continue/';
+  static String patientDeclineContinue(int courseId) =>
+      '/api/courses/patient/$courseId/decline-continue/';
+  static const String patientArchivedCourses = '/api/courses/patient/archived/';
+  static const String doctorActiveCourses = '/api/courses/doctor/active/';
+  static const String doctorArchivedCourses = '/api/courses/doctor/archived/';
+  // ✅ 1. الحصول على Firebase Token
+  static const String firebaseChatToken = '/api/chat/firebase-token/';
 
-  static String appointmentChatRoom(String appointmentId) {
-    return 'api/chat/appointments/${Uri.encodeComponent(appointmentId)}/';
+  // ✅ 2. جلب قائمة غرف الدردشة (الكورسات)
+  static const String chatRooms = '/api/chat/rooms/';
+
+  // ✅ 3. جلب تفاصيل غرفة دردشة لكورس محدد
+  static String courseChatRoom(String courseId) {
+    return '/api/chat/rooms/${Uri.encodeComponent(courseId)}/';
   }
   // ===============================================================================================
 }

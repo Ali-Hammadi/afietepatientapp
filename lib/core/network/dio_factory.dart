@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:afiete/core/network/api_endpoints.dart';
@@ -6,12 +7,13 @@ import 'package:afiete/core/routes/app_route.dart';
 import 'package:afiete/core/network/token_storage.dart';
 import 'package:afiete/core/utils/logger.dart';
 import 'package:afiete/core/reset/nuclear_reset_helper.dart';
+// static const String baseUrl = 'https://alihammadi.pythonanywhere.com/';
+// static const String baseUrl =
+//     'https://seventy-unlined-freefall.ngrok-free.dev/';
 
 abstract class DioFactory {
-  // static const String baseUrl = 'https://alihammadi.pythonanywhere.com/';
   // static const String baseUrl = 'http://127.0.0.1:8000/';
-  static const String baseUrl =
-      'https://seventy-unlined-freefall.ngrok-free.dev/';
+  static const String baseUrl = 'https://singular-unsafe-frays.ngrok-free.dev/';
 
   static Completer<bool>? _refreshCompleter;
 
@@ -41,6 +43,25 @@ abstract class DioFactory {
       );
     }
 
+    // ✅ إضافة Language Interceptor (قبل Token Interceptor)
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          // ✅ إرسال اللغة الحالية في كل طلب
+          final languageCode = SettingsStrings.isArabic ? 'ar' : 'en';
+          options.headers['X-Language'] = languageCode;
+
+          if (kDebugMode) {
+            print(
+                '🌐 [Language Interceptor] Sending X-Language: $languageCode');
+          }
+
+          handler.next(options);
+        },
+      ),
+    );
+
+    // ✅ Token Interceptor (الكود الموجود)
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -54,6 +75,7 @@ abstract class DioFactory {
           handler.next(options);
         },
         onError: (err, handler) async {
+          // ... باقي الكود الموجود كما هو ...
           final statusCode = err.response?.statusCode;
           final data = err.response?.data;
 
@@ -73,7 +95,6 @@ abstract class DioFactory {
             return handler.reject(err);
           }
 
-          // ✅ Handle both 401 and 403 token errors
           final isTokenError = _isExpiredTokenResponse(statusCode, data);
           final unauthorized = statusCode == 401 || isTokenError;
           final alreadyRetried =
@@ -83,7 +104,6 @@ abstract class DioFactory {
           if (missingUser) {
             shouldNuclearReset = false;
           } else if (unauthorized && !alreadyRetried) {
-            // ✅ Try refresh token for both 401 and 403 token errors
             final refreshed = await _tryRefreshToken(dio);
             if (refreshed) {
               final retryOptions = err.requestOptions;

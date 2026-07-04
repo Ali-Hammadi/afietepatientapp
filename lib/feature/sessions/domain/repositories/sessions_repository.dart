@@ -1,5 +1,3 @@
-import 'dart:core';
-
 import 'package:afiete/core/error/failure.dart';
 import 'package:afiete/feature/sessions/domain/entities/review_entity.dart';
 import 'package:afiete/feature/sessions/domain/entities/session_entity.dart';

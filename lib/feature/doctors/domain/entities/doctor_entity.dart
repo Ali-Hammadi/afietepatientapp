@@ -163,7 +163,7 @@ class DoctorEntity extends Equatable {
     String? experience,
   }) {
     return DoctorEntity(
-      doctorUsername: username ?? this.doctorUsername,
+      doctorUsername: username ?? doctorUsername,
       email: email ?? this.email,
       gender: gender ?? this.gender,
       imageUrl: imageUrl ?? this.imageUrl,
@@ -177,11 +177,11 @@ class DoctorEntity extends Equatable {
       bio: bio ?? this.bio,
       sessionPrices: sessionPrices ?? this.sessionPrices,
       schedules: schedules ?? this.schedules,
-      patientsCount: patients_count ?? this.patientsCount,
-      ratingValue: ratingValue ?? this._ratingValue,
-      rating: rating ?? this._rating,
-      specialization: specialization ?? this._specialization,
-      experience: experience ?? this._experience,
+      patientsCount: patients_count ?? patientsCount,
+      ratingValue: ratingValue ?? _ratingValue,
+      rating: rating ?? _rating,
+      specialization: specialization ?? _specialization,
+      experience: experience ?? _experience,
     );
   }
 

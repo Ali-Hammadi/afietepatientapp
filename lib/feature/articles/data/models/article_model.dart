@@ -5,6 +5,7 @@ class ArticleModel {
   final String id;
   final String title;
   final String content;
+
   final String summary;
   final String imageUrl;
   final String status;

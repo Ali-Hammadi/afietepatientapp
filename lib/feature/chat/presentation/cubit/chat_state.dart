@@ -1,6 +1,6 @@
 part of 'chat_cubit.dart';
 
-sealed class ChatState {
+abstract class ChatState {
   const ChatState();
 }
 
@@ -26,6 +26,5 @@ class ChatLoaded extends ChatState {
 
 class ChatError extends ChatState {
   const ChatError(this.message);
-
   final String message;
 }

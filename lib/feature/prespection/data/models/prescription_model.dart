@@ -3,32 +3,19 @@ import 'prescription_medication_model.dart';
 
 class PrescriptionModel extends Prescription {
   PrescriptionModel({
-    required int id,
-    required String prescriptionNumber,
-    required int doctorId,
-    required String doctorUsername,
-    required int patientId,
-    required String patientUsername,
-    required int appointmentId,
-    required String diagnosis,
-    required String notes,
-    required List<PrescriptionMedicationModel> medications,
-    required DateTime createdAt,
-    required DateTime updatedAt,
-  }) : super(
-          id: id,
-          prescriptionNumber: prescriptionNumber,
-          doctorId: doctorId,
-          doctorUsername: doctorUsername,
-          patientId: patientId,
-          patientUsername: patientUsername,
-          appointmentId: appointmentId,
-          diagnosis: diagnosis,
-          notes: notes,
-          medications: medications,
-          createdAt: createdAt,
-          updatedAt: updatedAt,
-        );
+    required super.id,
+    required super.prescriptionNumber,
+    required super.doctorId,
+    required super.doctorUsername,
+    required super.patientId,
+    required super.patientUsername,
+    required super.appointmentId,
+    required super.diagnosis,
+    required super.notes,
+    required List<PrescriptionMedicationModel> super.medications,
+    required super.createdAt,
+    required super.updatedAt,
+  });
 
   factory PrescriptionModel.fromJson(Map<String, dynamic> json) {
     return PrescriptionModel(

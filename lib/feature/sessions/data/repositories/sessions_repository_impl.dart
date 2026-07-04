@@ -1,5 +1,3 @@
-import 'dart:core';
-
 import 'package:afiete/core/error/failure.dart';
 import 'package:afiete/feature/sessions/data/datasources/sessions_remote_datasource.dart';
 import 'package:afiete/feature/sessions/domain/entities/review_entity.dart';
@@ -102,7 +100,7 @@ class SessionsRepositoryImpl implements SessionsRepository {
         rating: rating,
         comment: comment,
       );
-      return Right<Failure, ReviewEntity>(result);
+      return Right<Failure, ReviewEntity>(result as ReviewEntity);
     } on DioException catch (e) {
       return Left<Failure, ReviewEntity>(ServerFailure.fromDioError(e));
     } catch (_) {

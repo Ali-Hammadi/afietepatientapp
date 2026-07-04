@@ -6,6 +6,7 @@ import 'package:afiete/feature/appointments/domain/values/consultation_fee.dart'
 import 'package:afiete/feature/assessments/data/assisment_visibility_store.dart';
 import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:afiete/feature/doctors/domain/usecase/get_doctors_usecase.dart';
+import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -22,6 +23,11 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
 
   Timer? _doctorRescheduleTimer;
 
+  // ✅ إضافة متغيرات للـ Caching
+  bool _isLoading = false;
+  bool _hasLoadedOnce = false;
+  List<DoctorEntity> _cachedDoctors = const [];
+
   AppointmentsCubit({
     required this.getAppointmentsUseCase,
     required this.createAppointmentDraftUseCase,
@@ -31,38 +37,74 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
     required this.getAvailableSlotsUseCase,
   }) : super(AppointmentsInitial());
 
-  Future<void> loadAppointments() async {
-    emit(AppointmentsLoading());
-    final appointmentResult = await getAppointmentsUseCase(NoParams());
-
-    List<DoctorEntity> doctorsList = const [];
-    if (getAllDoctorsUseCase != null) {
-      final doctorResult = await getAllDoctorsUseCase!(NoParams());
-      doctorResult.fold((_) {}, (doctors) => doctorsList = doctors);
+  Future<void> loadAppointments({bool forceRefresh = false}) async {
+    // ✅ منع التحميل المتكرر
+    if (_isLoading) {
+      print('⚠️ Already loading, skipping...');
+      return;
     }
 
-    appointmentResult.fold(
-      (failure) => emit(AppointmentsError(failure.errorMessage)),
-      (appointmentsData) {
-        emit(
-          AppointmentsLoaded(
-            _sorted(appointmentsData.upcoming),
-            _sorted(appointmentsData.past),
-            _sorted(appointmentsData.missed),
-            _sorted(appointmentsData.canceled),
-            doctors: doctorsList,
-          ),
+    // ✅ استخدام Cache
+    if (_hasLoadedOnce && !forceRefresh) {
+      print('✅ Using cached data');
+      return;
+    }
+
+    _isLoading = true;
+    emit(AppointmentsLoading());
+
+    try {
+      // ✅ جلب البيانات بالتوازي
+      final results = await Future.wait([
+        getAppointmentsUseCase(NoParams()),
+        if (getAllDoctorsUseCase != null && _cachedDoctors.isEmpty)
+          getAllDoctorsUseCase!(NoParams())
+        else
+          Future.value(const Right<List<DoctorEntity>, dynamic>([])),
+      ]);
+
+      final appointmentResult = results[0] as dynamic;
+
+      // ✅ تحديث Cache الأطباء
+      if (results.length > 1) {
+        final doctorResult = results[1] as dynamic;
+        doctorResult.fold(
+          (_) {},
+          (doctors) => _cachedDoctors = doctors,
         );
-      },
-    );
+      }
+
+      appointmentResult.fold(
+        (failure) => emit(AppointmentsError(failure.errorMessage)),
+        (appointmentsData) {
+          _hasLoadedOnce = true;
+          emit(
+            AppointmentsLoaded(
+              _sorted(appointmentsData.upcoming),
+              _sorted(appointmentsData.past),
+              _sorted(appointmentsData.missed),
+              _sorted(appointmentsData.canceled),
+              doctors: _cachedDoctors,
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      emit(AppointmentsError('Failed to load appointments: $e'));
+    } finally {
+      _isLoading = false;
+    }
   }
 
+  // ✅ تغيير من 30 ثانية إلى 5 دقائق
   void startDoctorRescheduleListener() {
     _doctorRescheduleTimer?.cancel();
-    _doctorRescheduleTimer =
-        Timer.periodic(const Duration(seconds: 30), (timer) async {
-      await _checkDoctorUpdatesInBackground();
-    });
+    _doctorRescheduleTimer = Timer.periodic(
+      const Duration(minutes: 5), // ✅ 5 دقائق
+      (timer) async {
+        await _checkDoctorUpdatesInBackground();
+      },
+    );
   }
 
   void stopDoctorRescheduleListener() {
@@ -156,7 +198,7 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
       (failure) => emit(AppointmentsError(failure.errorMessage)),
       (_) {
         AssessmentsVisibilityStore.markAssessmentsBooked();
-        loadAppointments();
+        loadAppointments(forceRefresh: true);
       },
     );
   }
@@ -172,7 +214,7 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
         return Future.value(false);
       },
       (_) async {
-        await loadAppointments();
+        await loadAppointments(forceRefresh: true);
         return true;
       },
     );
@@ -185,8 +227,6 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
     required String slotStart,
     required String slotEnd,
   }) async {
-    final currentState = state;
-
     final result = await rescheduleAppointmentUseCase(
       RescheduleAppointmentParams(
         appointmentId: appointmentId,
@@ -203,13 +243,15 @@ class AppointmentsCubit extends Cubit<AppointmentsState> {
         return Future.value(false);
       },
       (_) {
-        if (currentState is AppointmentsLoaded) {
-          loadAppointments();
-        } else {
-          loadAppointments();
-        }
+        loadAppointments(forceRefresh: true);
         return Future.value(true);
       },
     );
+  }
+
+  // ✅ دالة لمسح الـ Cache (اختياري)
+  void clearCache() {
+    _hasLoadedOnce = false;
+    _cachedDoctors = const [];
   }
 }

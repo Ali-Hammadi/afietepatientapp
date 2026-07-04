@@ -14,6 +14,7 @@ class AppointmentModel extends AppointmentEntity {
     required super.status,
     required super.requiresPayment,
     required super.hasNextSession,
+    required super.treatmentCourseId, // ✅ تم الإضافة
   });
 
   factory AppointmentModel.fromJson(Map<String, dynamic> json) {
@@ -31,6 +32,15 @@ class AppointmentModel extends AppointmentEntity {
       extractedDoctorName = json['doctor_name'] as String;
     } else if (json['doctor'] is Map<String, dynamic>) {
       extractedDoctorName = json['doctor']['username'] as String? ?? 'Doctor';
+    }
+
+    // ✅ استخراج treatmentCourseId
+    String treatmentCourseId = '';
+    if (json['treatment_course_id'] != null) {
+      treatmentCourseId = json['treatment_course_id'].toString();
+    } else if (json['treatment_course'] != null &&
+        json['treatment_course'] is Map<String, dynamic>) {
+      treatmentCourseId = json['treatment_course']['id']?.toString() ?? '';
     }
 
     return AppointmentModel(
@@ -68,8 +78,8 @@ class AppointmentModel extends AppointmentEntity {
       sessionType: (json['type'] ?? json['sessionType'] ?? 'video') as String,
       status: (json['status'] ?? 'pending') as String,
       requiresPayment: json['requiresPayment'] as bool? ?? false,
-      hasNextSession:
-          json['has_next_session'] as bool? ?? false, // تم استخراج القيمة
+      hasNextSession: json['has_next_session'] as bool? ?? false,
+      treatmentCourseId: treatmentCourseId, // ✅ تم الإضافة
     );
   }
 
@@ -86,6 +96,7 @@ class AppointmentModel extends AppointmentEntity {
       status: entity.status,
       requiresPayment: entity.requiresPayment,
       hasNextSession: entity.hasNextSession,
+      treatmentCourseId: entity.treatmentCourseId, // ✅ تم الإضافة
     );
   }
 }

@@ -14,7 +14,7 @@ class AppointmentsRepositoryImpl implements AppointmentsRepository {
   @override
   Future<Either<Failure, AppointmentsData>> getAppointments() async {
     try {
-      final result = await dataSource.getAppointments();
+      final result = await dataSource.getAppointments(); // ✅ يستدعي dataSource
       return Right<Failure, AppointmentsData>(result);
     } on DioException catch (e) {
       return Left<Failure, AppointmentsData>(ServerFailure.fromDioError(e));
