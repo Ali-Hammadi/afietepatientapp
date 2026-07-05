@@ -1029,6 +1029,99 @@ abstract class SettingsStrings {
   static String get exerciseResumed =>
       _t('Exercise Resumed', 'تم استئناف التمرين');
   static String get tapToStart => _t('Tap to start', 'اضغط للبدء');
+  // lib/core/ln10/settings_strings.dart
+
+// ═══════════════════════════════════════════════════════════════
+// 🫁 BREATHING STEPS TRANSLATION - ترجمة خطوات التنفس
+// ═══════════════════════════════════════════════════════════════
+
+  /// ترجمة خطوة تنفس من الإنجليزية للعربية
+  static String translateBreathingStep(String step) {
+    if (step.trim().isEmpty) return step;
+
+    String translated = step;
+
+    // ✅ ترجمة الكلمات المفتاحية
+    final translations = {
+      'Inhale': _t('Inhale', 'شهيق'),
+      'Hold': _t('Hold', 'احبس'),
+      'Exhale': _t('Exhale', 'زفير'),
+      'Rest': _t('Rest', 'استرح'),
+      'seconds': _t('seconds', 'ثوانٍ'),
+      'for': _t('for', 'لمدة'),
+      'Breathe in': _t('Breathe in', 'تنفس'),
+      'Breathe out': _t('Breathe out', 'ازفر'),
+      'slowly': _t('slowly', 'ببطء'),
+      'through the nose': _t('through the nose', 'من الأنف'),
+      'through the mouth': _t('through the mouth', 'من الفم'),
+      'Place one hand on chest':
+          _t('Place one hand on chest', 'ضع يدك على الصدر'),
+      'Place one hand on belly':
+          _t('Place one hand on belly', 'ضع يدك على البطن'),
+      'Let the belly rise': _t('Let the belly rise', 'اترك البطن ترتفع'),
+      'more than the chest': _t('more than the chest', 'أكثر من الصدر'),
+      'Keep the rhythm': _t('Keep the rhythm', 'حافظ على الإيقاع'),
+      'gentle and even': _t('gentle and even', 'ناعماً ومنتظماً'),
+      'Stay relaxed': _t('Stay relaxed', 'ابقَ مسترخياً'),
+      'Exhale longer': _t('Exhale longer', 'ازفر لفترة أطول'),
+      'softer than the inhale': _t('softer than the inhale', 'أهدأ من الشهيق'),
+    };
+
+    // ✅ استبدال كل كلمة
+    translations.forEach((english, localized) {
+      translated = translated.replaceAll(english, localized);
+    });
+
+    return translated;
+  }
+
+  // ✅ ترجمة "موصى به لـ"
+  static String translateRecommendedFor(String text) {
+    if (text.trim().isEmpty) return '';
+
+    // ✅ إذا النص بالعربي بالفعل، ارجعه كما هو
+    if (SettingsStrings.isArabicText(text)) return text;
+
+    // ✅ ترجمة الكلمات المفتاحية
+    String translated = text;
+
+    final translations = {
+      'Anxiety': SettingsStrings.isArabic ? 'القلق' : 'Anxiety',
+      'insomnia': SettingsStrings.isArabic ? 'الأرق' : 'insomnia',
+      'sleep': SettingsStrings.isArabic ? 'النوم' : 'sleep',
+      'stress': SettingsStrings.isArabic ? 'التوتر' : 'stress',
+      'focus': SettingsStrings.isArabic ? 'التركيز' : 'focus',
+      'panic': SettingsStrings.isArabic ? 'الهلع' : 'panic',
+      'tension': SettingsStrings.isArabic ? 'التوتر' : 'tension',
+      'relaxation': SettingsStrings.isArabic ? 'الاسترخاء' : 'relaxation',
+      'calming': SettingsStrings.isArabic ? 'التهدئة' : 'calming',
+      'regulation': SettingsStrings.isArabic ? 'التنظيم' : 'regulation',
+      'nervous system':
+          SettingsStrings.isArabic ? 'الجهاز العصبي' : 'nervous system',
+      'HRV training': SettingsStrings.isArabic ? 'تدريب HRV' : 'HRV training',
+      'daily': SettingsStrings.isArabic ? 'اليومي' : 'daily',
+      'long-term': SettingsStrings.isArabic ? 'طويل المدى' : 'long-term',
+      'and': SettingsStrings.isArabic ? 'و' : 'and',
+      'for': SettingsStrings.isArabic ? 'لـ' : 'for',
+    };
+
+    translations.forEach((english, localized) {
+      translated = translated.replaceAll(english, localized);
+    });
+
+    return translated;
+  }
+
+  // ✅ فحص إذا كان النص عربي
+  static bool isArabicText(String text) {
+    final arabicRegex = RegExp(r'[\u0600-\u06FF]');
+    return arabicRegex.hasMatch(text);
+  }
+
+  /// ترجمة قائمة خطوات التنفس
+  static List<String> translateBreathingSteps(List<String> steps) {
+    return steps.map((step) => translateBreathingStep(step)).toList();
+  }
 
 // ✅ أزرار التحكم
 

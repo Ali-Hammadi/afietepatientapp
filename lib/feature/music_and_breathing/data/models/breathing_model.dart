@@ -1,3 +1,4 @@
+// lib/feature/music_and_breathing/data/models/breathing_model.dart
 import '../../domain/entities/breathing_exercise_entity.dart';
 import '../../domain/entities/music_entity.dart';
 
@@ -17,19 +18,57 @@ class BreathingExerciseModel extends BreathingExerciseEntity {
   });
 
   factory BreathingExerciseModel.fromJson(Map<String, dynamic> json) {
+    // ✅ إصلاح مشكلة Closure - التأكد من إن steps هي List<String>
+    final rawSteps = json['steps'];
+    List<String> parsedSteps = [];
+
+    if (rawSteps is List) {
+      for (final item in rawSteps) {
+        if (item is String) {
+          parsedSteps.add(item);
+        } else if (item != null) {
+          parsedSteps.add(item.toString());
+        }
+      }
+    }
+
     return BreathingExerciseModel(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      description: json['description'] as String,
-      type: BreathingExerciseType.values.byName(json['type'] as String),
-      durationMinutes: json['duration_minutes'] as int,
-      inhaleSeconds: json['inhale_seconds'] as int,
-      holdSeconds: json['hold_seconds'] as int,
-      exhaleSeconds: json['exhale_seconds'] as int,
-      restSeconds: json['rest_seconds'] as int,
-      steps: List<String>.from(json['steps'] as List),
-      recommendedFor: json['recommended_for'] as String,
+      id: json['id']?.toString() ?? '',
+      title: json['title']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
+      type: _parseType(json['type']),
+      durationMinutes: json['duration_minutes'] as int? ?? 5,
+      inhaleSeconds: json['inhale_seconds'] as int? ?? 4,
+      holdSeconds: json['hold_seconds'] as int? ?? 4,
+      exhaleSeconds: json['exhale_seconds'] as int? ?? 4,
+      restSeconds: json['rest_seconds'] as int? ?? 0,
+      steps: parsedSteps, // ✅ List<String> مباشرة
+      recommendedFor: json['recommended_for']?.toString() ?? '',
     );
+  }
+
+  static BreathingExerciseType _parseType(dynamic type) {
+    if (type is String) {
+      switch (type.toLowerCase()) {
+        case 'boxbreathing':
+        case 'box_breathing':
+          return BreathingExerciseType.boxBreathing;
+        case 'fourseveneight':
+        case 'four_seven_eight':
+        case '478':
+          return BreathingExerciseType.fourSevenEight;
+        case 'diaphragmatic':
+          return BreathingExerciseType.diaphragmatic;
+        case 'pacedbreathing':
+        case 'paced_breathing':
+          return BreathingExerciseType.pacedBreathing;
+        case 'resonance':
+          return BreathingExerciseType.resonance;
+        default:
+          return BreathingExerciseType.boxBreathing;
+      }
+    }
+    return BreathingExerciseType.boxBreathing;
   }
 
   Map<String, dynamic> toJson() {
