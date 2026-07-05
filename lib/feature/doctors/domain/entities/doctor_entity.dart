@@ -1,34 +1,54 @@
 import 'package:afiete/feature/appointments/domain/values/consultation_fee.dart';
 import 'package:equatable/equatable.dart';
 
-class DoctorTimeSlot extends Equatable {
+class DoctorTimeSlot {
   final String start;
   final String end;
+  final bool isBooked;
+  final String? bookedBy;
+  final String status;
 
-  const DoctorTimeSlot({required this.start, required this.end});
+  const DoctorTimeSlot({
+    required this.start,
+    required this.end,
+    this.isBooked = false,
+    this.bookedBy,
+    this.status = 'available',
+  });
 
-  DateTime toStartDateTime(DateTime date) => _parse(start, date);
-  DateTime toEndDateTime(DateTime date) => _parse(end, date);
+  factory DoctorTimeSlot.fromJson(Map<String, dynamic> json) {
+    // ✅ تحديد status من الـ backend
+    final status = json['status'] as String? ?? 'available';
+    final isBooked = json['is_booked'] as bool? ??
+        json['isBooked'] as bool? ??
+        (status == 'booked');
 
-  DateTime _parse(String t, DateTime d) {
-    final parts = t.split(':');
+    return DoctorTimeSlot(
+      start: json['start'] as String? ?? json['slot_start'] as String? ?? '',
+      end: json['end'] as String? ?? json['slot_end'] as String? ?? '',
+      isBooked: isBooked,
+      bookedBy: json['booked_by'] as String? ?? json['bookedBy'] as String?,
+      status: status,
+    );
+  }
+
+  DateTime toStartDateTime(DateTime day) {
+    final parts = start.split(':');
+    final hour = int.parse(parts[0]);
+    final minute = int.parse(parts[1]);
+
     return DateTime(
-        d.year, d.month, d.day, int.parse(parts[0]), int.parse(parts[1]));
+      day.year,
+      day.month,
+      day.day,
+      hour,
+      minute,
+    );
   }
 
-  String displayLabel() => '${_fmt(start)} – ${_fmt(end)}';
-
-  String _fmt(String t) {
-    final parts = t.split(':');
-    final h = int.parse(parts[0]);
-    final m = parts[1];
-    final period = h >= 12 ? 'PM' : 'AM';
-    final dh = h > 12 ? h - 12 : (h == 0 ? 12 : h);
-    return '$dh:$m $period';
+  String displayLabel() {
+    return '$start - $end';
   }
-
-  @override
-  List<Object> get props => [start, end];
 }
 
 class DoctorSessionPrice extends Equatable {

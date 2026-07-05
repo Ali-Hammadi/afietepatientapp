@@ -269,7 +269,10 @@ class _RescheduleSessionScreenState extends State<RescheduleSessionScreen> {
   }
 
   Widget _buildTimeStep(String localeCode) {
-    if (_daySlots.isEmpty) {
+    // ✅ فلترة الأوقات المحجوزة - نعرض بس المتاحة
+    final availableSlots = _daySlots.where((slot) => !slot.isBooked).toList();
+
+    if (availableSlots.isEmpty) {
       return Center(
         key: const ValueKey('time-step-empty'),
         child: Column(
@@ -291,9 +294,10 @@ class _RescheduleSessionScreenState extends State<RescheduleSessionScreen> {
       );
     }
 
+    // ✅ عرض الأوقات المتاحة فقط بنفس الـ UI الأصلي
     return GridView.builder(
       key: const ValueKey('time-step'),
-      itemCount: _daySlots.length,
+      itemCount: availableSlots.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: 10,
@@ -301,7 +305,7 @@ class _RescheduleSessionScreenState extends State<RescheduleSessionScreen> {
         childAspectRatio: 2.6,
       ),
       itemBuilder: (context, index) {
-        final slot = _daySlots[index];
+        final slot = availableSlots[index];
         final isSelected = _selectedSlot == slot;
         final isPastSlot = !_isSlotAvailableForDateTime(
           slot.toStartDateTime(_selectedDate ?? DateTime.now()),

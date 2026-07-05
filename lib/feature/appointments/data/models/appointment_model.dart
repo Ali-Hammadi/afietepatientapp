@@ -14,7 +14,7 @@ class AppointmentModel extends AppointmentEntity {
     required super.status,
     required super.requiresPayment,
     required super.hasNextSession,
-    required super.treatmentCourseId, // ✅ تم الإضافة
+    required super.treatmentCourseId,
   });
 
   factory AppointmentModel.fromJson(Map<String, dynamic> json) {
@@ -43,6 +43,18 @@ class AppointmentModel extends AppointmentEntity {
       treatmentCourseId = json['treatment_course']['id']?.toString() ?? '';
     }
 
+    // ✅ معالجة الوقت - تحويل UTC من الـ backend لـ local للعرض
+    DateTime parsedDate;
+    if (json['date'] != null) {
+      final dateStr = json['date'] as String;
+      parsedDate = _parseDateTimeWithTimezone(dateStr); // ✅ استخدام نفس الاسم
+    } else if (json['scheduledAt'] != null) {
+      final dateStr = json['scheduledAt'] as String;
+      parsedDate = _parseDateTimeWithTimezone(dateStr); // ✅ استخدام نفس الاسم
+    } else {
+      parsedDate = DateTime.now();
+    }
+
     return AppointmentModel(
       appointmentId:
           json['id'] as dynamic ?? json['appointmentId'] as dynamic ?? 0,
@@ -51,11 +63,7 @@ class AppointmentModel extends AppointmentEntity {
           json['patientId'] as String? ??
           'unknown_patient',
       doctorName: extractedDoctorName,
-      scheduledAt: json['date'] != null
-          ? DateTime.parse(json['date'] as String)
-          : json['scheduledAt'] != null
-              ? DateTime.parse(json['scheduledAt'] as String)
-              : DateTime.now(),
+      scheduledAt: parsedDate, // ✅ الوقت المحلي للعرض
       durationSlots:
           json['duration_slots'] as int? ?? json['durationSlots'] as int? ?? 1,
       consultationFee:
@@ -79,8 +87,28 @@ class AppointmentModel extends AppointmentEntity {
       status: (json['status'] ?? 'pending') as String,
       requiresPayment: json['requiresPayment'] as bool? ?? false,
       hasNextSession: json['has_next_session'] as bool? ?? false,
-      treatmentCourseId: treatmentCourseId, // ✅ تم الإضافة
+      treatmentCourseId: treatmentCourseId,
     );
+  }
+
+  // ✅ دالة مساعدة لتحويل UTC من الـ backend لـ local
+  static DateTime _parseDateTimeWithTimezone(String dateStr) {
+    // ✅ إذا كان الـ string ما فيه timezone info، نفترض إنه UTC
+    String normalizedStr = dateStr;
+    if (!dateStr.endsWith('Z') &&
+        !dateStr.contains('+') &&
+        !dateStr.substring(10).contains('-')) {
+      normalizedStr = '${dateStr}Z'; // ✅ إضافة Z ليدل على UTC
+    }
+
+    final parsed = DateTime.parse(normalizedStr);
+
+    // ✅ إذا كان UTC، نحوله لـ local للعرض
+    if (parsed.isUtc) {
+      return parsed.toLocal();
+    }
+
+    return parsed;
   }
 
   factory AppointmentModel.fromEntity(AppointmentEntity entity) {
@@ -96,7 +124,7 @@ class AppointmentModel extends AppointmentEntity {
       status: entity.status,
       requiresPayment: entity.requiresPayment,
       hasNextSession: entity.hasNextSession,
-      treatmentCourseId: entity.treatmentCourseId, // ✅ تم الإضافة
+      treatmentCourseId: entity.treatmentCourseId,
     );
   }
 }

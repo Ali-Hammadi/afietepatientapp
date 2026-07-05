@@ -8,12 +8,20 @@ import 'package:afiete/core/network/token_storage.dart';
 import 'package:afiete/core/utils/logger.dart';
 import 'package:afiete/core/reset/nuclear_reset_helper.dart';
 // static const String baseUrl = 'https://alihammadi.pythonanywhere.com/';
-// static const String baseUrl =
-//     'https://seventy-unlined-freefall.ngrok-free.dev/';
 
 abstract class DioFactory {
+  // ===============================================================================================
+  ///Gaith Url:
+  static const String baseUrl =
+      'https://seventy-unlined-freefall.ngrok-free.dev/';
+  // ===============================================================================================
+
+  ///Local Url:
   // static const String baseUrl = 'http://127.0.0.1:8000/';
-  static const String baseUrl = 'https://singular-unsafe-frays.ngrok-free.dev/';
+  // ===============================================================================================
+  ///Ali Url:
+  // static const String baseUrl = 'https://singular-unsafe-frays.ngrok-free.dev/';
+  // ===============================================================================================
 
   static Completer<bool>? _refreshCompleter;
 
@@ -21,9 +29,9 @@ abstract class DioFactory {
     final dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
-        connectTimeout: const Duration(seconds: 20),
-        receiveTimeout: const Duration(seconds: 20),
-        sendTimeout: const Duration(seconds: 20),
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+        sendTimeout: const Duration(seconds: 30),
         headers: {'Content-Type': 'application/json'},
       ),
     );
@@ -47,7 +55,6 @@ abstract class DioFactory {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          // ✅ إرسال اللغة الحالية في كل طلب
           final languageCode = SettingsStrings.isArabic ? 'ar' : 'en';
           options.headers['X-Language'] = languageCode;
 

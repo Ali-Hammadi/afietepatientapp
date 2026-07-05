@@ -1,7 +1,10 @@
 import 'package:afiete/core/network/dio_factory.dart';
 import 'package:afiete/core/network/token_storage.dart';
 import 'package:afiete/feature/appointments/domain/repositories/appointments_repository.dart';
+// ✅ Course Repository (القديم - للـ Chat)
+import 'package:afiete/feature/chat/data/repositories/course_repository.dart';
 
+// ✅ Courses Feature (الجديد - Clean Architecture)
 import 'package:afiete/feature/assessments/data/datasources/assisments_remote_datasource.dart';
 import 'package:afiete/feature/assessments/data/repositories/assisments_repository_impl.dart';
 import 'package:afiete/feature/assessments/domain/repositories/assisments_repository.dart';
@@ -28,8 +31,12 @@ import 'package:afiete/feature/appointments/domain/usecase/appointments_usecase.
 import 'package:afiete/feature/appointments/presentation/cubits/appointments_cubit.dart';
 import 'package:afiete/feature/chat/data/datasources/chat_remote_datasource.dart';
 import 'package:afiete/feature/chat/data/repositories/chat_repository.dart';
-import 'package:afiete/feature/chat/data/repositories/course_repository.dart';
 import 'package:afiete/feature/chat/presentation/cubit/chat_cubit.dart';
+import 'package:afiete/feature/cources/data/datasources/cources_remote_datasource.dart';
+import 'package:afiete/feature/cources/data/repositories/cources_repo_impl.dart';
+import 'package:afiete/feature/cources/domain/repositories/cources_repo.dart';
+import 'package:afiete/feature/cources/domain/usecases/cources_usecase.dart';
+import 'package:afiete/feature/cources/presentation/cubit/cources_cubit.dart';
 import 'package:afiete/feature/doctors/data/datasources/doctors_remote_datasource.dart';
 import 'package:afiete/feature/doctors/data/repositories/doctors_repository_impl.dart';
 import 'package:afiete/feature/doctors/domain/repositories/doctors_repository.dart';
@@ -213,12 +220,55 @@ Future<void> init() async {
   sl.registerLazySingleton<GetAvailableSlotsUseCase>(
     () => GetAvailableSlotsUseCase(sl<AppointmentsRepository>()),
   );
-
-  // Course Repository
+// ==========================================
+// ✅ Course Repository (القديم - للـ Chat)
+// ==========================================
   sl.registerLazySingleton<CourseRepository>(
     () => CourseRepository(sl<Dio>()),
   );
 
+// ==========================================
+// ✅ Courses Feature (الجديد - Clean Architecture)
+// ==========================================
+
+// Data Sources
+  sl.registerLazySingleton<CoursesRemoteDataSource>(
+    () => CoursesRemoteDataSourceImpl(dio: sl()),
+  );
+
+// Repository
+  sl.registerLazySingleton<CoursesRepository>(
+    () => CoursesRepositoryImpl(dataSource: sl()),
+  );
+
+// Use Cases
+  sl.registerLazySingleton<GetActiveCourseUseCase>(
+    () => GetActiveCourseUseCase(sl()),
+  );
+  sl.registerLazySingleton<GetArchivedCoursesUseCase>(
+    () => GetArchivedCoursesUseCase(sl()),
+  );
+  sl.registerLazySingleton<EndCourseUseCase>(
+    () => EndCourseUseCase(sl()),
+  );
+  sl.registerLazySingleton<RequestContinueUseCase>(
+    () => RequestContinueUseCase(sl()),
+  );
+  sl.registerLazySingleton<DeclineContinueUseCase>(
+    () => DeclineContinueUseCase(sl()),
+  );
+
+// Cubit
+  sl.registerFactory<CoursesCubit>(
+    () => CoursesCubit(
+      getActiveCourseUseCase: sl(),
+      getArchivedCoursesUseCase: sl(),
+      endCourseUseCase: sl(),
+      requestContinueUseCase: sl(),
+      declineContinueUseCase: sl(),
+      getAllDoctorsUseCase: sl(),
+    ),
+  );
   // Cubit (تسجيل واحد فقط)
   sl.registerFactory<AppointmentsCubit>(
     () => AppointmentsCubit(
@@ -453,10 +503,12 @@ Future<void> init() async {
   // Doctors cubits
   sl.registerFactory<DoctorsCubit>(
     () => DoctorsCubit(
-        sl<GetAllDoctorsUseCase>(),
-        sl<GetDoctorsBySpecialtyUseCase>(),
-        sl<GetDoctorByUsernameUseCase>(),
-        sl<GetSpecialtiesUseCase>()),
+      sl<GetAllDoctorsUseCase>(),
+      sl<GetDoctorsBySpecialtyUseCase>(),
+      sl<GetDoctorByUsernameUseCase>(),
+      sl<GetSpecialtiesUseCase>(),
+      sl<GetAvailableSlotsUseCase>(), // ✅ إضافة
+    ),
   );
   // Settings data sources
   sl.registerLazySingleton<SettingsRemoteDataSource>(

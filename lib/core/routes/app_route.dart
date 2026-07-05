@@ -20,6 +20,8 @@ import 'package:afiete/feature/auth/domain/entities/auth_user_entity.dart';
 import 'package:afiete/feature/appointments/presentation/screens/appointments_screen.dart';
 import 'package:afiete/feature/appointments/presentation/screens/book_session_screen.dart';
 import 'package:afiete/feature/chat/presentation/screens/chat_screen.dart';
+import 'package:afiete/feature/cources/presentation/cubit/cources_cubit.dart';
+import 'package:afiete/feature/cources/presentation/pages/cources_screen.dart';
 import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:afiete/feature/doctors/presentation/screens/doctor_info_screen.dart';
 import 'package:afiete/feature/doctors/presentation/screens/doctors_home_screen.dart';
@@ -197,27 +199,30 @@ class AppRouter {
           );
         }
         return MaterialPageRoute(builder: (_) => PaymentScreen(request: args));
-// في app_router.dart، عدّل case chatScreen:
+// في onGenerateRoute
+      // في onGenerateRoute
       case MyRoutes.chatScreen:
         final args = settings.arguments;
-        if (args is! ChatConversationArgs) {
+
+        if (args is ChatConversationArgs) {
           return MaterialPageRoute(
-            builder: (context) => Scaffold(
-              appBar: AppBar(),
-              body: const Center(
-                child: Text(
-                  'Chat conversation data is required.',
-                  style: TextStyle(fontSize: 18),
-                ),
-              ),
+            builder: (_) => ChatScreen(
+              courseId: args.courseId,
+              doctorName: args.doctorName,
+              patientName: null,
+              doctorImageUrl: args.doctorImageUrl, // ✅ تمرير imageUrl
+              readOnly: args.readOnly,
             ),
+            settings: settings,
           );
         }
+
         return MaterialPageRoute(
-          builder: (_) => ChatScreen(
-            courseId: args.courseId, // ✅ تغيير هنا
-            doctorName: args.doctorName,
+          builder: (_) => const ChatScreen(
+            courseId: '',
+            doctorName: 'Chat',
           ),
+          settings: settings,
         );
       case MyRoutes.notesListScreen:
         return MaterialPageRoute(builder: (_) => const NotesListScreen());
@@ -232,6 +237,14 @@ class AppRouter {
               ..add(LoadPatientPrescriptions()),
             child: const PatientPrescriptionsScreen(),
           ),
+        );
+      case MyRoutes.coursesScreen:
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => sl<CoursesCubit>(),
+            child: const CoursesScreen(),
+          ),
+          settings: settings,
         );
 
       case MyRoutes.patientPrescriptionDetailPage:
@@ -408,11 +421,15 @@ class ChatConversationArgs {
     required this.courseId,
     required this.doctorName,
     required this.currentUserId,
+    this.doctorImageUrl, // ✅ إضافة parameter للصورة
+    this.readOnly = false,
   });
 
   final String courseId;
   final String doctorName;
   final String currentUserId;
+  final String? doctorImageUrl; // ✅ إضافة parameter للصورة
+  final bool readOnly;
 }
 
 class MyRoutes {
@@ -457,6 +474,8 @@ class MyRoutes {
   static const String reportScreen = "/reportScreen";
   static const String reportHistoryScreen = "/reportHistoryScreen";
   static const String reportIssueScreen = '/report-issue';
+  // Cources Screens
+  static const String coursesScreen = '/courses';
 
   // Articles Screens
   static const String articlesListScreen = "/articlesListScreen";

@@ -8,14 +8,17 @@ abstract class SettingsStrings {
   static String _t(String en, String ar) => _languageCode == 'ar' ? ar : en;
   static bool get isArabic => _languageCode == 'ar';
   static String get appName => _t('Afiete', 'أفييت');
-  static String get enterContet =>
+  static String get enterContent =>
       _t('Please enter content', 'الرجاء إدخال المحتوى');
-  static String get contet => _t('Content', 'المحتوى');
+  static String get content => _t('Content', 'المحتوى');
   static String get title => _t('Title', 'العنوان');
   static String get enterTitle =>
       _t('Please enter a title', 'الرجاء إدخال العنوان');
 
   static String get settingsTitle => _t('Settings', 'الإعدادات');
+  static String get courses => _t('Courses', 'كورساتي');
+  static String get coursesDetails =>
+      _t('My medical courses', ' كورساتي العلاجية ');
   static String get private => _t('Private', 'خاص');
   static String get shareNote => _t('Share Note', 'مشاركة الملاحظة');
   static String get enterDoctorUsername =>
@@ -41,6 +44,11 @@ abstract class SettingsStrings {
         'Choose one of the quick support options below.',
         'اختر أحد خيارات الدعم السريع أدناه.',
       );
+
+  static String get missed => _t('Missed', 'مفقود');
+  static String get noMissedAppointments =>
+      _t('No missed appointments', 'لا يوجد جلسات فائتة');
+
   static String get contactSupport => _t('Contact support', 'تواصل مع الدعم');
   static String get reportIssue => _t('Report an issue', 'الإبلاغ عن مشكلة');
   static String get supportFAQ => _t('FAQ', 'الأسئلة الشائعة');

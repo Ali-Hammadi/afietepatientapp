@@ -2,43 +2,29 @@ part of 'appointments_cubit.dart';
 
 abstract class AppointmentsState extends Equatable {
   const AppointmentsState();
-
-  @override
-  List<Object> get props => [];
-}
-
-class SlotsLoading extends AppointmentsState {
-  const SlotsLoading();
-}
-
-class SlotsLoaded extends AppointmentsState {
-  final List<dynamic> availableSlots;
-
-  const SlotsLoaded(this.availableSlots);
-
-  @override
-  List<Object> get props => [availableSlots];
 }
 
 class AppointmentsInitial extends AppointmentsState {
-  const AppointmentsInitial();
+  @override
+  List<Object?> get props => [];
 }
 
 class AppointmentsLoading extends AppointmentsState {
-  const AppointmentsLoading();
+  @override
+  List<Object?> get props => [];
 }
 
 class AppointmentsLoaded extends AppointmentsState {
   final List<AppointmentEntity> upcomingAppointments;
   final List<AppointmentEntity> pastAppointments;
-  final List<AppointmentEntity> missedAppointments;
+  final List<AppointmentEntity> missedAppointments; // ✅ جديد
   final List<AppointmentEntity> canceledAppointments;
-  final List<DoctorEntity>? doctors;
+  final List<DoctorEntity> doctors;
 
   const AppointmentsLoaded(
     this.upcomingAppointments,
     this.pastAppointments,
-    this.missedAppointments,
+    this.missedAppointments, // ✅ جديد
     this.canceledAppointments, {
     this.doctors = const [],
   });
@@ -51,20 +37,19 @@ class AppointmentsLoaded extends AppointmentsState {
       ];
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
         upcomingAppointments,
         pastAppointments,
-        missedAppointments,
+        missedAppointments, // ✅ جديد
         canceledAppointments,
-        doctors ?? const <DoctorEntity>[],
+        doctors,
       ];
 }
 
 class AppointmentsError extends AppointmentsState {
   final String message;
-
   const AppointmentsError(this.message);
 
   @override
-  List<Object> get props => [message];
+  List<Object?> get props => [message];
 }

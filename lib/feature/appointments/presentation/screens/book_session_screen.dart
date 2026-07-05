@@ -147,7 +147,7 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
   Future<void> _submitBooking() async {
     final scheduledAt = _selectedDateTime;
 
-    print('🔍 DEBUG: scheduledAt = $scheduledAt');
+    print('🔍 DEBUG: scheduledAt (local) = $scheduledAt');
     print('🔍 DEBUG: _selectedDurationSlots = $_selectedDurationSlots');
     print('🔍 DEBUG: _selectedSessionType = $_selectedSessionType');
 
@@ -174,13 +174,16 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
     final cubit = context.read<AppointmentsCubit>();
 
     print('🔍 DEBUG: Calling createAppointmentDraft...');
+    print('🔍 DEBUG: scheduledAt (local) = $scheduledAt');
+    print('🔍 DEBUG: scheduledAt (UTC) = ${scheduledAt.toUtc()}');
 
+    // ✅ إرسال الوقت بـ UTC للـ backend
     await cubit.createAppointmentDraft(
       appointmentId: generatedAppointmentId,
       doctorUsername: widget.doctor.doctorUsername,
       patientUsername: patientUsername,
       doctorName: widget.doctor.name ?? 'Doctor',
-      scheduledAt: scheduledAt,
+      scheduledAt: scheduledAt.toUtc(), // ✅ تحويل لـ UTC قبل الإرسال
       durationSlots: _selectedDurationSlots!,
       consultationFee: widget.doctor.consultationFee,
       sessionType: _selectedSessionType!,
@@ -218,7 +221,7 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
       arguments: PaymentRequestEntity(
         appointmentId: generatedAppointmentId,
         doctorName: widget.doctor.name ?? 'Doctor',
-        scheduledAt: scheduledAt,
+        scheduledAt: scheduledAt, // ✅ الوقت المحلي للعرض
         sessionType: _selectedSessionType!,
         amount: amount,
         currency: 'USD',
@@ -383,7 +386,10 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
   }
 
   Widget _buildTimeStep(String localeCode) {
-    if (_daySlots.isEmpty) {
+    // ✅ فلترة الأوقات المحجوزة - نعرض بس المتاحة
+    final availableSlots = _daySlots.where((slot) => !slot.isBooked).toList();
+
+    if (availableSlots.isEmpty) {
       return Center(
         key: const ValueKey('time-step-empty'),
         child: Column(
@@ -405,9 +411,10 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
       );
     }
 
+    // ✅ عرض الأوقات المتاحة فقط بنفس الـ UI الأصلي
     return GridView.builder(
       key: const ValueKey('time-step'),
-      itemCount: _daySlots.length,
+      itemCount: availableSlots.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: 10,
@@ -415,7 +422,7 @@ class _BookSessionScreenState extends State<BookSessionScreen> {
         childAspectRatio: 2.6,
       ),
       itemBuilder: (context, index) {
-        final slot = _daySlots[index];
+        final slot = availableSlots[index];
         final isSelected = _selectedSlot == slot;
         final isPastSlot = !_isSlotAvailableForDateTime(
           slot.toStartDateTime(_selectedDate ?? DateTime.now()),

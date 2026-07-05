@@ -1,5 +1,6 @@
 // lib/feature/chat/presentation/screens/chat_screen.dart
 import 'package:afiete/core/constants/app_colors.dart';
+import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/core/di/injection_container.dart';
 import 'package:afiete/feature/chat/data/models/chat_message_model.dart';
 import 'package:afiete/feature/chat/data/repositories/course_repository.dart';
@@ -17,7 +18,9 @@ class ChatScreen extends StatefulWidget {
     required this.courseId,
     this.patientName,
     this.doctorName,
+    this.doctorImageUrl, // ✅ إضافة parameter للصورة
     this.chatRepository,
+    this.readOnly = false,
   }) : assert(
           patientName != null || doctorName != null,
           'Either patientName or doctorName must be provided',
@@ -26,7 +29,9 @@ class ChatScreen extends StatefulWidget {
   final String courseId;
   final String? patientName;
   final String? doctorName;
+  final String? doctorImageUrl; // ✅ إضافة parameter للصورة
   final ChatRepository? chatRepository;
+  final bool readOnly;
 
   String get otherUserName => patientName ?? doctorName ?? 'Chat';
 
@@ -41,19 +46,34 @@ class _ChatScreenState extends State<ChatScreen> {
   final scrollController = ScrollController();
   bool _hasShownContinueDialog = false;
 
+  // ✅ إزالة late من _messenger وجعله nullable
+  ScaffoldMessengerState? _messenger;
+  bool _initialized = false;
+
   @override
   void initState() {
     super.initState();
 
-    // ✅ استخدام DI بدلاً من DioClient
     final chatRepo = widget.chatRepository ?? sl<ChatRepository>();
-
     cubit = ChatCubit(chatRepo)..openCourseChat(widget.courseId);
-
-    // ✅ استخدام DI لـ CourseRepository
     courseRepository = sl<CourseRepository>();
 
-    _testFirebaseConnection();
+    // ✅ تأخير استدعاء _testFirebaseConnection
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _testFirebaseConnection();
+    });
+  }
+
+  // ✅ نقل ScaffoldMessenger إلى didChangeDependencies
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // ✅ تهيئة _messenger مرة واحدة فقط
+    if (!_initialized) {
+      _messenger = ScaffoldMessenger.of(context);
+      _initialized = true;
+    }
   }
 
   Future<void> _testFirebaseConnection() async {
@@ -61,11 +81,9 @@ class _ChatScreenState extends State<ChatScreen> {
       print('🔥 Testing Firebase connection...');
       print('📱 Course ID: ${widget.courseId}');
 
-      // ✅ الخطوة 1: تسجيل الدخول أولاً
-      final cubit = context.read<ChatCubit>();
-      await cubit.ensureSignedIn(); // ✅ استدعاء الدالة الجديدة
+      // ✅ استخدام cubit مباشرة بدلاً من context.read
+      await cubit.ensureSignedIn();
 
-      // ✅ الخطوة 2: التحقق من Firebase Auth
       final user = FirebaseAuth.instance.currentUser;
       print('👤 Current User: ${user?.uid}');
 
@@ -74,7 +92,6 @@ class _ChatScreenState extends State<ChatScreen> {
         return;
       }
 
-      // ✅ الخطوة 3: الآن اقرأ Firestore
       final doc = await FirebaseFirestore.instance
           .collection('treatment_courses')
           .doc(widget.courseId)
@@ -97,7 +114,6 @@ class _ChatScreenState extends State<ChatScreen> {
   void dispose() {
     messageController.dispose();
     scrollController.dispose();
-    cubit.close();
     super.dispose();
   }
 
@@ -116,90 +132,120 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       isDismissible: false,
       enableDrag: false,
-      builder: (context) => ContinueCourseBottomSheet(
+      builder: (sheetContext) => ContinueCourseBottomSheet(
         onContinue: () async {
           final courseId = int.tryParse(widget.courseId);
           if (courseId == null) return;
 
           final success = await courseRepository.requestContinue(courseId);
+
           if (!mounted) return;
 
-          ScaffoldMessenger.of(context).showSnackBar(
+          // ✅ إغلاق الـ bottom sheet أولاً
+          if (sheetContext.mounted && Navigator.canPop(sheetContext)) {
+            Navigator.pop(sheetContext);
+          }
+
+          // ✅ إظهار رسالة النجاح
+          _messenger?.showSnackBar(
             SnackBar(
               content: Text(
                 success
-                    ? ('تم إرسال طلب المتابعة بنجاح')
-                    : ('فشل في إرسال الطلب'),
+                    ? 'تم إرسال طلب المتابعة بنجاح. سيتم إشعار الطبيب.'
+                    : 'فشل في إرسال الطلب',
               ),
+              backgroundColor: success ? Colors.green : Colors.red,
             ),
           );
+
+          // ✅ إذا نجح، أغلق شاشة الدردشة وعد للشاشة السابقة
+          if (success && mounted) {
+            // انتظر قليلاً ليظهر الـ SnackBar
+            await Future.delayed(const Duration(seconds: 2));
+            if (mounted && Navigator.canPop(context)) {
+              Navigator.pop(context);
+            }
+          }
         },
         onDecline: () async {
           final courseId = int.tryParse(widget.courseId);
           if (courseId == null) return;
 
           final success = await courseRepository.declineContinue(courseId);
+
           if (!mounted) return;
 
-          ScaffoldMessenger.of(context).showSnackBar(
+          // ✅ إغلاق الـ bottom sheet
+          if (sheetContext.mounted && Navigator.canPop(sheetContext)) {
+            Navigator.pop(sheetContext);
+          }
+
+          // ✅ إظهار رسالة
+          _messenger?.showSnackBar(
             SnackBar(
               content: Text(
-                success ? ('تم إنهاء الكورس العلاجي') : ('فشل في إنهاء الكورس'),
+                success ? 'تم إنهاء الكورس العلاجي' : 'فشل في إنهاء الكورس',
               ),
+              backgroundColor: success ? Colors.green : Colors.red,
             ),
           );
+
+          // ✅ إذا نجح، أغلق شاشة الدردشة
+          if (success && mounted) {
+            await Future.delayed(const Duration(seconds: 2));
+            if (mounted && Navigator.canPop(context)) {
+              Navigator.pop(context);
+            }
+          }
         },
       ),
     );
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: cubit,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            widget.otherUserName.trim().isEmpty
-                ? ('Chat')
-                : widget.otherUserName,
+          title: Row(
+            children: [
+              // ✅ صورة الطبيب
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: Theme.of(context)
+                    .colorScheme
+                    .primaryContainer
+                    .withValues(alpha: 0.35),
+                backgroundImage: widget.doctorImageUrl != null &&
+                        widget.doctorImageUrl!.isNotEmpty
+                    ? NetworkImage(widget.doctorImageUrl!)
+                    : null,
+                child: widget.doctorImageUrl == null ||
+                        widget.doctorImageUrl!.isEmpty
+                    ? Icon(
+                        Icons.person_outline,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 20,
+                      )
+                    : null,
+              ),
+              const SizedBox(width: 12),
+              // ✅ اسم الطبيب - التأكد من إنه مو "Doctor" أو null
+              Expanded(
+                child: Text(
+                  widget.doctorName?.trim().isNotEmpty == true &&
+                          widget.doctorName!.trim() != 'Doctor'
+                      ? widget.doctorName!
+                      : 'Chat',
+                  style: AppStyles.headingSmall,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.archive_outlined),
-              tooltip: ('End Course'),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (dialogContext) => AlertDialog(
-                    title: Text(('End Course')),
-                    content:
-                        Text(('Are you sure you want to end this course?')),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(dialogContext),
-                        child: Text(('Cancel')),
-                      ),
-                      FilledButton(
-                        onPressed: () async {
-                          Navigator.pop(dialogContext);
-                          final courseId = int.tryParse(widget.courseId);
-                          if (courseId != null) {
-                            final success =
-                                await courseRepository.endCourse(courseId);
-                            if (mounted && success) {
-                              Navigator.pop(context);
-                            }
-                          }
-                        },
-                        child: Text(('End')),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ],
+          // ... باقي الكود
         ),
         body: SafeArea(
           child: BlocConsumer<ChatCubit, ChatState>(
@@ -213,7 +259,10 @@ class _ChatScreenState extends State<ChatScreen> {
                     curve: Curves.easeOut,
                   );
 
-                  if (state.room.isArchived && !_hasShownContinueDialog) {
+                  // ✅ عدم عرض dialog إذا readOnly
+                  if (state.room.isArchived &&
+                      !_hasShownContinueDialog &&
+                      !widget.readOnly) {
                     _showContinueCourseDialog();
                   }
                 });
@@ -242,13 +291,16 @@ class _ChatScreenState extends State<ChatScreen> {
 
               return Column(
                 children: [
-                  if (isArchived)
+                  // ✅ عرض شارة archived
+                  if (isArchived || widget.readOnly)
                     Container(
                       width: double.infinity,
                       padding: EdgeInsets.all((8)),
                       color: Colors.grey.shade200,
                       child: Text(
-                        ('This course is archived. You can only read messages.'),
+                        widget.readOnly
+                            ? 'This is a read-only view of previous messages.'
+                            : ('This course is archived. You can only read messages.'),
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.grey, fontSize: 12),
                       ),
@@ -273,7 +325,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             itemCount: state.messages.length,
                           ),
                   ),
-                  if (!isArchived)
+                  // ✅ إخفاء Composer إذا readOnly أو archived
+                  if (!isArchived && !widget.readOnly)
                     _Composer(controller: messageController, onSend: _send),
                 ],
               );
@@ -285,8 +338,6 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-// ... باقي الـ Widgets (_MessageBubble, _Composer, _ChatMessagePanel) تبقى كما هي ...
-// ... باقي الـ Widgets (_MessageBubble, _Composer, _ChatMessagePanel) تبقى كما هي ...
 class _MessageBubble extends StatelessWidget {
   const _MessageBubble({required this.message, required this.isMe});
 

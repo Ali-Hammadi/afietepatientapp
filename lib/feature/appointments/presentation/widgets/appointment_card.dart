@@ -13,17 +13,20 @@ class CustomAppointmentCard extends StatelessWidget {
   final AppointmentEntity appointment;
   final DoctorEntity? doctor;
   final bool isPast;
+  final bool isMissed; // ✅ جديد
   final bool isCanceled;
   final VoidCallback? onAddReview;
   final VoidCallback? onBookAgain;
   final VoidCallback? onReschedule;
   final VoidCallback? onCancel;
   final VoidCallback? onJoinSession;
+  final VoidCallback? onViewPreviousChats; // ✅ جديد
 
   const CustomAppointmentCard({
     super.key,
     required this.appointment,
     required this.isPast,
+    this.isMissed = false, // ✅ جديد
     this.isCanceled = false,
     this.doctor,
     this.onAddReview,
@@ -31,6 +34,7 @@ class CustomAppointmentCard extends StatelessWidget {
     this.onReschedule,
     this.onCancel,
     this.onJoinSession,
+    this.onViewPreviousChats, // ✅ جديد
   });
 
   @override
@@ -40,16 +44,33 @@ class CustomAppointmentCard extends StatelessWidget {
     final dateText = DateFormat('EEE, dd MMM yyyy - hh:mm a')
         .format(appointment.scheduledAt);
 
+    // ✅ تحديد اللون حسب الحالة
+    final Color borderColor;
+    final Color containerColor;
+    CustomButton(
+      widget: Text(
+        SettingsStrings.joinSession,
+        style: AppStyles.bodySmall.copyWith(color: colorScheme.onPrimary),
+      ),
+      onPressed: onJoinSession ?? () => _handleJoinSession(context),
+    );
+    if (isCanceled) {
+      borderColor = colorScheme.error.withValues(alpha: 0.5);
+      containerColor = colorScheme.errorContainer.withValues(alpha: 0.2);
+    } else if (isMissed) {
+      borderColor = Colors.grey.withValues(alpha: 0.5);
+      containerColor = Colors.grey.withValues(alpha: 0.1);
+    } else {
+      borderColor = colorScheme.outline.withValues(alpha: 0.25);
+      containerColor = colorScheme.primaryContainer.withValues(alpha: 0.35);
+    }
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
       color: theme.cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppStyles.borderRadius),
-        side: BorderSide(
-          color: isCanceled
-              ? colorScheme.error.withValues(alpha: 0.5)
-              : colorScheme.outline.withValues(alpha: 0.25),
-        ),
+        side: BorderSide(color: borderColor),
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppStyles.padding),
@@ -85,7 +106,7 @@ class CustomAppointmentCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (!isCanceled && onCancel != null)
+                if (!isCanceled && !isMissed && onCancel != null)
                   IconButton(
                     onPressed: onCancel,
                     icon: Icon(Icons.close_rounded, color: colorScheme.error),
@@ -97,6 +118,8 @@ class CustomAppointmentCard extends StatelessWidget {
                   ),
               ],
             ),
+
+            // ✅ عرض حالة الجلسة (Canceled / Missed)
             if (isCanceled)
               Align(
                 alignment: Alignment.centerRight,
@@ -115,14 +138,33 @@ class CustomAppointmentCard extends StatelessWidget {
                   ),
                 ),
               ),
+            if (isMissed)
+              Align(
+                alignment: Alignment.centerRight,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'Missed',
+                    style: AppStyles.bodySmall.copyWith(
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                ),
+              ),
+
             const SizedBox(height: 8),
+
+            // ✅ معلومات الجلسة
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(AppStyles.padding),
               decoration: BoxDecoration(
-                color: isCanceled
-                    ? colorScheme.errorContainer.withValues(alpha: 0.2)
-                    : colorScheme.primaryContainer.withValues(alpha: 0.35),
+                color: containerColor,
                 borderRadius: BorderRadius.circular(AppStyles.borderRadius),
               ),
               child: Column(
@@ -140,11 +182,18 @@ class CustomAppointmentCard extends StatelessWidget {
                     appointment.sessionType,
                     textStyle: AppStyles.bodySmall,
                   ),
+
+                  // ✅ عرض In Course / Not in Course
+                  const SizedBox(height: 10),
+                  _buildCourseStatus(context),
+
                   const SizedBox(height: 10),
                 ],
               ),
             ),
-            if (!isCanceled)
+
+            // ✅ الأزرار
+            if (!isCanceled && !isMissed)
               Padding(
                 padding: const EdgeInsets.all(AppStyles.padding),
                 child: Wrap(
@@ -188,7 +237,37 @@ class CustomAppointmentCard extends StatelessWidget {
                         ),
                         onPressed: onReschedule,
                       ),
+                      if (onViewPreviousChats != null)
+                        CustomButton(
+                          widget: Text(
+                            'Previous Chats',
+                            style: AppStyles.bodySmall
+                                .copyWith(color: colorScheme.onPrimary),
+                          ),
+                          onPressed: onViewPreviousChats,
+                        ),
                     ],
+                  ],
+                ),
+              ),
+
+            // ✅ زر Book Again للجلسات الفائتة (Past + Missed)
+            if (isMissed)
+              Padding(
+                padding: const EdgeInsets.all(AppStyles.padding),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.start,
+                  children: [
+                    CustomButton(
+                      widget: Text(
+                        SettingsStrings.bookAgain,
+                        style: AppStyles.bodySmall
+                            .copyWith(color: colorScheme.onPrimary),
+                      ),
+                      onPressed: onBookAgain,
+                    ),
                   ],
                 ),
               ),
@@ -198,9 +277,46 @@ class CustomAppointmentCard extends StatelessWidget {
     );
   }
 
-// في نهاية الملف، عدّل هذه الدالة:
+  // ✅ عرض حالة الكورس
+  Widget _buildCourseStatus(BuildContext context) {
+    final isInCourse = appointment.treatmentCourseId.isNotEmpty;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: isInCourse
+            ? Colors.green.withValues(alpha: 0.15)
+            : Colors.orange.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isInCourse
+              ? Colors.green.withValues(alpha: 0.4)
+              : Colors.orange.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isInCourse ? Icons.check_circle_outline : Icons.info_outline,
+            size: 16,
+            color: isInCourse ? Colors.green : Colors.orange,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            isInCourse ? 'In Course' : 'Not in Course',
+            style: AppStyles.bodySmall.copyWith(
+              color:
+                  isInCourse ? Colors.green.shade700 : Colors.orange.shade700,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _handleJoinSession(BuildContext context) {
-    // ✅ استخدام treatmentCourseId بدلاً من appointmentId
     if (appointment.treatmentCourseId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -212,9 +328,10 @@ class CustomAppointmentCard extends StatelessWidget {
 
     ChatNavigator.openCourseChat(
       context,
-      courseId: appointment.treatmentCourseId, // ✅ تغيير هنا
+      courseId: appointment.treatmentCourseId,
       doctorName: doctor?.name ?? appointment.doctorName,
       currentUserId: appointment.patientUsername,
+      doctorImageUrl: doctor?.imageUrl, // ✅ تمرير imageUrl
     );
   }
 }

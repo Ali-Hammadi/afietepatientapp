@@ -59,9 +59,14 @@ class AppointmentsRepositoryImpl implements AppointmentsRepository {
       // ✅ احسب مدة الجلسة بالدقائق (كل slot = 30 دقيقة)
       final totalMinutes = durationSlots * 30;
 
+      // ✅ التأكد من إن الوقت UTC قبل الإرسال
+      final scheduledAtUtc =
+          scheduledAt.isUtc ? scheduledAt : scheduledAt.toUtc();
+
       final result = await dataSource.createAppointment(
-        slotStart: scheduledAt.toIso8601String().split('T')[1].substring(0, 5),
-        slotEnd: scheduledAt
+        slotStart:
+            scheduledAtUtc.toIso8601String().split('T')[1].substring(0, 5),
+        slotEnd: scheduledAtUtc
             .add(Duration(minutes: totalMinutes))
             .toIso8601String()
             .split('T')[1]
@@ -70,7 +75,7 @@ class AppointmentsRepositoryImpl implements AppointmentsRepository {
         doctorUsername: doctorUsername,
         patientUsername: patientUsername,
         doctorName: doctorName,
-        scheduledAt: scheduledAt,
+        scheduledAt: scheduledAtUtc, // ✅ UTC
         durationSlots: durationSlots,
         consultationFee: consultationFee,
         sessionType: sessionType,

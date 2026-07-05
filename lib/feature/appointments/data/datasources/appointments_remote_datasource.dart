@@ -70,6 +70,8 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
 
   AppointmentsRemoteDataSourceImpl({required Dio dio}) : _dio = dio;
 
+// ✅ في دالة getAppointments() - استبدل الفلترة القديمة بهاد:
+
   @override
   Future<AppointmentsData> getAppointments() async {
     try {
@@ -109,42 +111,70 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
       final myAppointments = parseResponse(responses[0]);
       final historyAppointments = parseResponse(responses[1]);
       final missedAppointments = parseResponse(responses[2]);
-      final canceled = parseResponse(responses[3]); // ✅ جديد
+      final canceled = parseResponse(responses[3]);
 
-      // ✅ فلترة myAppointments بناءً على التاريخ
+      // ✅ جمع IDs المواعيد الملغاة (من endpoint canceled)
+      final canceledIds = canceled.map((appt) => appt.appointmentId).toSet();
+
+      // ✅ إضافة IDs المواعيد التي حالتها cancelled (من أي endpoint)
+      for (final appt in historyAppointments) {
+        final status = appt.status.toLowerCase();
+        if (status == 'cancelled' || status == 'canceled') {
+          canceledIds.add(appt.appointmentId);
+        }
+      }
+
+      // ✅ فلترة دقيقة بناءً على الوقت الحالي
       final now = DateTime.now().toUtc();
-      final today = DateTime(now.year, now.month, now.day);
 
       final upcoming = <AppointmentModel>[];
       final past = <AppointmentModel>[];
 
+      // ✅ فلترة myAppointments - القادمة فقط (ما اجا وقتها)
       for (final appointment in myAppointments) {
-        final appointmentDate = appointment.scheduledAt.toUtc();
-        final appointmentDay = DateTime(
-          appointmentDate.year,
-          appointmentDate.month,
-          appointmentDate.day,
-        );
+        final appointmentTime = appointment.scheduledAt.toUtc();
 
-        if (appointmentDay.isBefore(today)) {
-          // ✅ الموعد في الماضي
-          past.add(appointment);
-        } else {
-          // ✅ الموعد في المستقبل أو اليوم
+        // ✅ تجاهل المواعيد الملغاة من upcoming
+        final status = appointment.status.toLowerCase();
+        if (status == 'cancelled' || status == 'canceled') {
+          continue; // ✅ لا تضاف لـ upcoming
+        }
+
+        if (appointmentTime.isAfter(now)) {
+          // ✅ الجلسة قادمة (لم يحن وقتها بعد)
           upcoming.add(appointment);
+        } else {
+          // ✅ الجلسة انتهت وقتها - تعتبر past
+          past.add(appointment);
         }
       }
 
-      // ✅ إضافة المواعيد من history و missed
-      past.addAll(historyAppointments);
+      // ✅ إضافة المواعيد من history - لكن نفلتر الـ canceled منها
+      final historyFiltered = historyAppointments.where((appt) {
+        // ✅ تجاهل إذا كان ضمن قائمة canceled
+        if (canceledIds.contains(appt.appointmentId)) {
+          return false;
+        }
+
+        final status = appt.status.toLowerCase();
+        // ✅ تجاهل الـ canceled
+        if (status == 'cancelled' || status == 'canceled') {
+          return false;
+        }
+
+        return true;
+      }).toList();
+
+      past.addAll(historyFiltered);
+
+      // ✅ جلسات missed منفصلة
       final missed = missedAppointments;
 
       return AppointmentsData(
         upcoming: upcoming,
         past: past,
         missed: missed,
-        canceled:
-            canceled, // ✅ جديد، يمكن تحديثه لاحقًا إذا كان هناك endpoint للمواعيد الملغاة
+        canceled: canceled,
       );
     } on DioException {
       rethrow;
@@ -228,12 +258,40 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
         ApiEndpoints.doctorAvailableSlots(doctorUsername),
         queryParameters: {'date': date},
       );
+
       if (response.statusCode == 200) {
         final body = response.data;
-        if (body is List) return body;
-        if (body is Map<String, dynamic> && body['available_slots'] is List) {
-          return body['available_slots'] as List;
+        List<dynamic> allSlots = [];
+
+        if (body is List) {
+          allSlots = body;
+        } else if (body is Map<String, dynamic>) {
+          // ✅ دمج الأوقات المتاحة والمحجوزة
+          final available = body['available_slots'] as List? ?? [];
+          final booked = body['booked_slots'] as List? ?? [];
+          final unavailable = body['unavailable_slots'] as List? ?? [];
+
+          // ✅ إضافة status لكل slot
+          allSlots = [
+            ...available.map((slot) => {
+                  ...slot as Map<String, dynamic>,
+                  'status': 'available',
+                  'is_booked': false,
+                }),
+            ...booked.map((slot) => {
+                  ...slot as Map<String, dynamic>,
+                  'status': 'booked',
+                  'is_booked': true,
+                }),
+            ...unavailable.map((slot) => {
+                  ...slot as Map<String, dynamic>,
+                  'status': 'unavailable',
+                  'is_booked': false,
+                }),
+          ];
         }
+
+        return allSlots;
       }
       return [];
     } on DioException {

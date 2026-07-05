@@ -20,7 +20,7 @@ class AppointmentsScreen extends StatefulWidget {
 }
 
 class _AppointmentsScreenState extends State<AppointmentsScreen> {
-  int _selectedTabIndex = 0; // 0: Upcoming, 1: Past, 2: Canceled
+  int _selectedTabIndex = 0; // 0: Upcoming, 1: Past, 2: Missed, 3: Canceled
 
   @override
   void initState() {
@@ -32,9 +32,6 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         cubit.loadAppointments();
       }
       cubit.startDoctorRescheduleListener();
-      if (cubit.state is AppointmentsInitial) {
-        cubit.loadAppointments();
-      }
     });
   }
 
@@ -86,37 +83,41 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(AppStyles.borderRadius),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(
-            child: _buildTabItem(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildTabItem(
               title: SettingsStrings.upcoming,
               isSelected: _selectedTabIndex == 0,
               colorScheme: colorScheme,
               onTap: () => setState(() => _selectedTabIndex = 0),
             ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _buildTabItem(
+            const SizedBox(width: 6),
+            _buildTabItem(
               title: SettingsStrings.past,
               isSelected: _selectedTabIndex == 1,
               colorScheme: colorScheme,
               onTap: () => setState(() => _selectedTabIndex = 1),
             ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _buildTabItem(
-              title: SettingsStrings.canceled,
+            const SizedBox(width: 6),
+            _buildTabItem(
+              title: SettingsStrings.missed,
               isSelected: _selectedTabIndex == 2,
               colorScheme: colorScheme,
               onTap: () => setState(() => _selectedTabIndex = 2),
             ),
-          ),
-        ],
+            const SizedBox(width: 6),
+            _buildTabItem(
+              title: SettingsStrings.canceled,
+              isSelected: _selectedTabIndex == 3,
+              colorScheme: colorScheme,
+              onTap: () => setState(() => _selectedTabIndex = 3),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -228,15 +229,12 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         filteredAppointments = state.upcomingAppointments;
         break;
       case 1: // Past
-        filteredAppointments = [
-          ...state.pastAppointments,
-          ...state.missedAppointments,
-        ].where((appointment) {
-          final statusLower = appointment.status.toLowerCase();
-          return statusLower != 'cancelled' && statusLower != 'canceled';
-        }).toList();
+        filteredAppointments = state.pastAppointments;
         break;
-      case 2: // Canceled
+      case 2: // Missed ✅ جديد
+        filteredAppointments = state.missedAppointments;
+        break;
+      case 3: // Canceled
         filteredAppointments = state.canceledAppointments;
         break;
       default:
@@ -258,7 +256,9 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                     ? SettingsStrings.noUpcomingAppointments
                     : _selectedTabIndex == 1
                         ? SettingsStrings.noPastAppointments
-                        : SettingsStrings.noCanceledAppointments,
+                        : _selectedTabIndex == 2
+                            ? SettingsStrings.noMissedAppointments // ✅ جديد
+                            : SettingsStrings.noCanceledAppointments,
               ),
             ),
           ],
@@ -282,37 +282,45 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           final isCompleted = appointment.status.toLowerCase() == 'completed';
           final canReview = isCompleted;
 
-          return CustomAppointmentCard(
-            doctor: matchedDoctor,
-            appointment: appointment,
-            isPast: _selectedTabIndex == 1,
-            isCanceled: _selectedTabIndex == 2,
-            onAddReview: _selectedTabIndex != 1 || !canReview
-                ? null
-                : () => _showReviewSheet(
-                      appointmentId: appointment.appointmentId,
-                      hasNextSession: appointment.hasNextSession,
-                    ),
-            onBookAgain: _selectedTabIndex != 1
-                ? null
-                : () => _handleBookAgain(
-                      doctor: matchedDoctor ??
-                          _buildFallbackDoctor(appointment: appointment),
-                    ),
-            onReschedule: _selectedTabIndex != 0
-                ? null
-                : () => _handleReschedule(
-                      appointmentId: appointment.appointmentId,
-                      doctor: matchedDoctor ??
-                          _buildFallbackDoctor(appointment: appointment),
-                    ),
-            onCancel: _selectedTabIndex == 0
-                ? () => _confirmCancel(context,
-                    appointmentId: appointment.appointmentId)
-                : null,
-            onJoinSession: _selectedTabIndex == 0
-                ? () => _handleJoinSession(appointment)
-                : null,
+          return SlideInAnimationWrapper(
+            delay: index * 100, // ✅ أنيميشن انزلاق
+            child: CustomAppointmentCard(
+              doctor: matchedDoctor,
+              appointment: appointment,
+              isPast: _selectedTabIndex == 1,
+              isMissed: _selectedTabIndex == 2, // ✅ جديد
+              isCanceled: _selectedTabIndex == 3,
+              onAddReview: (_selectedTabIndex == 1 && canReview)
+                  ? () => _showReviewSheet(
+                        appointmentId: appointment.appointmentId,
+                        hasNextSession: appointment.hasNextSession,
+                      )
+                  : null,
+              onBookAgain: (_selectedTabIndex == 1 || _selectedTabIndex == 2)
+                  ? () => _handleBookAgain(
+                        doctor: matchedDoctor ??
+                            _buildFallbackDoctor(appointment: appointment),
+                      )
+                  : null,
+              onReschedule: _selectedTabIndex == 0
+                  ? () => _handleReschedule(
+                        appointmentId: appointment.appointmentId,
+                        doctor: matchedDoctor ??
+                            _buildFallbackDoctor(appointment: appointment),
+                      )
+                  : null,
+              onCancel: _selectedTabIndex == 0
+                  ? () => _confirmCancel(context,
+                      appointmentId: appointment.appointmentId)
+                  : null,
+              onJoinSession: _selectedTabIndex == 0
+                  ? () => _handleJoinSession(appointment, doctor: matchedDoctor)
+                  : null,
+              onViewPreviousChats: _selectedTabIndex == 0
+                  ? () => _handleViewPreviousChats(appointment,
+                      doctor: matchedDoctor)
+                  : null,
+            ),
           );
         },
       ),
@@ -381,23 +389,105 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     }
   }
 
-// في نهاية الملف، عدّل هذه الدالة:
-  void _handleJoinSession(AppointmentEntity appointment) {
-    // ✅ استخدام treatmentCourseId بدلاً من appointmentId
-    if (appointment.treatmentCourseId.isEmpty) {
+  void _handleJoinSession(AppointmentEntity appointment,
+      {DoctorEntity? doctor}) {
+    // ✅ الوقت الحالي المحلي
+    final nowLocal = DateTime.now().toLocal();
+
+    // ✅ وقت الجلسة (مخزن كـ local من الـ Model)
+    final sessionStartLocal = appointment.scheduledAt;
+
+    print('🕐 DEBUG: Now (local) = $nowLocal');
+    print('🕐 DEBUG: Session start (local) = $sessionStartLocal');
+    print(
+        '🕐 DEBUG: Diff (minutes) = ${sessionStartLocal.difference(nowLocal).inMinutes}');
+
+    // ✅ Window الانضمام: من -10 دقائق قبل الجلسة إلى +10 دقائق بعد بدايتها
+    final canJoinStart =
+        sessionStartLocal.subtract(const Duration(minutes: 10));
+    final canJoinEnd = sessionStartLocal.add(const Duration(minutes: 10));
+
+    // ✅ إذا الوقت قبل الـ window
+    if (nowLocal.isBefore(canJoinStart)) {
+      final timeDiff = canJoinStart.difference(nowLocal);
+      final totalMinutes = timeDiff.inMinutes;
+      final hours = timeDiff.inHours;
+      final minutes = totalMinutes % 60;
+
+      String timeMessage;
+      if (hours > 0 && minutes > 0) {
+        timeMessage = 'You can join in $hours hour(s) and $minutes minute(s).';
+      } else if (hours > 0) {
+        timeMessage = 'You can join in $hours hour(s).';
+      } else if (minutes > 0) {
+        timeMessage = 'You can join in $minutes minute(s).';
+      } else {
+        timeMessage = 'You can join the session soon.';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(timeMessage)),
+      );
+      return;
+    }
+
+    // ✅ إذا الوقت بعد الـ window (فات بأكثر من 10 دقائق)
+    if (nowLocal.isAfter(canJoinEnd)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Treatment course not found for this appointment.'),
+          content: Text('Session time has passed. You can no longer join.'),
         ),
       );
       return;
     }
 
+    // ✅ فتح المحادثة
+    if (appointment.treatmentCourseId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Treatment course not found.'),
+        ),
+      );
+      return;
+    }
+
+    // ✅ استخدام اسم الطبيب من matchedDoctor أولاً
+    final doctorName = doctor?.name?.trim().isNotEmpty == true
+        ? doctor!.name!
+        : appointment.doctorName;
+
     ChatNavigator.openCourseChat(
       context,
-      courseId: appointment.treatmentCourseId, // ✅ تغيير هنا
-      doctorName: appointment.doctorName,
+      courseId: appointment.treatmentCourseId,
+      doctorName: doctorName, // ✅ استخدام الاسم الصحيح
       currentUserId: appointment.patientUsername,
+      doctorImageUrl: doctor?.imageUrl, // ✅ تمرير imageUrl
+    );
+  }
+
+  void _handleViewPreviousChats(AppointmentEntity appointment,
+      {DoctorEntity? doctor}) {
+    if (appointment.treatmentCourseId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No previous chats available.'),
+        ),
+      );
+      return;
+    }
+
+    // ✅ استخدام اسم الطبيب من matchedDoctor أولاً
+    final doctorName = doctor?.name?.trim().isNotEmpty == true
+        ? doctor!.name!
+        : appointment.doctorName;
+
+    ChatNavigator.openCourseChat(
+      context,
+      courseId: appointment.treatmentCourseId,
+      doctorName: doctorName, // ✅ استخدام الاسم الصحيح
+      currentUserId: appointment.patientUsername,
+      doctorImageUrl: doctor?.imageUrl, // ✅ تمرير imageUrl
+      readOnly: true,
     );
   }
 
@@ -453,6 +543,78 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             child: Text(SettingsStrings.yesCancel),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ✅ Widget للأنيميشن - انزلاق من الجانب
+class SlideInAnimationWrapper extends StatefulWidget {
+  final Widget child;
+  final int delay;
+
+  const SlideInAnimationWrapper({
+    super.key,
+    required this.child,
+    required this.delay,
+  });
+
+  @override
+  State<SlideInAnimationWrapper> createState() =>
+      _SlideInAnimationWrapperState();
+}
+
+class _SlideInAnimationWrapperState extends State<SlideInAnimationWrapper>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0.3, 0), // ✅ انزلاق من اليمين
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    ));
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeIn,
+    ));
+
+    // ✅ تأخير الأنيميشن لكل عنصر
+    Future.delayed(Duration(milliseconds: widget.delay), () {
+      if (mounted) {
+        _controller.forward();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SlideTransition(
+      position: _slideAnimation,
+      child: FadeTransition(
+        opacity: _fadeAnimation,
+        child: widget.child,
       ),
     );
   }

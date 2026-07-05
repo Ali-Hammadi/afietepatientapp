@@ -1,4 +1,5 @@
-import 'package:afiete/feature/doctors/domain/entities/speciality_entity.dart'; // تأكد من صحة اسم الملف speciality أو specialty حسب مشروعك
+import 'package:afiete/feature/appointments/domain/usecase/appointments_usecase.dart';
+import 'package:afiete/feature/doctors/domain/entities/speciality_entity.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afiete/core/usecases/usecase.dart';
@@ -13,12 +14,14 @@ class DoctorsCubit extends Cubit<DoctorsState> {
   final GetDoctorsBySpecialtyUseCase getDoctorsBySpecialtyUseCase;
   final GetDoctorByUsernameUseCase getDoctorByUsernameUseCase;
   final GetSpecialtiesUseCase getSpecialtiesUseCase;
+  final GetAvailableSlotsUseCase getAvailableSlotsUseCase; // ✅ إضافة
 
   DoctorsCubit(
     this.getAllDoctorsUseCase,
     this.getDoctorsBySpecialtyUseCase,
     this.getDoctorByUsernameUseCase,
     this.getSpecialtiesUseCase,
+    this.getAvailableSlotsUseCase, // ✅ إضافة
   ) : super(const DoctorsInitial());
 
   List<SpecialtyEntity> _cachedSpecialties = [];
@@ -30,7 +33,6 @@ class DoctorsCubit extends Cubit<DoctorsState> {
     // 1. أول عملية await (جلب التخصصات)
     final specialtiesResult = await getSpecialtiesUseCase(NoParams());
 
-    // ✅ حماية: إذا تم إغلاق الـ Cubit أثناء الانتظار، توقف فوراً
     if (isClosed) return;
 
     specialtiesResult.fold(
@@ -45,7 +47,6 @@ class DoctorsCubit extends Cubit<DoctorsState> {
     // 2. ثاني عملية await (جلب الأطباء)
     final doctorsResult = await getAllDoctorsUseCase(NoParams());
 
-    // ✅ حماية: إذا تم إغلاق الـ Cubit أثناء الانتظار، توقف فوراً
     if (isClosed) return;
 
     doctorsResult.fold(
@@ -60,11 +61,10 @@ class DoctorsCubit extends Cubit<DoctorsState> {
 
   Future<void> loadAllDoctors() async {
     emit(const DoctorsLoading());
-    _lastSpecialtyId = null; // إعادة التعيين عند طلب الجميع
+    _lastSpecialtyId = null;
 
     final result = await getAllDoctorsUseCase(NoParams());
 
-    // ✅ التحقق مما إذا كان الـ Cubit لا يزال مفتوحاً قبل إصدار الحالة
     if (isClosed) return;
 
     result.fold(
@@ -79,12 +79,10 @@ class DoctorsCubit extends Cubit<DoctorsState> {
 
   Future<void> loadDoctorsBySpecialty(int specialtyId) async {
     emit(const DoctorsLoading());
-    _lastSpecialtyId = specialtyId; // حفظ الـ ID لإعادة التحميل لاحقاً
+    _lastSpecialtyId = specialtyId;
 
     final result = await getDoctorsBySpecialtyUseCase(
-      GetDoctorsBySpecialtyParams(
-          specialtyId:
-              specialtyId), // تأكد أن الاسم مطابق لما في الـ UseCase لديك (specialtyid أو specialtyId)
+      GetDoctorsBySpecialtyParams(specialtyId: specialtyId),
     );
 
     result.fold(
@@ -129,9 +127,36 @@ class DoctorsCubit extends Cubit<DoctorsState> {
     DateTime date,
   ) async {
     final dateStr = DateFormat('yyyy-MM-dd').format(date);
-    final result = await getDoctorByUsernameUseCase.repository
-        .getDoctorAvailableSlots(doctorUsername, dateStr);
-    return result.getOrElse(() => const <DoctorTimeSlot>[]);
+
+    try {
+      final result = await getAvailableSlotsUseCase(
+        GetAvailableSlotsParams(
+          doctorUsername: doctorUsername,
+          date: dateStr,
+        ),
+      );
+
+      return result.fold(
+        (failure) {
+          print('❌ Failed to fetch slots: ${failure.errorMessage}');
+          return <DoctorTimeSlot>[];
+        },
+        (slots) {
+          // ✅ تحويل List<dynamic> إلى List<DoctorTimeSlot>
+          return slots.map((slot) {
+            if (slot is Map<String, dynamic>) {
+              return DoctorTimeSlot.fromJson(slot);
+            } else if (slot is DoctorTimeSlot) {
+              return slot;
+            }
+            return const DoctorTimeSlot(start: '', end: '');
+          }).toList();
+        },
+      );
+    } catch (e) {
+      print('❌ Error fetching slots: $e');
+      return <DoctorTimeSlot>[];
+    }
   }
 
   Future<DoctorEntity> _mergeDoctorScheduleIfNeeded(

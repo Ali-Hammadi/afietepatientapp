@@ -98,14 +98,14 @@ class _NoteDetailsScreenState extends State<NoteDetailsScreen> {
                   TextFormField(
                     controller: _contentController,
                     decoration: InputDecoration(
-                      labelText: SettingsStrings.contet,
+                      labelText: SettingsStrings.content,
                       border: OutlineInputBorder(),
                       alignLabelWithHint: true,
                     ),
                     maxLines: 10,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return SettingsStrings.enterContet;
+                        return SettingsStrings.enterContent;
                       }
                       return null;
                     },

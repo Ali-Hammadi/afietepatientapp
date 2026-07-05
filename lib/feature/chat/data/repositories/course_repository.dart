@@ -31,9 +31,9 @@ class CourseRepository {
 
   Future<bool> endCourse(int courseId) async {
     try {
-      final response = await _dio.put(
+      // ✅ تغيير PUT إلى PATCH
+      final response = await _dio.patch(
         ApiEndpoints.patientEndCourse(courseId),
-        data: {'status': 'completed'},
       );
       return response.statusCode == 200;
     } catch (e) {

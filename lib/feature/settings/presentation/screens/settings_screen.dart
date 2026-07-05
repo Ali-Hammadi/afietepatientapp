@@ -61,6 +61,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildHeader(context, authState),
               const SizedBox(height: 20),
               CustomSettingTile(
+                icon: Icons.golf_course,
+                title: SettingsStrings.courses,
+                subtitle: SettingsStrings.coursesDetails,
+                onTap: () {
+                  Navigator.pushNamed(context, MyRoutes.coursesScreen);
+                },
+              ),
+              const SizedBox(height: 12),
+              CustomSettingTile(
                 icon: Icons.notes_outlined,
                 title: SettingsStrings.totalNotesLabel,
                 subtitle: SettingsStrings.noteContentLabel,
@@ -68,7 +77,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Navigator.pushNamed(context, MyRoutes.notesListScreen);
                 },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
               CustomSettingTile(
                 icon: Icons.medical_services_outlined,
                 title: SettingsStrings.medicalProfileTitle,

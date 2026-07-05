@@ -10,6 +10,8 @@ class ChatNavigator {
     required String courseId,
     required String doctorName,
     required String currentUserId,
+    String? doctorImageUrl, // ✅ إضافة parameter للصورة
+    bool readOnly = false,
   }) {
     return Navigator.of(context).pushNamed(
       MyRoutes.chatScreen,
@@ -17,6 +19,8 @@ class ChatNavigator {
         courseId: courseId,
         doctorName: doctorName,
         currentUserId: currentUserId,
+        doctorImageUrl: doctorImageUrl, // ✅ تمرير imageUrl
+        readOnly: readOnly,
       ),
     );
   }
