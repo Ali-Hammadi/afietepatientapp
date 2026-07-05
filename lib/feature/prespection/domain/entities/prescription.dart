@@ -1,6 +1,8 @@
+// lib/feature/prespection/domain/entities/prescription.dart
 import 'package:afiete/feature/prespection/domain/entities/prescription_medication.dart';
+import 'package:equatable/equatable.dart';
 
-class Prescription {
+class Prescription extends Equatable {
   final int id;
   final String prescriptionNumber;
   final int doctorId;
@@ -14,7 +16,7 @@ class Prescription {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  Prescription({
+  const Prescription({
     required this.id,
     required this.prescriptionNumber,
     required this.doctorId,
@@ -28,4 +30,20 @@ class Prescription {
     required this.createdAt,
     required this.updatedAt,
   });
+
+  @override
+  List<Object?> get props => [
+        id,
+        prescriptionNumber,
+        doctorId,
+        doctorUsername,
+        patientId,
+        patientUsername,
+        appointmentId,
+        diagnosis,
+        notes,
+        medications,
+        createdAt,
+        updatedAt,
+      ];
 }

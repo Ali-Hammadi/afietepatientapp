@@ -1,11 +1,14 @@
+// lib/feature/prespection/data/datasources/patient_prescription_remote_datasource.dart
 import 'package:afiete/core/network/api_endpoints.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+
 import '../models/prescription_model.dart';
 
 class PatientPrescriptionRemoteDataSource {
   final Dio dio;
   final String baseUrl;
-  final String Function() getToken;
+  final Future<String?> Function() getToken;
 
   PatientPrescriptionRemoteDataSource({
     required this.dio,
@@ -13,19 +16,24 @@ class PatientPrescriptionRemoteDataSource {
     required this.getToken,
   });
 
-  Options get _options => Options(
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': 'Bearer ${getToken()}',
-        },
-      );
+  Future<Options> _getOptions() async {
+    final token = await getToken();
+    return Options(
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+      },
+      responseType: ResponseType.json,
+    );
+  }
 
   Future<List<PrescriptionModel>> getPrescriptions() async {
     try {
+      final options = await _getOptions();
       final response = await dio.get(
         ApiEndpoints.prescription,
-        options: _options,
+        options: options,
       );
 
       final List<dynamic> data = response.data;
@@ -42,9 +50,10 @@ class PatientPrescriptionRemoteDataSource {
 
   Future<PrescriptionModel> getPrescriptionDetail(int id) async {
     try {
+      final options = await _getOptions();
       final response = await dio.get(
         ApiEndpoints.getPrescription(id),
-        options: _options,
+        options: options,
       );
 
       return PrescriptionModel.fromJson(response.data as Map<String, dynamic>);
@@ -52,6 +61,42 @@ class PatientPrescriptionRemoteDataSource {
       throw _handleDioError(e, 'Failed to load prescription detail');
     } catch (e) {
       throw Exception('Failed to load prescription detail: $e');
+    }
+  }
+
+// ✅ تنزيل HTML للوصفة
+  Future<String> downloadPrescriptionHtml(int id) async {
+    try {
+      final token = await getToken();
+
+      // ✅ إصلاح الـ URL - ما نضيف print/ مرتين
+      final url = '${ApiEndpoints.getPrescription(id)}print/';
+
+      if (kDebugMode) {
+        print('📄 Downloading prescription HTML from: $url');
+      }
+
+      final response = await dio.get<String>(
+        url,
+        options: Options(
+          headers: {
+            'Accept': 'text/html',
+            if (token != null && token.isNotEmpty)
+              'Authorization': 'Bearer $token',
+          },
+          responseType: ResponseType.plain, // ✅ مهم جداً!
+        ),
+      );
+
+      if (response.data == null || response.data!.isEmpty) {
+        throw Exception('HTML data is empty');
+      }
+
+      return response.data!;
+    } on DioException catch (e) {
+      throw _handleDioError(e, 'Failed to download prescription');
+    } catch (e) {
+      throw Exception('Failed to download prescription: $e');
     }
   }
 

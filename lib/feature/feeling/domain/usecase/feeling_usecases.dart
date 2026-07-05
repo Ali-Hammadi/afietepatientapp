@@ -1,59 +1,50 @@
-import 'package:afiete/core/error/failure.dart';
-import 'package:afiete/core/usecases/usecase.dart';
-import 'package:afiete/feature/feeling/domain/entities/feeling_entry_entity.dart';
-import 'package:afiete/feature/feeling/domain/repositories/feeling_repository.dart';
+// lib/feature/feeling/domain/usecase/feeling_usecases.dart
 import 'package:afiete/feature/music_and_breathing/domain/entities/music_entity.dart';
 import 'package:dartz/dartz.dart';
+import '../../../../core/error/failure.dart';
+import '../entities/feeling_entry_entity.dart';
+import '../repositories/feeling_repository.dart';
 
-class SaveFeelingParams {
-  final FeelingType feeling;
-  final int intensity;
-
-  const SaveFeelingParams({required this.feeling, this.intensity = 3});
-}
-
-class SaveFeelingUseCase
-    implements UseCase<FeelingEntryEntity, SaveFeelingParams> {
+class SaveFeelingUseCase {
   final FeelingRepository repository;
+  SaveFeelingUseCase(this.repository);
 
-  const SaveFeelingUseCase(this.repository);
-
-  @override
-  Future<Either<Failure, FeelingEntryEntity>> call(SaveFeelingParams params) {
-    return repository.saveFeeling(
-      feeling: params.feeling,
-      intensity: params.intensity,
-    );
-  }
+  Future<Either<Failure, FeelingEntryEntity>> call({
+    required FeelingType feeling,
+    int intensity = 3,
+  }) =>
+      repository.saveFeeling(feeling: feeling, intensity: intensity);
 }
 
-class GetCurrentFeelingUseCase implements UseCase<FeelingType?, NoParams> {
+class GetCurrentFeelingUseCase {
   final FeelingRepository repository;
+  GetCurrentFeelingUseCase(this.repository);
 
-  const GetCurrentFeelingUseCase(this.repository);
-
-  @override
-  Future<Either<Failure, FeelingType?>> call(NoParams params) {
-    return repository.getCurrentFeeling();
-  }
+  Future<Either<Failure, FeelingType?>> call() =>
+      repository.getCurrentFeeling();
 }
 
-class GetFeelingHistoryParams {
-  final int limit;
-
-  const GetFeelingHistoryParams({this.limit = 30});
-}
-
-class GetFeelingHistoryUseCase
-    implements UseCase<List<FeelingEntryEntity>, GetFeelingHistoryParams> {
+class GetFeelingHistoryUseCase {
   final FeelingRepository repository;
+  GetFeelingHistoryUseCase(this.repository);
 
-  const GetFeelingHistoryUseCase(this.repository);
+  Future<Either<Failure, List<FeelingEntryEntity>>> call({int limit = 10}) =>
+      repository.getFeelingHistory(limit: limit);
+}
 
-  @override
-  Future<Either<Failure, List<FeelingEntryEntity>>> call(
-    GetFeelingHistoryParams params,
-  ) {
-    return repository.getFeelingHistory(limit: params.limit);
-  }
+// ✅ Use Cases جديدة لـ FeelingCubit (تستخدم FeelingRepository)
+class GetLastSelectedFeelingUseCase {
+  final FeelingRepository repository;
+  GetLastSelectedFeelingUseCase(this.repository);
+
+  Future<Either<Failure, FeelingType?>> call() =>
+      repository.getCurrentFeeling();
+}
+
+class SaveLastSelectedFeelingUseCase {
+  final FeelingRepository repository;
+  SaveLastSelectedFeelingUseCase(this.repository);
+
+  Future<Either<Failure, FeelingEntryEntity>> call(FeelingType feeling) =>
+      repository.saveFeeling(feeling: feeling);
 }

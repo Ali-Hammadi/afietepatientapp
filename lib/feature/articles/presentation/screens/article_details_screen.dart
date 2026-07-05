@@ -81,7 +81,7 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen> {
                     const SizedBox(height: 16),
                   ],
                   Text(
-                    article.title,
+                    article.localizedTitle,
                     style: AppStyles.headingMedium
                         .copyWith(color: colorScheme.primary),
                   ),
@@ -93,7 +93,7 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    article.content,
+                    article.localizedTitle,
                     style: AppStyles.bodyMedium.copyWith(height: 1.5),
                   ),
                   const SizedBox(height: 24),

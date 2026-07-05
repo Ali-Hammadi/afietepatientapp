@@ -1,3 +1,4 @@
+// lib/feature/music_and_breathing/presentation/cubit/music_cubit.dart
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/breathing_exercise_entity.dart';
@@ -9,8 +10,8 @@ part 'music_state.dart';
 class MusicCubit extends Cubit<MusicState> {
   final GetRecommendedMusicUseCase getRecommendedMusicUseCase;
   final GetBreathingExercisesUseCase getBreathingExercisesUseCase;
-  final GetLastSelectedFeelingUseCase getLastSelectedFeelingUseCase;
-  final SaveLastSelectedFeelingUseCase saveLastSelectedFeelingUseCase;
+  final GetMusicLastSelectedFeelingUseCase getLastSelectedFeelingUseCase;
+  final SaveMusicLastSelectedFeelingUseCase saveLastSelectedFeelingUseCase;
 
   MusicCubit(
     this.getRecommendedMusicUseCase,

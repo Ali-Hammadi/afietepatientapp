@@ -1,3 +1,5 @@
+import 'package:afiete/feature/music_and_breathing/domain/entities/music_entity.dart';
+
 abstract class SettingsStrings {
   static String _languageCode = 'en';
 
@@ -14,7 +16,50 @@ abstract class SettingsStrings {
   static String get title => _t('Title', 'العنوان');
   static String get enterTitle =>
       _t('Please enter a title', 'الرجاء إدخال العنوان');
-
+// في settings_strings.dart - أضف هاد المجموعة
+// ==========================================
+// Notes Strings
+// ==========================================
+  static String get medicalNotes => _t('Medical Notes', 'الملاحظات الطبية');
+  static String get createNote => _t('Create Note', 'إنشاء ملاحظة');
+  static String get editNote => _t('Edit Note', 'تعديل الملاحظة');
+  static String get noteDetails => _t('Note Details', 'تفاصيل الملاحظة');
+  static String get deleteNote => _t('Delete Note', 'حذف الملاحظة');
+  static String get deleteNoteConfirm => _t(
+      'Are you sure you want to delete this note?',
+      'هل أنت متأكد من حذف هذه الملاحظة؟');
+  static String get cancel => _t('Cancel', 'إلغاء');
+  static String get delete => _t('Delete', 'حذف');
+  static String get save => _t('Save', 'حفظ');
+  static String get saving => _t('Saving...', 'جاري الحفظ...');
+  static String get saved => _t('Saved', 'تم الحفظ');
+  static String get searchNotes =>
+      _t('Search notes...', 'ابحث في الملاحظات...');
+  static String get noNotesYet => _t('No notes yet. Create your first note!',
+      'لا توجد ملاحظات بعد. أنشئ ملاحظتك الأولى!');
+  static String get noNotesFound => _t('No notes found', 'لا توجد نتائج');
+  static String get noteCreatedSuccessfully =>
+      _t('Note created successfully', 'تم إنشاء الملاحظة بنجاح');
+  static String get noteUpdatedSuccessfully =>
+      _t('Note updated successfully', 'تم تحديث الملاحظة بنجاح');
+  static String get noteDeletedSuccessfully =>
+      _t('Note deleted successfully', 'تم حذف الملاحظة بنجاح');
+  static String get errorOccurred => _t('An error occurred', 'حدث خطأ');
+  static String get retry => _t('Retry', 'إعادة المحاولة');
+  static String get visibility => _t('Visibility', 'الرؤية');
+  static String get privateNote => _t('Private', 'خاص');
+  static String get sharedNote => _t('Shared', 'مشترك');
+  static String get selectDoctor => _t('Select Doctor', 'اختر الطبيب');
+  static String get sharedWith => _t('Shared with', 'مشترك مع');
+  static String get noDoctorsAvailable =>
+      _t('No doctors available', 'لا يوجد أطباء متاحون');
+  static String get noteFromDoctor =>
+      _t('Note from your doctor', 'ملاحظة من طبيبك');
+  static String get readOnlyNote => _t(
+      'This note was created by your doctor and cannot be edited.',
+      'هذه الملاحظة من طبيبك ولا يمكن تعديلها.');
+  static String get shared => _t('Shared', 'مشترك');
+  static String get privateLabel => _t('Private', 'خاص');
   static String get settingsTitle => _t('Settings', 'الإعدادات');
   static String get courses => _t('Courses', 'كورساتي');
   static String get coursesDetails =>
@@ -88,8 +133,6 @@ abstract class SettingsStrings {
   static String get profileNavLabel => _t('Profile', 'الملف الشخصي');
   static String get homeTitle => _t('Home', 'الرئيسية');
   static String get appointmentsTitle => _t('Appointments', 'المواعيد');
-  static String get noDoctorsAvailable =>
-      _t('No doctors available.', 'لا يوجد أطباء متاحون.');
   static String get searchExpertsHint =>
       _t('Search experts or specialist', 'ابحث عن خبير أو متخصص');
   static String get noDoctorsMatchSearch =>
@@ -161,7 +204,6 @@ abstract class SettingsStrings {
       _t('Payment successful: $reference', 'تم الدفع بنجاح: $reference');
   static String get reportDoctorTitle =>
       _t('Report Doctor', 'الإبلاغ عن الطبيب');
-  static String get selectDoctor => _t('Select Doctor', 'اختر الطبيب');
   static String get createReport => _t('Create Report', 'إنشاء بلاغ');
   static String get unCompletedReportInformation => _t(
       'The report informations are\'t complete. ',
@@ -610,7 +652,6 @@ abstract class SettingsStrings {
         'No internet connection. Please reconnect and try again.',
         'لا يوجد اتصال بالإنترنت. يرجى إعادة الاتصال والمحاولة مرة أخرى.',
       );
-  static String get retry => _t('Retry', 'إعادة المحاولة');
   static String get noUpcomingAppointments =>
       _t('No upcoming appointments.', 'لا توجد مواعيد قادمة.');
   static String get noPastAppointments =>
@@ -620,8 +661,40 @@ abstract class SettingsStrings {
         'Duration: $minutes $minuteAbbreviation',
         'المدة: $minutes $minuteAbbreviation',
       );
+// ==========================================
+// Prescription Strings
+// ==========================================
+  static String get prescriptions => _t('Prescriptions', 'الوصفات الطبية');
+  static String get prescriptionDetails =>
+      _t('Prescription Details', 'تفاصيل الوصفة');
+  static String get noPrescriptions =>
+      _t('No prescriptions yet', 'لا توجد وصفات طبية');
+  static String get prescriptionNumber =>
+      _t('Prescription Number', 'رقم الوصفة');
+  static String get appointmentNumber => _t('Appointment Number', 'رقم الموعد');
+  static String get date => _t('Date', 'التاريخ');
+  static String get diagnosis => _t('Diagnosis', 'التشخيص');
+  static String get notes => _t('Notes', 'ملاحظات');
+  static String get medications => _t('Medications', 'الأدوية');
+  static String get dosage => _t('Dosage', 'الجرعة');
+  static String get frequency => _t('Frequency', 'التكرار');
+  static String get duration => _t('Duration', 'المدة');
+  static String get medicationNotes => _t('Notes', 'ملاحظات');
+  static String get doctor => _t('Doctor', 'الطبيب');
+  static String get medicationsCount => _t('medications', 'أدوية');
+  static String get viewPrescription => _t('View Prescription', 'عرض الوصفة');
+  static String get printPrescription =>
+      _t('Print / Save as PDF', 'طباعة / حفظ كـ PDF');
+  static String get sharePrescription => _t('Share', 'مشاركة');
+  static String get loadingPrescription =>
+      _t('Loading prescription...', 'جاري تحميل الوصفة...');
+  static String get prescriptionLoaded =>
+      _t('Prescription loaded', 'تم تحميل الوصفة');
+  static String get loadFailed =>
+      _t('Failed to load prescription', 'فشل تحميل الوصفة');
+  static String get diagnosisLabel => _t('Diagnosis', 'التشخيص');
+  static String get notesLabel => _t('Notes', 'ملاحظات');
   static String get selectLanguageTitle => _t('Select language', 'اختر اللغة');
-  static String get cancel => _t('Cancel', 'إلغاء');
   static String get select => _t('Select', 'اختيار');
   static String get english => _t('English', 'الإنجليزية');
   static String get arabic => _t('Arabic', 'العربية');
@@ -629,8 +702,7 @@ abstract class SettingsStrings {
   static String get medicalTabPrescriptions => _t('Prescriptions', 'الوصفات');
   static String get medicalTabMedicine => _t('Medicine', 'الأدوية');
   static String get medicalTabNotes => _t('Notes', 'الملاحظات');
-  static String get noPrescriptions =>
-      _t('No prescriptions yet.', 'لا توجد وصفات بعد.');
+
   static String get noPrescriptionImage =>
       _t('No prescription image available.', 'لا توجد صورة وصفة متاحة.');
   static String get noMedicines =>
@@ -638,6 +710,10 @@ abstract class SettingsStrings {
   static String get noNotes => _t('No notes yet.', 'لا توجد ملاحظات بعد.');
   static String get therapyProgressTitle =>
       _t('Therapy Progress', 'تقدم العلاج');
+  static String get feelingAlreadySelected => _t(
+        'You have already selected your feeling for this session',
+        'لقد اخترت شعورك بالفعل لهذه الجلسة',
+      );
   static String get lifestyleRecommendationTitle =>
       _t('Lifestyle Recommendation', 'توصية نمط الحياة');
   static String get followUpPlanTitle => _t('Follow-up Plan', 'خطة المتابعة');
@@ -679,7 +755,6 @@ abstract class SettingsStrings {
   static String get activeMedicinesLabel =>
       _t('Active medicines:', 'الأدوية النشطة:');
   static String get totalNotesLabel => _t('Total notes:', 'إجمالي الملاحظات:');
-  static String get editNote => _t('Edit', 'تعديل');
   static String assessmentsProgressLabel(
           int questionIndex, int totalQuestions) =>
       _t(
@@ -691,7 +766,6 @@ abstract class SettingsStrings {
   static String get noteTitleLabel => _t('Note title', 'عنوان الملاحظة');
   static String get noteContentLabel => _t('Note details', 'تفاصيل الملاحظة');
   static String get saveChanges => _t('Save Changes', 'حفظ التغييرات');
-  static String get save => _t('Save', 'حفظ');
   static String get shareWithDoctorTitle =>
       _t('Share with Doctor', 'المشاركة مع الطبيب');
   static String get chooseDoctorLabel => _t('Choose doctor', 'اختر الطبيب');
@@ -903,6 +977,116 @@ abstract class SettingsStrings {
         'Based on your answers, we recommend speaking with a specialist that matches your current mental health state.',
         'بناءً على إجاباتك، نوصي بالتحدث مع متخصص يناسب حالتك النفسية الحالية.',
       );
+// lib/core/ln10/settings_strings.dart
+
+// ═══════════════════════════════════════════════════════════════
+// 🫁 BREATHING EXERCISE STRINGS - تمارين التنفس
+// ═══════════════════════════════════════════════════════════════
+
+// ✅ أسماء أنواع التمارين
+  static String get boxBreathingName => _t('Box Breathing', 'التنفس المربع');
+  static String get fourSevenEightName => _t('4-7-8 Breathing', 'تنفس 4-7-8');
+  static String get diaphragmaticName =>
+      _t('Diaphragmatic Breathing', 'التنفس الحجابي');
+  static String get pacedBreathingName =>
+      _t('Paced Breathing', 'التنفس المنتظم');
+  static String get resonanceName =>
+      _t('Resonance Breathing', 'التنفس الرنيني');
+
+// ✅ أوصاف أنواع التمارين
+  static String get boxBreathingDescription => _t(
+        'A balanced breathing technique used for stress control and focus training. Equal inhale, hold, exhale, and hold phases.',
+        'تقنية تنفس متوازنة تستخدم للتحكم بالتوتر وتدريب التركيز. مراحل متساوية من الشهيق والحبس والزفير والراحة.',
+      );
+
+  static String get fourSevenEightDescription => _t(
+        'A relaxation technique that helps reduce anxiety and promote sleep by following a 4-7-8 second rhythm.',
+        'تقنية استرخاء تساعد على تقليل القلق وتعزيز النوم باتباع إيقاع 4-7-8 ثوانٍ.',
+      );
+
+  static String get diaphragmaticDescription => _t(
+        'Slow belly breathing that supports deep body relaxation and reduces tension.',
+        'تنفس بطني بطيء يدعم الاسترخاء العميق للجسم ويقلل التوتر.',
+      );
+
+  static String get pacedBreathingDescription => _t(
+        'Even breathing rhythm used for heart-rate regulation and nervous system calming.',
+        'إيقاع تنفس منتظم يستخدم لتنظيم معدل ضربات القلب وتهدئة الجهاز العصبي.',
+      );
+
+  static String get resonanceDescription => _t(
+        'Slow therapeutic breathing around six breaths per minute for long-term stress regulation.',
+        'تنفس علاجي بطيء بمعدل ست أنفاس في الدقيقة لتنظيم التوتر على المدى الطويل.',
+      );
+
+// ✅ رسائل التمرين
+  static String get breathingExerciseTitle =>
+      _t('Breathing Exercise', 'تمرين التنفس');
+  static String get exerciseComplete =>
+      _t('Exercise Complete!', 'اكتمل التمرين!');
+  static String get getReady => _t('Get Ready', 'استعد');
+  static String get exercisePaused => _t('Exercise Paused', 'تم إيقاف التمرين');
+  static String get exerciseResumed =>
+      _t('Exercise Resumed', 'تم استئناف التمرين');
+  static String get tapToStart => _t('Tap to start', 'اضغط للبدء');
+
+// ✅ أزرار التحكم
+
+  static String get restartExercise => _t('Restart', 'إعادة');
+  static String get stopExercise => _t('Stop', 'إيقاف');
+
+// ✅ إحصائيات التمرين
+  static String get durationLabel => _t('Duration', 'المدة');
+  static String get secondsLabel => _t('seconds', 'ثوانٍ');
+  static String get breathsPerMinute => _t('breaths/min', 'نفس/دقيقة');
+  static String get totalBreaths => _t('Total Breaths', 'إجمالي الأنفاس');
+
+// ✅ إرشادات التمرين
+  static String get findComfortablePosition => _t(
+        'Find a comfortable position and relax your shoulders.',
+        'اجد وضعية مريحة واسترخِ بكتفيك.',
+      );
+
+  static String get breatheNaturally => _t(
+        'Breathe naturally and follow the rhythm.',
+        'تنفس بشكل طبيعي واتبع الإيقاع.',
+      );
+
+  static String get focusOnBreath => _t(
+        'Focus on your breath and let go of tension.',
+        'ركز على أنفاسك واترك التوتر.',
+      );
+
+// ✅ أسماء التمارين حسب النوع
+  static String breathingExerciseName(BreathingExerciseType type) {
+    switch (type) {
+      case BreathingExerciseType.boxBreathing:
+        return boxBreathingName;
+      case BreathingExerciseType.fourSevenEight:
+        return fourSevenEightName;
+      case BreathingExerciseType.diaphragmatic:
+        return diaphragmaticName;
+      case BreathingExerciseType.pacedBreathing:
+        return pacedBreathingName;
+      case BreathingExerciseType.resonance:
+        return resonanceName;
+    }
+  }
+
+  static String breathingExerciseDescription(BreathingExerciseType type) {
+    switch (type) {
+      case BreathingExerciseType.boxBreathing:
+        return boxBreathingDescription;
+      case BreathingExerciseType.fourSevenEight:
+        return fourSevenEightDescription;
+      case BreathingExerciseType.diaphragmatic:
+        return diaphragmaticDescription;
+      case BreathingExerciseType.pacedBreathing:
+        return pacedBreathingDescription;
+      case BreathingExerciseType.resonance:
+        return resonanceDescription;
+    }
+  }
 
   static String assessmentseverityLabel(String severity) {
     final normalized = severity.trim().toLowerCase();

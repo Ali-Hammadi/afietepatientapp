@@ -1,3 +1,4 @@
+// lib/feature/home/presentation/widgets/emotions_widget.dart
 import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/feature/feeling/presentation/cubit/feeling_cubit.dart';
@@ -16,67 +17,147 @@ class CustomEmotionsWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: AppStyles.padding),
       child: BlocBuilder<FeelingCubit, FeelingState>(
         builder: (context, state) {
-          final selectedFeeling = switch (state) {
-            FeelingLoaded() => state.selectedFeeling,
-            FeelingError() => state.selectedFeeling,
-            _ => null,
-          };
+          // ✅ استخراج الشعور المختار وحالة القفل
+          final FeelingType? selectedFeeling;
+          final bool isLocked;
 
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: _items.map((item) {
-              final isSelected = selectedFeeling == item.feeling;
-              return InkWell(
-                borderRadius: BorderRadius.circular(AppStyles.borderRadius),
-                onTap: () {
-                  context.read<FeelingCubit>().selectFeeling(item.feeling);
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 180),
-                  width: 58,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+          switch (state) {
+            case FeelingLoaded():
+              selectedFeeling = state.selectedFeeling;
+              isLocked = state.hasLockedFeeling;
+              break;
+            case FeelingError():
+              selectedFeeling = state.selectedFeeling;
+              isLocked = state.hasLockedFeeling;
+              break;
+            default:
+              selectedFeeling = null;
+              isLocked = false;
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ✅ رسالة القفل إذا كان مقفل
+              if (isLocked)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
-                    color: isSelected
-                        ? colorScheme.primaryContainer
-                        : colorScheme.primaryContainer.withValues(
-                            alpha: 0.45,
-                          ),
-                    borderRadius: BorderRadius.circular(
-                      AppStyles.borderRadius,
-                    ),
+                    color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: isSelected
-                          ? colorScheme.primary
-                          : colorScheme.primary.withValues(alpha: 0.2),
+                      color: colorScheme.primary.withValues(alpha: 0.3),
                     ),
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                  child: Row(
                     children: [
-                      Icon(
-                        item.icon,
-                        size: 24,
-                        color: isSelected
-                            ? colorScheme.primary
-                            : colorScheme.onSurfaceVariant,
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        item.label,
-                        textAlign: TextAlign.center,
-                        style: AppStyles.bodySmall.copyWith(
-                          color: isSelected
-                              ? colorScheme.primary
-                              : colorScheme.onSurfaceVariant,
-                          fontWeight:
-                              isSelected ? FontWeight.w700 : FontWeight.w500,
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          SettingsStrings.feelingAlreadySelected,
+                          style: AppStyles.bodySmall.copyWith(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-              );
-            }).toList(growable: false),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: _items.map((item) {
+                  final isSelected = selectedFeeling == item.feeling;
+
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: InkWell(
+                        borderRadius:
+                            BorderRadius.circular(AppStyles.borderRadius),
+                        onTap: isLocked
+                            ? null // ✅ تعطيل النقر إذا مقفل
+                            : () {
+                                context
+                                    .read<FeelingCubit>()
+                                    .selectFeeling(item.feeling);
+                              },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeInOut,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? colorScheme.primaryContainer
+                                : colorScheme.primaryContainer
+                                    .withValues(alpha: isLocked ? 0.25 : 0.45),
+                            borderRadius: BorderRadius.circular(
+                              AppStyles.borderRadius,
+                            ),
+                            border: Border.all(
+                              color: isSelected
+                                  ? colorScheme.primary
+                                  : colorScheme.primary.withValues(
+                                      alpha: isLocked ? 0.15 : 0.2,
+                                    ),
+                              width: isSelected ? 2 : 1,
+                            ),
+                            // ✅ تأثير shadow عند الاختيار
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color: colorScheme.primary
+                                          .withValues(alpha: 0.25),
+                                      blurRadius: 8,
+                                      spreadRadius: 1,
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                item.icon,
+                                size: 26,
+                                color: isSelected
+                                    ? colorScheme.primary
+                                    : isLocked
+                                        ? colorScheme.onSurfaceVariant
+                                            .withValues(alpha: 0.5)
+                                        : colorScheme.onSurfaceVariant,
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                item.label,
+                                textAlign: TextAlign.center,
+                                style: AppStyles.bodySmall.copyWith(
+                                  color: isSelected
+                                      ? colorScheme.primary
+                                      : isLocked
+                                          ? colorScheme.onSurfaceVariant
+                                              .withValues(alpha: 0.5)
+                                          : colorScheme.onSurfaceVariant,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w700
+                                      : FontWeight.w500,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(growable: false),
+              ),
+            ],
           );
         },
       ),

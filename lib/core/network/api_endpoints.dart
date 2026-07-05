@@ -78,8 +78,13 @@ abstract class ApiEndpoints {
   // ===============================================================================================
   // === Prescription ===
   static const String prescription = '/api/patient/prescriptions/';
-  static String getPrescription(dynamic id) =>
-      '/api/patient/prescriptions/$id/';
+
+  // ✅ لازم يرجع: /api/patient/prescriptions/4/
+  static String getPrescription(int id) => '/api/patient/prescriptions/$id/';
+
+  // ✅ لازم يرجع: /api/patient/prescriptions/4/print/
+  static String getPrescriptionPrint(int id) =>
+      '/api/patient/prescriptions/$id/print/';
 
   // ===============================================================================================
   // === Notes ===

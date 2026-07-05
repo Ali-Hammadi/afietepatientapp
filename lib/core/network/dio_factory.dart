@@ -1,27 +1,17 @@
+// lib/core/network/dio_factory.dart
 import 'dart:async';
 import 'package:afiete/core/ln10/settings_strings.dart';
+import 'package:afiete/core/network/api_endpoints.dart';
+import 'package:afiete/core/network/token_storage.dart';
+import 'package:afiete/core/reset/nuclear_reset_helper.dart';
+import 'package:afiete/core/routes/app_route.dart';
+import 'package:afiete/core/utils/logger.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:afiete/core/network/api_endpoints.dart';
-import 'package:afiete/core/routes/app_route.dart';
-import 'package:afiete/core/network/token_storage.dart';
-import 'package:afiete/core/utils/logger.dart';
-import 'package:afiete/core/reset/nuclear_reset_helper.dart';
-// static const String baseUrl = 'https://alihammadi.pythonanywhere.com/';
 
 abstract class DioFactory {
-  // ===============================================================================================
-  ///Gaith Url:
   static const String baseUrl =
       'https://seventy-unlined-freefall.ngrok-free.dev/';
-  // ===============================================================================================
-
-  ///Local Url:
-  // static const String baseUrl = 'http://127.0.0.1:8000/';
-  // ===============================================================================================
-  ///Ali Url:
-  // static const String baseUrl = 'https://singular-unsafe-frays.ngrok-free.dev/';
-  // ===============================================================================================
 
   static Completer<bool>? _refreshCompleter;
 
@@ -33,6 +23,7 @@ abstract class DioFactory {
         receiveTimeout: const Duration(seconds: 30),
         sendTimeout: const Duration(seconds: 30),
         headers: {'Content-Type': 'application/json'},
+        validateStatus: (status) => status != null && status < 500,
       ),
     );
 
@@ -51,30 +42,30 @@ abstract class DioFactory {
       );
     }
 
-    // ✅ إضافة Language Interceptor (قبل Token Interceptor)
+    // ✅ Language Interceptor
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
           final languageCode = SettingsStrings.isArabic ? 'ar' : 'en';
           options.headers['X-Language'] = languageCode;
-
           if (kDebugMode) {
             print(
                 '🌐 [Language Interceptor] Sending X-Language: $languageCode');
           }
-
           handler.next(options);
         },
       ),
     );
 
-    // ✅ Token Interceptor (الكود الموجود)
+    // ✅ Token + Retry Interceptor
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           final token = await TokenStorage.getAccessToken();
-          print(
-              '🔥 [Dio Interceptor] Sending Token for ${options.uri}: Token is ${token != null ? "Present (${token.substring(0, 10)}...)" : "NULL"}');
+          if (kDebugMode) {
+            print(
+                '🔥 [Dio Interceptor] Sending Token for ${options.uri}: Token is ${token != null ? "Present (${token.substring(0, 10)}...)" : "NULL"}');
+          }
 
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
@@ -82,7 +73,52 @@ abstract class DioFactory {
           handler.next(options);
         },
         onError: (err, handler) async {
-          // ... باقي الكود الموجود كما هو ...
+          // ✅ 1. فحص Connection Errors أولاً (ngrok instability)
+          if (_isConnectionError(err)) {
+            final retryCount =
+                err.requestOptions.headers['x-retry-count'] as int? ?? 0;
+            const maxRetries = 3;
+
+            if (retryCount < maxRetries) {
+              final newRetryCount = retryCount + 1;
+              if (kDebugMode) {
+                print('⚠️ Connection error: ${err.type}');
+                print(
+                    '🔄 Retry attempt $newRetryCount/$maxRetries for ${err.requestOptions.uri}');
+              }
+
+              await Future.delayed(Duration(seconds: newRetryCount));
+
+              final retryOptions = err.requestOptions;
+              retryOptions.headers['x-retry-count'] = newRetryCount;
+
+              try {
+                final retryResponse = await dio.fetch<dynamic>(retryOptions);
+                if (kDebugMode) {
+                  print('✅ Retry succeeded on attempt $newRetryCount');
+                }
+                return handler.resolve(retryResponse);
+              } catch (retryError) {
+                if (kDebugMode) {
+                  print('❌ Retry attempt $newRetryCount failed');
+                }
+
+                if (newRetryCount >= maxRetries) {
+                  if (kDebugMode) {
+                    print('🚫 Max retries reached, returning original error');
+                  }
+                  return handler.reject(err);
+                }
+
+                if (retryError is DioException) {
+                  return handler.next(retryError);
+                }
+                return handler.reject(err);
+              }
+            }
+          }
+
+          // ✅ 2. باقي الـ logic الأصلي (token refresh)
           final statusCode = err.response?.statusCode;
           final data = err.response?.data;
 
@@ -106,15 +142,23 @@ abstract class DioFactory {
           final unauthorized = statusCode == 401 || isTokenError;
           final alreadyRetried =
               err.requestOptions.headers['x-no-retry'] == true;
-          var shouldNuclearReset = false;
 
-          if (missingUser) {
-            shouldNuclearReset = false;
-          } else if (unauthorized && !alreadyRetried) {
+          // ✅ 3. Token Refresh Logic - محسّن
+          if (unauthorized && !alreadyRetried) {
+            if (kDebugMode) {
+              print('🔑 Token expired, attempting refresh...');
+            }
+
             final refreshed = await _tryRefreshToken(dio);
+
             if (refreshed) {
+              if (kDebugMode) {
+                print('✅ Token refreshed successfully');
+              }
+
               final retryOptions = err.requestOptions;
               retryOptions.headers['x-no-retry'] = true;
+
               final newAccessToken = await TokenStorage.getAccessToken();
               if (newAccessToken != null && newAccessToken.isNotEmpty) {
                 retryOptions.headers['Authorization'] =
@@ -124,17 +168,30 @@ abstract class DioFactory {
               try {
                 final retryResponse = await dio.fetch<dynamic>(retryOptions);
                 return handler.resolve(retryResponse);
-              } catch (_) {
-                shouldNuclearReset = true;
+              } catch (e) {
+                if (kDebugMode) {
+                  print('❌ Retry after refresh failed: $e');
+                }
+                // ✅ ما نعمل logout، نرجع الـ error الأصلي
+                return handler.reject(err);
               }
             } else {
-              shouldNuclearReset = true;
+              if (kDebugMode) {
+                print('❌ Token refresh failed');
+              }
+              // ✅ فقط إذا الـ refresh فشل، نعمل logout
+              await TokenStorage.clearTokens();
+              NuclearResetHelper.navigatorKey.currentState
+                  ?.pushNamedAndRemoveUntil(
+                MyRoutes.splashScreen,
+                (route) => false,
+              );
+              return handler.reject(err);
             }
-          } else if (unauthorized && alreadyRetried) {
-            shouldNuclearReset = true;
           }
 
-          if (shouldNuclearReset) {
+          // ✅ 4. إذا كان unauthorized ومحاولة سابقة فشلت
+          if (unauthorized && alreadyRetried) {
             await TokenStorage.clearTokens();
             NuclearResetHelper.navigatorKey.currentState
                 ?.pushNamedAndRemoveUntil(
@@ -144,6 +201,7 @@ abstract class DioFactory {
             return handler.reject(err);
           }
 
+          // ✅ 5. باقي الأخطاء
           final cleanMessage = _mapDioErrorToMessage(err);
           handler.reject(
             DioException(
@@ -161,19 +219,59 @@ abstract class DioFactory {
     return dio;
   }
 
-  static Future<bool> _tryRefreshToken(Dio dio) async {
-    final refreshToken = await TokenStorage.getRefreshToken();
-    if (refreshToken == null || refreshToken.isEmpty) {
-      return false;
+  // ✅ دالة جديدة: فحص Connection Errors
+  static bool _isConnectionError(DioException err) {
+    if (err.type == DioExceptionType.connectionTimeout) return true;
+    if (err.type == DioExceptionType.receiveTimeout) return true;
+    if (err.type == DioExceptionType.sendTimeout) return true;
+
+    if (err.type == DioExceptionType.unknown) {
+      final errorMessage = err.message?.toLowerCase() ?? '';
+      final errorString = err.error?.toString().toLowerCase() ?? '';
+
+      if (errorMessage.contains('connection closed') ||
+          errorMessage.contains('failed host lookup') ||
+          errorMessage.contains('socket') ||
+          errorMessage.contains('network') ||
+          errorMessage.contains('connection reset') ||
+          errorMessage.contains('connection refused') ||
+          errorString.contains('connection closed') ||
+          errorString.contains('httpexception') ||
+          errorString.contains('socketexception')) {
+        return true;
+      }
     }
 
+    return false;
+  }
+
+  // ✅ تحسين _tryRefreshToken
+  static Future<bool> _tryRefreshToken(Dio dio) async {
+    // ✅ إذا في عملية refresh جارية، ننتظرها
     if (_refreshCompleter != null) {
+      if (kDebugMode) {
+        print('⏳ Refresh already in progress, waiting...');
+      }
       return _refreshCompleter!.future;
     }
 
     _refreshCompleter = Completer<bool>();
 
     try {
+      final refreshToken = await TokenStorage.getRefreshToken();
+      if (refreshToken == null || refreshToken.isEmpty) {
+        if (kDebugMode) {
+          print('❌ No refresh token found');
+        }
+        _refreshCompleter!.complete(false);
+        return false;
+      }
+
+      if (kDebugMode) {
+        print('🔄 Attempting token refresh...');
+        print('🔑 Refresh token: ${refreshToken.substring(0, 10)}...');
+      }
+
       final refreshDio = Dio(
         BaseOptions(
           baseUrl: baseUrl,
@@ -184,32 +282,81 @@ abstract class DioFactory {
         ),
       );
 
-      final response = await refreshDio.post<Map<String, dynamic>>(
-        ApiEndpoints.refreshToken,
-        data: {"refresh_token": refreshToken},
-      );
+      // ✅ محاولة 1: Django SimpleJWT format
+      try {
+        final response = await refreshDio.post<Map<String, dynamic>>(
+          ApiEndpoints.refreshToken,
+          data: {"refresh": refreshToken}, // ✅ key الصحيح لـ SimpleJWT
+        );
 
-      final refreshedAccessToken = _extractAccessToken(response.data) ??
-          _extractAccessToken(response.data?['data']) ??
-          '';
-      if (refreshedAccessToken.isEmpty) {
-        _refreshCompleter!.complete(false);
-        return false;
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          final refreshedAccessToken = _extractAccessToken(response.data);
+
+          if (refreshedAccessToken != null && refreshedAccessToken.isNotEmpty) {
+            final refreshedRefreshToken =
+                _extractRefreshToken(response.data) ?? refreshToken;
+
+            await TokenStorage.saveTokens(
+              accessToken: refreshedAccessToken,
+              refreshToken: refreshedRefreshToken,
+            );
+
+            if (kDebugMode) {
+              print('✅ Token refreshed successfully (SimpleJWT format)');
+            }
+
+            _refreshCompleter!.complete(true);
+            return true;
+          }
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('⚠️ SimpleJWT format failed: $e');
+        }
       }
 
-      final refreshedRefreshToken = _extractRefreshToken(response.data) ??
-          _extractRefreshToken(response.data?['data']) ??
-          refreshToken;
+      // ✅ محاولة 2: Custom format
+      try {
+        final response = await refreshDio.post<Map<String, dynamic>>(
+          ApiEndpoints.refreshToken,
+          data: {"refresh_token": refreshToken},
+        );
 
-      await TokenStorage.saveTokens(
-        accessToken: refreshedAccessToken,
-        refreshToken: refreshedRefreshToken,
-      );
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          final refreshedAccessToken = _extractAccessToken(response.data);
 
-      _refreshCompleter!.complete(true);
-      return true;
+          if (refreshedAccessToken != null && refreshedAccessToken.isNotEmpty) {
+            final refreshedRefreshToken =
+                _extractRefreshToken(response.data) ?? refreshToken;
+
+            await TokenStorage.saveTokens(
+              accessToken: refreshedAccessToken,
+              refreshToken: refreshedRefreshToken,
+            );
+
+            if (kDebugMode) {
+              print('✅ Token refreshed successfully (Custom format)');
+            }
+
+            _refreshCompleter!.complete(true);
+            return true;
+          }
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('⚠️ Custom format failed: $e');
+        }
+      }
+
+      if (kDebugMode) {
+        print('❌ Token refresh failed - no valid response');
+      }
+      _refreshCompleter!.complete(false);
+      return false;
     } catch (e) {
-      await TokenStorage.clearTokens();
+      if (kDebugMode) {
+        print('❌ Token refresh exception: $e');
+      }
       _refreshCompleter!.complete(false);
       return false;
     } finally {
@@ -218,14 +365,14 @@ abstract class DioFactory {
   }
 
   static String _mapDioErrorToMessage(DioException err) {
+    if (_isConnectionError(err)) {
+      return 'Connection error. Please check your internet connection and try again.';
+    }
+
     if (err.type == DioExceptionType.connectionTimeout ||
         err.type == DioExceptionType.sendTimeout ||
         err.type == DioExceptionType.receiveTimeout) {
       return 'The connection timed out. Please try again.';
-    }
-
-    if (err.type == DioExceptionType.connectionError) {
-      return 'Unable to connect to server. Check your internet connection.';
     }
 
     if (err.type == DioExceptionType.cancel) {
@@ -239,11 +386,11 @@ abstract class DioFactory {
     );
 
     if (_isMissingUserResponse(statusCode, data, err.requestOptions.path)) {
-      return 'No account was found for this email. If the account was deleted, please sign in again or start a new registration.';
+      return 'No account was found for this email.';
     }
 
     if (_isInvalidOtpResponse(statusCode, data)) {
-      return 'The verification code is invalid or expired. Please request a new code and try again.';
+      return 'The verification code is invalid or expired.';
     }
 
     if (_isExpiredTokenResponse(statusCode, data)) {
@@ -251,24 +398,22 @@ abstract class DioFactory {
     }
 
     if (statusCode == 400) {
-      return responseMessage ??
-          'Your request could not be processed. Please review the entered data and try again.';
+      return responseMessage ?? 'Invalid request. Please check your input.';
     }
     if (statusCode == 401) {
       return responseMessage ?? 'Authentication failed. Please sign in again.';
     }
     if (statusCode == 403) {
-      return responseMessage ??
-          'Access is forbidden for this account or action.';
+      return responseMessage ?? 'Access is forbidden.';
     }
     if (statusCode == 404) {
-      return responseMessage ?? 'Requested resource was not found.';
+      return responseMessage ?? 'Resource not found.';
     }
     if (statusCode == 409) {
-      return responseMessage ?? 'A conflicting resource already exists.';
+      return responseMessage ?? 'Resource already exists.';
     }
     if (statusCode == 422) {
-      return responseMessage ?? 'Validation failed. Please review your input.';
+      return responseMessage ?? 'Validation failed.';
     }
     if (statusCode == 429) {
       return responseMessage ?? 'Too many requests. Please try again later.';
@@ -277,28 +422,22 @@ abstract class DioFactory {
       return responseMessage ?? 'Server error. Please try again later.';
     }
 
-    return responseMessage ?? 'Unexpected error occurred. Please try again.';
+    return responseMessage ?? 'Unexpected error occurred.';
   }
 
   static String? _extractResponseMessage(dynamic data) {
-    if (data == null) {
-      return null;
-    }
+    if (data == null) return null;
 
     if (data is String) {
       final text = data.trim();
-      if (text.isEmpty) {
-        return null;
-      }
+      if (text.isEmpty) return null;
       return _isGenericBackendMessage(text) ? null : text;
     }
 
     if (data is List) {
       for (final item in data) {
         final found = _extractResponseMessage(item);
-        if (found != null && found.isNotEmpty) {
-          return found;
-        }
+        if (found != null && found.isNotEmpty) return found;
       }
       return null;
     }
@@ -318,12 +457,6 @@ abstract class DioFactory {
         return detailMessage;
       }
 
-      final nonFieldErrors = data['non_field_errors'];
-      final nonFieldMessage = _extractResponseMessage(nonFieldErrors);
-      if (nonFieldMessage != null && nonFieldMessage.isNotEmpty) {
-        return nonFieldMessage;
-      }
-
       const reservedKeys = {
         'message',
         'detail',
@@ -334,33 +467,9 @@ abstract class DioFactory {
       };
 
       for (final entry in data.entries) {
-        if (reservedKeys.contains(entry.key.toLowerCase())) {
-          continue;
-        }
+        if (reservedKeys.contains(entry.key.toLowerCase())) continue;
         final found = _extractResponseMessage(entry.value);
-        if (found != null && found.isNotEmpty) {
-          return found;
-        }
-      }
-
-      final errorObj = data['error'];
-      final errorMessage = _extractResponseMessage(errorObj);
-      if (errorMessage != null && errorMessage.isNotEmpty) {
-        return errorMessage;
-      }
-
-      final errors = data['errors'];
-      final errorsMessage = _extractResponseMessage(errors);
-      if (errorsMessage != null && errorsMessage.isNotEmpty) {
-        return errorsMessage;
-      }
-
-      if (directMessage != null && directMessage.isNotEmpty) {
-        return directMessage;
-      }
-
-      if (detailMessage != null && detailMessage.isNotEmpty) {
-        return detailMessage;
+        if (found != null && found.isNotEmpty) return found;
       }
     }
 
@@ -372,9 +481,7 @@ abstract class DioFactory {
     dynamic data,
     String requestPath,
   ) {
-    if (statusCode != 404) {
-      return false;
-    }
+    if (statusCode != 404) return false;
 
     final normalizedPath = requestPath.toLowerCase();
     final isAccountRoute = normalizedPath.contains('/api/users/') ||
@@ -383,9 +490,7 @@ abstract class DioFactory {
         normalizedPath.endsWith('/profile') ||
         normalizedPath.endsWith('/profile/');
 
-    if (!isAccountRoute) {
-      return false;
-    }
+    if (!isAccountRoute) return false;
 
     final message = _extractResponseMessage(data)?.toLowerCase() ?? '';
     return message.contains('no user matches the given query') ||
@@ -395,9 +500,7 @@ abstract class DioFactory {
   }
 
   static bool _isInvalidOtpResponse(int? statusCode, dynamic data) {
-    if (statusCode != 400) {
-      return false;
-    }
+    if (statusCode != 400) return false;
 
     final message = _extractResponseMessage(data)?.toLowerCase() ?? '';
     return message.contains('invalid otp') ||
@@ -406,10 +509,7 @@ abstract class DioFactory {
   }
 
   static bool _isExpiredTokenResponse(int? statusCode, dynamic data) {
-    // ✅ Handle both 401 and 403 for token expiration
-    if (statusCode != 401 && statusCode != 403) {
-      return false;
-    }
+    if (statusCode != 401 && statusCode != 403) return false;
 
     final message = _extractResponseMessage(data)?.toLowerCase() ?? '';
     if (message.contains('token_not_valid') ||
@@ -419,9 +519,7 @@ abstract class DioFactory {
 
     if (data is Map<String, dynamic>) {
       final code = data['code']?.toString().toLowerCase() ?? '';
-      if (code == 'token_not_valid') {
-        return true;
-      }
+      if (code == 'token_not_valid') return true;
 
       final messages = data['messages'];
       if (messages is List) {
@@ -447,41 +545,40 @@ abstract class DioFactory {
   }
 
   static String? _toUserFriendlyMessage(String? message) {
-    if (message == null || message.trim().isEmpty) {
-      return null;
-    }
+    if (message == null || message.trim().isEmpty) return null;
 
     final normalized = message.trim().toLowerCase();
+
     if (normalized.contains('inactive') ||
         normalized.contains('disabled') ||
-        normalized.contains('blocked') ||
-        normalized.contains('suspended') ||
-        normalized.contains('deactivated')) {
-      return 'This account is inactive or restricted on the server, so sign-in is currently unavailable. Please contact support if you believe this is an error.';
+        normalized.contains('blocked')) {
+      return 'This account is inactive. Please contact support.';
     }
+
     if (normalized.contains('already verified')) {
-      return 'Your account is already verified. Please sign in directly.';
+      return 'Your account is already verified.';
     }
 
     if (normalized.contains('does not exist') ||
         normalized.contains('not found')) {
-      return 'No account was found for this data. Please check your input or create a new account.';
+      return 'No account was found for this data.';
     }
 
-    if (normalized.contains('already exists') ||
-        normalized.contains('user with this email')) {
-      return 'This email is already registered. Please sign in or use another email.';
+    if (normalized.contains('already exists')) {
+      return 'This email is already registered.';
     }
 
     if (normalized.contains('invalid otp') ||
         normalized.contains('invalid code')) {
-      return 'The verification code is incorrect or expired. Please request a new code.';
+      return 'The verification code is incorrect.';
     }
+
     if (normalized.contains('password') && normalized.contains('incorrect')) {
-      return 'The current password is incorrect. Please try again.';
+      return 'The current password is incorrect.';
     }
+
     if (_isGenericBackendMessage(normalized)) {
-      return 'Your request could not be processed. Please review the entered data and try again.';
+      return 'Your request could not be processed.';
     }
 
     return message.trim();
@@ -498,26 +595,18 @@ abstract class DioFactory {
 
       final nested = data['data'];
       if (nested is Map<String, dynamic>) {
-        final nestedCandidates = ['access', 'access_token', 'accessToken'];
-        for (final key in nestedCandidates) {
+        for (final key in candidates) {
           final v = nested[key];
-          if (v != null && v.toString().isNotEmpty) return v.toString();
-        }
-
-        final tokens = nested['tokens'];
-        if (tokens is Map<String, dynamic>) {
-          final v = tokens['access'] ??
-              tokens['access_token'] ??
-              tokens['accessToken'];
           if (v != null && v.toString().isNotEmpty) return v.toString();
         }
       }
 
       final tokens = data['tokens'];
       if (tokens is Map<String, dynamic>) {
-        final v =
-            tokens['access'] ?? tokens['access_token'] ?? tokens['accessToken'];
-        if (v != null && v.toString().isNotEmpty) return v.toString();
+        for (final key in candidates) {
+          final v = tokens[key];
+          if (v != null && v.toString().isNotEmpty) return v.toString();
+        }
       }
     }
 
@@ -539,22 +628,14 @@ abstract class DioFactory {
           final v = nested[key];
           if (v != null && v.toString().isNotEmpty) return v.toString();
         }
-
-        final tokens = nested['tokens'];
-        if (tokens is Map<String, dynamic>) {
-          final v = tokens['refresh'] ??
-              tokens['refresh_token'] ??
-              tokens['refreshToken'];
-          if (v != null && v.toString().isNotEmpty) return v.toString();
-        }
       }
 
       final tokens = data['tokens'];
       if (tokens is Map<String, dynamic>) {
-        final v = tokens['refresh'] ??
-            tokens['refresh_token'] ??
-            tokens['refreshToken'];
-        if (v != null && v.toString().isNotEmpty) return v.toString();
+        for (final key in candidates) {
+          final v = tokens[key];
+          if (v != null && v.toString().isNotEmpty) return v.toString();
+        }
       }
     }
 

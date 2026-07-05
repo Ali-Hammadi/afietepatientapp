@@ -1,4 +1,4 @@
-// feature/notes/data/repositories/note_repository_impl.dart
+// lib/feature/notes/data/repositories/note_repository_impl.dart
 import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:afiete/feature/notes/data/datasources/notes_local_datasource.dart';
 import 'package:afiete/feature/notes/data/datasources/notes_remote_datasource.dart';
@@ -19,31 +19,75 @@ class NoteRepositoryImpl implements NoteRepository {
   Future<MedicalNoteEntity> createNote(MedicalNoteEntity note) async {
     final noteModel = MedicalNoteModel.fromEntity(note);
 
-    final createdNote = await remoteDataSource.createNote(noteModel);
-    await localDataSource.saveNote(createdNote);
-    return createdNote.toEntity();
+    try {
+      // ✅ محاولة الحفظ في الـ remote
+      final createdNote = await remoteDataSource.createNote(noteModel);
+
+      // ✅ إذا الـ remote رجع نوت بدون ID، يعني فشل
+      if (createdNote.id == null || createdNote.id!.isEmpty) {
+        // ✅ نحفظ محلي كـ draft
+        final localNote = MedicalNoteModel(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          title: noteModel.title,
+          content: noteModel.content,
+          visibility: noteModel.visibility,
+          creatorUsername: noteModel.creatorUsername,
+          creatorName: noteModel.creatorName,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+        await localDataSource.saveNote(localNote);
+        return localNote.toEntity();
+      }
+
+      // ✅ حفظ في الـ local
+      await localDataSource.saveNote(createdNote);
+      return createdNote.toEntity();
+    } catch (e) {
+      print('❌ Create note failed: $e');
+      // ✅ Fallback: حفظ محلي
+      final localNote = MedicalNoteModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: noteModel.title,
+        content: noteModel.content,
+        visibility: noteModel.visibility,
+        creatorUsername: noteModel.creatorUsername,
+        creatorName: noteModel.creatorName,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      await localDataSource.saveNote(localNote);
+      return localNote.toEntity();
+    }
   }
 
-  // ✅ يرجع MedicalNoteEntity
   @override
   Future<MedicalNoteEntity> updateNote(MedicalNoteEntity note) async {
     final noteModel = MedicalNoteModel.fromEntity(note);
 
-    final updatedNote = await remoteDataSource.updateNote(noteModel);
-    await localDataSource.updateNote(updatedNote);
-    return updatedNote.toEntity();
+    try {
+      final updatedNote = await remoteDataSource.updateNote(noteModel);
+      await localDataSource.updateNote(updatedNote);
+      return updatedNote.toEntity();
+    } catch (e) {
+      print('❌ Update note failed: $e');
+      // ✅ Fallback: تحديث محلي
+      await localDataSource.updateNote(noteModel);
+      return note;
+    }
   }
 
   @override
   Future<void> deleteNote(String noteId) async {
-    // ✅ حذف محلي
+    // ✅ حذف محلي أولاً
     await localDataSource.deleteNote(noteId);
 
     try {
-      // ✅ حذف من السيرفر
+      // ✅ محاولة حذف من الـ remote
       await remoteDataSource.deleteNote(noteId);
     } catch (e) {
-      rethrow;
+      print('⚠️ Remote delete failed: $e');
+      // ✅ ما نرمي exception، الحذف المحلي كافي
     }
   }
 
@@ -64,7 +108,9 @@ class NoteRepositoryImpl implements NoteRepository {
       // ✅ مزامنة مع الـ local
       await localDataSource.syncNotes(remoteNotes);
       return remoteNotes.map((note) => note.toEntity()).toList();
-    } catch (_) {
+    } catch (e) {
+      print('⚠️ Remote get notes failed: $e');
+      // ✅ Fallback: من الـ local
       final notes = await localDataSource.getNotes();
       return notes.map((note) => note.toEntity()).toList();
     }
@@ -92,11 +138,16 @@ class NoteRepositoryImpl implements NoteRepository {
   Future<List<DoctorEntity>> getRegisteredDoctors() async {
     try {
       final doctors = await remoteDataSource.getRegisteredDoctors();
-      await localDataSource.saveRegisteredDoctors(doctors);
-      return doctors;
-    } catch (_) {
-      final doctors = await localDataSource.getRegisteredDoctors();
-      return doctors;
+      if (doctors.isNotEmpty) {
+        await localDataSource.saveRegisteredDoctors(doctors);
+        return doctors;
+      }
+      // ✅ إذا الـ remote رجع فاضي، نجرب من الـ local
+      return await localDataSource.getRegisteredDoctors();
+    } catch (e) {
+      print('⚠️ Remote get doctors failed: $e');
+      // ✅ Fallback: من الـ local
+      return await localDataSource.getRegisteredDoctors();
     }
   }
 }

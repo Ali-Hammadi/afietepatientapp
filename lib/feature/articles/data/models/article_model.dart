@@ -1,12 +1,17 @@
 // lib/feature/articles/data/models/article_model.dart
-
 import 'package:afiete/feature/articles/domain/entities/article_entities.dart';
 import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 
 class ArticleModel {
   final String id;
   final String title;
+  final String titleAr;
+  final String titleEn;
   final String content;
+  final String contentAr;
+  final String contentEn;
+  final String translatedTitle;
+  final String translatedContent;
   final String summary;
   final String imageUrl;
   final String status;
@@ -20,7 +25,13 @@ class ArticleModel {
   const ArticleModel({
     required this.id,
     required this.title,
+    this.titleAr = '',
+    this.titleEn = '',
     required this.content,
+    this.contentAr = '',
+    this.contentEn = '',
+    this.translatedTitle = '',
+    this.translatedContent = '',
     required this.summary,
     this.imageUrl = '',
     this.status = '',
@@ -57,7 +68,7 @@ class ArticleModel {
           (authorJson['specialties'] as List).map((e) => e.toString()).toList();
     }
 
-    // 3. بناء DoctorEntity مع fallback values
+    // 3. بناء DoctorEntity
     final doctorEntity = DoctorEntity(
       doctorUsername: userJson['username']?.toString() ?? 'unknown_doctor',
       email: userJson['email']?.toString() ?? '',
@@ -86,11 +97,25 @@ class ArticleModel {
 
     final rawContent = json['content']?.toString() ?? '';
 
-    // 4. بناء الـ Model الكامل
+    // 4. ✅ استخراج حقول الترجمة
+    final rawTitle = json['title']?.toString() ?? 'Untitled';
+    final rawTitleAr = json['title_ar']?.toString() ?? '';
+    final rawTitleEn = json['title_en']?.toString() ?? '';
+    final rawContentAr = json['content_ar']?.toString() ?? '';
+    final rawContentEn = json['content_en']?.toString() ?? '';
+    final rawTranslatedTitle = json['translated_title']?.toString() ?? '';
+    final rawTranslatedContent = json['translated_content']?.toString() ?? '';
+
     return ArticleModel(
       id: json['id']?.toString() ?? '',
-      title: json['title']?.toString() ?? 'Untitled',
+      title: rawTitle,
+      titleAr: rawTitleAr,
+      titleEn: rawTitleEn,
       content: rawContent,
+      contentAr: rawContentAr,
+      contentEn: rawContentEn,
+      translatedTitle: rawTranslatedTitle,
+      translatedContent: rawTranslatedContent,
       summary: json['summary']?.toString() ?? _buildSummary(rawContent),
       imageUrl:
           json['image_url']?.toString() ?? json['photo']?.toString() ?? '',
@@ -113,7 +138,13 @@ class ArticleModel {
     return ArticleEntity(
       id: id,
       title: title,
+      titleAr: titleAr,
+      titleEn: titleEn,
       content: content,
+      contentAr: contentAr,
+      contentEn: contentEn,
+      translatedTitle: translatedTitle,
+      translatedContent: translatedContent,
       summary: summary,
       imageUrl: imageUrl,
       status: status,
@@ -128,7 +159,6 @@ class ArticleModel {
     );
   }
 
-  /// دالة ذكية لتوليد خلاصة
   static String _buildSummary(String content) {
     final sanitized = content.replaceAll(RegExp(r'\s+'), ' ').trim();
     if (sanitized.isEmpty) return '';

@@ -1,3 +1,4 @@
+// lib/feature/music_and_breathing/presentation/widgets/breathing_exercise_card.dart
 import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/feature/music_and_breathing/domain/entities/breathing_exercise_entity.dart';
@@ -18,10 +19,10 @@ class BreathingExerciseCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    // FIX: Extracted actual string and list values directly from the entity fields
-    final localizedTitle = exercise.title;
-    final localizedDescription = exercise.description;
-    final localizedRecommendedFor = exercise.recommendedFor;
+    // ✅ استخدام النصوص المترجمة
+    final localizedTitle = SettingsStrings.breathingExerciseName(exercise.type);
+    final localizedDescription =
+        SettingsStrings.breathingExerciseDescription(exercise.type);
     final localizedSteps = exercise.steps;
 
     return Container(
@@ -58,7 +59,7 @@ class BreathingExerciseCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${exercise.durationMinutes} ${SettingsStrings.minuteAbbreviation} • $localizedRecommendedFor',
+                        '${exercise.durationMinutes} ${SettingsStrings.minutesLabel} • ${exercise.recommendedFor}',
                         style: AppStyles.bodySmall.copyWith(
                           color: colorScheme.onSurfaceVariant,
                         ),
@@ -73,6 +74,7 @@ class BreathingExerciseCard extends StatelessWidget {
               localizedDescription,
               style: AppStyles.bodySmall.copyWith(
                 color: colorScheme.onSurfaceVariant,
+                height: 1.5,
               ),
             ),
             const SizedBox(height: 10),
@@ -96,7 +98,7 @@ class BreathingExerciseCard extends StatelessWidget {
               child: FilledButton.icon(
                 onPressed: onStart,
                 icon: const Icon(Icons.play_arrow_rounded),
-                label: Text(SettingsStrings.playLabel),
+                label: Text(SettingsStrings.startExercise),
               ),
             ),
           ],

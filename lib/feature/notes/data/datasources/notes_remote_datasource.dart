@@ -1,4 +1,4 @@
-// feature/notes/data/datasources/note_remote_datasource.dart
+// lib/feature/notes/data/datasources/note_remote_datasource.dart
 import 'package:afiete/feature/doctors/domain/entities/doctor_entity.dart';
 import 'package:afiete/feature/notes/data/models/notes_model.dart';
 import 'package:dio/dio.dart';
@@ -28,15 +28,21 @@ class NoteRemoteDataSourceImpl implements NoteRemoteDataSource {
       if (response.statusCode == 201 && response.data is Map<String, dynamic>) {
         return MedicalNoteModel.fromJson(response.data as Map<String, dynamic>);
       }
+
+      // ✅ إذا فشل، نرجع النوت المحلي
+      print('⚠️ Create note failed with status: ${response.statusCode}');
       return note;
     } on DioException catch (e) {
-      throw Exception(
-          'Failed to create note: ${e.response?.data ?? e.message}');
+      print('❌ Create note error: ${e.message}');
+      // ✅ نرجع النوت المحلي بدل ما نرمي exception
+      return note;
+    } catch (e) {
+      print('❌ Unexpected error: $e');
+      return note;
     }
   }
 
   // ✅ Update: PUT /api/patient/notes/{id}/
-  // (ModelViewSet يدعم PUT تلقائياً)
   @override
   Future<MedicalNoteModel> updateNote(MedicalNoteModel note) async {
     if (note.id == null) {
@@ -54,8 +60,8 @@ class NoteRemoteDataSourceImpl implements NoteRemoteDataSource {
       }
       return note;
     } on DioException catch (e) {
-      throw Exception(
-          'Failed to update note: ${e.response?.data ?? e.message}');
+      print('❌ Update note error: ${e.message}');
+      return note;
     }
   }
 
@@ -65,8 +71,8 @@ class NoteRemoteDataSourceImpl implements NoteRemoteDataSource {
     try {
       await dio.delete('/api/patient/notes/$noteId/');
     } on DioException catch (e) {
-      throw Exception(
-          'Failed to delete note: ${e.response?.data ?? e.message}');
+      print('❌ Delete note error: ${e.message}');
+      // ✅ ما نرمي exception، نكمل
     }
   }
 
@@ -83,7 +89,6 @@ class NoteRemoteDataSourceImpl implements NoteRemoteDataSource {
                   MedicalNoteModel.fromJson(json as Map<String, dynamic>))
               .toList();
         }
-        // إذا السيرفر يرجع paginated response
         if (response.data is Map && response.data['results'] is List) {
           return (response.data['results'] as List)
               .map((json) =>
@@ -93,7 +98,8 @@ class NoteRemoteDataSourceImpl implements NoteRemoteDataSource {
       }
       return [];
     } on DioException catch (e) {
-      throw Exception('Failed to get notes: ${e.response?.data ?? e.message}');
+      print('❌ Get notes error: ${e.message}');
+      return [];
     }
   }
 
@@ -120,8 +126,8 @@ class NoteRemoteDataSourceImpl implements NoteRemoteDataSource {
       }
       return [];
     } on DioException catch (e) {
-      throw Exception(
-          'Failed to get doctors: ${e.response?.data ?? e.message}');
+      print('❌ Get doctors error: ${e.message}');
+      return [];
     }
   }
 

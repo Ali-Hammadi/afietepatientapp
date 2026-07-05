@@ -56,6 +56,9 @@ class ServerFailure extends Failure {
           return ServerFailure('No internet connection');
         }
         return ServerFailure("Unexpected error, please try again");
+      case DioExceptionType.transformTimeout:
+        // TODO: Handle this case.
+        throw UnimplementedError();
     }
   }
 
@@ -245,9 +248,8 @@ class ServerFailure extends Failure {
       return false;
     }
 
-    final raw = map.containsKey('is_active')
-        ? map['is_active']
-        : map['isActive'];
+    final raw =
+        map.containsKey('is_active') ? map['is_active'] : map['isActive'];
     return _isFalseLike(raw);
   }
 
@@ -317,8 +319,7 @@ class ServerFailure extends Failure {
       if (messages is List) {
         for (final item in messages) {
           final text = item is Map
-              ? '${item['message'] ?? ''} ${item['detail'] ?? ''}'
-                  .toLowerCase()
+              ? '${item['message'] ?? ''} ${item['detail'] ?? ''}'.toLowerCase()
               : item.toString().toLowerCase();
           if (text.contains('token') && text.contains('expired')) {
             return true;

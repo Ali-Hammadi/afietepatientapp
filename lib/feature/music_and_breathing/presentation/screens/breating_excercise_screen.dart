@@ -1,3 +1,4 @@
+// lib/feature/music_and_breathing/presentation/screens/breathing_exercise_screen.dart
 import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/feature/music_and_breathing/domain/entities/breathing_exercise_entity.dart';
@@ -21,6 +22,7 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> {
   late int _elapsedSeconds;
   bool _isRunning = false;
   bool _isCompleted = false;
+  bool _showGetReady = true;
 
   @override
   void initState() {
@@ -29,9 +31,16 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> {
     _currentStepIndex = 0;
     _remainingSeconds = _steps.isNotEmpty ? _steps.first.durationSeconds : 0;
     _elapsedSeconds = 0;
+
+    // ✅ عرض "استعد" لمدة 3 ثوانٍ قبل البدء
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        setState(() => _showGetReady = false);
+      }
+    });
   }
 
-  // ربط الأطوار بالثواني الحقيقية القادمة ديناميكياً من الـ Entity والسيرفر
+  // ربط الأطوار بالثواني الحقيقية
   List<_PhaseStep> _buildSteps(BreathingExerciseEntity exercise) {
     switch (exercise.type) {
       case BreathingExerciseType.boxBreathing:
@@ -43,7 +52,7 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> {
           _PhaseStep(_PhaseType.exhale, SettingsStrings.exhaleLabel,
               exercise.exhaleSeconds),
           _PhaseStep(
-              _PhaseType.rest, SettingsStrings.holdLabel, exercise.restSeconds),
+              _PhaseType.rest, SettingsStrings.restLabel, exercise.restSeconds),
         ];
       case BreathingExerciseType.fourSevenEight:
         return [
@@ -81,6 +90,14 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> {
   void _toggleRunning() {
     setState(() {
       _isRunning = !_isRunning;
+      if (_isCompleted && _isRunning) {
+        // إعادة التشغيل
+        _currentStepIndex = 0;
+        _remainingSeconds =
+            _steps.isNotEmpty ? _steps.first.durationSeconds : 0;
+        _elapsedSeconds = 0;
+        _isCompleted = false;
+      }
     });
     if (_isRunning) {
       _tick();
@@ -122,6 +139,20 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> {
     }
   }
 
+  // ✅ لون المرحلة الحالي
+  Color _phaseColor(_PhaseType phaseType, ColorScheme colorScheme) {
+    switch (phaseType) {
+      case _PhaseType.inhale:
+        return colorScheme.primary;
+      case _PhaseType.hold:
+        return colorScheme.tertiary;
+      case _PhaseType.exhale:
+        return colorScheme.secondary;
+      case _PhaseType.rest:
+        return colorScheme.outline;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -130,34 +161,70 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> {
     final totalSeconds = widget.exercise.durationMinutes * 60;
     final progress = totalSeconds == 0 ? 0.0 : _elapsedSeconds / totalSeconds;
 
-    final localizedTitle = widget.exercise.type;
-    final localizedDescription = widget.exercise.type;
-
-    // تم استخدام مصفوفة الـ steps الممررة ديناميكياً داخل الكائن نفسه
+    // ✅ استخدام النصوص المترجمة
+    final exerciseTitle =
+        SettingsStrings.breathingExerciseName(widget.exercise.type);
+    final exerciseDescription =
+        SettingsStrings.breathingExerciseDescription(widget.exercise.type);
     final currentExerciseSteps = widget.exercise.steps;
+    final phaseColor = _phaseColor(currentStep.type, colorScheme);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(title: Text(localizedTitle as String), centerTitle: true),
+      appBar: AppBar(
+        title: Text(exerciseTitle),
+        centerTitle: true,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
+            // ✅ Badge نوع التمرين
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.air_rounded,
+                    size: 16,
+                    color: colorScheme.primary,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    exerciseTitle,
+                    style: AppStyles.bodySmall.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // ✅ الوصف
             Text(
-              localizedDescription as String,
+              exerciseDescription,
               textAlign: TextAlign.center,
               style: AppStyles.bodyMedium.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 24),
+
+            // ✅ الدائرة الرئيسية
             Container(
               width: 220,
               height: 220,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: colorScheme.primaryContainer.withAlpha(140),
-                border: Border.all(color: colorScheme.primary, width: 6),
+                color: phaseColor.withValues(alpha: 0.15),
+                border: Border.all(color: phaseColor, width: 6),
               ),
               child: Stack(
                 alignment: Alignment.center,
@@ -168,7 +235,9 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> {
                     child: CircularProgressIndicator(
                       value: progress,
                       strokeWidth: 8,
-                      backgroundColor: colorScheme.primary.withAlpha(30),
+                      backgroundColor:
+                          colorScheme.primary.withValues(alpha: 0.12),
+                      valueColor: AlwaysStoppedAnimation<Color>(phaseColor),
                     ),
                   ),
                   Column(
@@ -177,7 +246,7 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> {
                       Text(
                         currentStep.label,
                         style: AppStyles.headingMedium.copyWith(
-                          color: colorScheme.primary,
+                          color: phaseColor,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -198,24 +267,131 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 28),
-            Text(
-              currentExerciseSteps.join('\n'),
-              textAlign: TextAlign.center,
-              style: AppStyles.bodyMedium.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
+
+            const SizedBox(height: 20),
+
+            // ✅ إحصائيات سريعة
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildStatChip(
+                  context,
+                  icon: Icons.timer_outlined,
+                  label: SettingsStrings.durationLabel,
+                  value:
+                      '${widget.exercise.durationMinutes} ${SettingsStrings.minutesLabel}',
+                ),
+                _buildStatChip(
+                  context,
+                  icon: Icons.air_rounded,
+                  label: SettingsStrings.totalBreaths,
+                  value:
+                      '${(widget.exercise.durationMinutes * 60 / (widget.exercise.inhaleSeconds + widget.exercise.exhaleSeconds)).round()}',
+                ),
+              ],
             ),
+
+            const SizedBox(height: 20),
+
+            // ✅ الخطوات
+            if (currentExerciseSteps.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest
+                      .withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.format_list_numbered_rounded,
+                          size: 18,
+                          color: colorScheme.primary,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          SettingsStrings.isArabic ? 'الخطوات' : 'Steps',
+                          style: AppStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    ...currentExerciseSteps.map(
+                      (step) => Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          '• $step',
+                          style: AppStyles.bodySmall.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                            height: 1.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
             const Spacer(),
+
+            // ✅ رسالة الحالة
+            if (_isCompleted)
+              Container(
+                padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: Colors.green.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.green.withValues(alpha: 0.4),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.check_circle_rounded,
+                      color: Colors.green,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      SettingsStrings.exerciseComplete,
+                      style: AppStyles.bodyMedium.copyWith(
+                        color: Colors.green.shade700,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+            // ✅ أزرار التحكم
             Row(
               children: [
                 Expanded(
-                  child: FilledButton(
+                  child: FilledButton.icon(
                     onPressed: _toggleRunning,
-                    child: Text(
-                      _isRunning
-                          ? SettingsStrings.pauseExercise
-                          : SettingsStrings.startExercise,
+                    icon: Icon(
+                      _isCompleted
+                          ? Icons.refresh_rounded
+                          : _isRunning
+                              ? Icons.pause_rounded
+                              : Icons.play_arrow_rounded,
+                    ),
+                    label: Text(
+                      _isCompleted
+                          ? SettingsStrings.restartExercise
+                          : _isRunning
+                              ? SettingsStrings.pauseExercise
+                              : SettingsStrings.startExercise,
                     ),
                   ),
                 ),
@@ -232,11 +408,48 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> {
                     });
                   },
                   icon: const Icon(Icons.restart_alt_rounded),
+                  tooltip: SettingsStrings.restartExercise,
                 ),
               ],
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildStatChip(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 18, color: colorScheme.primary),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: AppStyles.bodySmall.copyWith(
+              fontWeight: FontWeight.w700,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          Text(
+            label,
+            style: AppStyles.bodySmall.copyWith(
+              fontSize: 10,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,3 +1,4 @@
+// lib/feature/music_and_breathing/domain/usecase/get_recommended_music_usecase.dart
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failure.dart';
 import '../entities/breathing_exercise_entity.dart';
@@ -16,17 +17,18 @@ class RecommendedMusicParams {
   });
 }
 
-class GetLastSelectedFeelingUseCase {
+// ✅ Use Cases للـ MusicCubit (تستخدم RelaxRepository)
+class GetMusicLastSelectedFeelingUseCase {
   final RelaxRepository repository;
-  GetLastSelectedFeelingUseCase(this.repository);
+  GetMusicLastSelectedFeelingUseCase(this.repository);
 
   Future<Either<Failure, FeelingType>> call() =>
       repository.getLastSelectedFeeling();
 }
 
-class SaveLastSelectedFeelingUseCase {
+class SaveMusicLastSelectedFeelingUseCase {
   final RelaxRepository repository;
-  SaveLastSelectedFeelingUseCase(this.repository);
+  SaveMusicLastSelectedFeelingUseCase(this.repository);
 
   Future<Either<Failure, void>> call(FeelingType feeling) =>
       repository.saveLastSelectedFeeling(feeling);

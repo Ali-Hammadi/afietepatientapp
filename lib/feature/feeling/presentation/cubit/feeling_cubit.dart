@@ -1,71 +1,97 @@
+// lib/feature/feeling/presentation/cubit/feeling_cubit.dart
+import 'package:afiete/feature/feeling/domain/usecase/feeling_usecases.dart';
 import 'package:afiete/feature/music_and_breathing/domain/entities/music_entity.dart';
 import 'package:bloc/bloc.dart';
-import 'package:afiete/core/usecases/usecase.dart';
-import 'package:afiete/feature/feeling/domain/entities/feeling_entry_entity.dart';
-import 'package:afiete/feature/feeling/domain/usecase/feeling_usecases.dart';
 import 'package:equatable/equatable.dart';
 
 part 'feeling_state.dart';
 
 class FeelingCubit extends Cubit<FeelingState> {
-  final SaveFeelingUseCase saveFeelingUseCase;
-  final GetCurrentFeelingUseCase getCurrentFeelingUseCase;
+  final GetLastSelectedFeelingUseCase getLastSelectedFeelingUseCase;
+  final SaveLastSelectedFeelingUseCase saveLastSelectedFeelingUseCase;
   final GetFeelingHistoryUseCase getFeelingHistoryUseCase;
 
   FeelingCubit(
-    this.saveFeelingUseCase,
-    this.getCurrentFeelingUseCase,
+    this.getLastSelectedFeelingUseCase,
+    this.saveLastSelectedFeelingUseCase,
     this.getFeelingHistoryUseCase,
   ) : super(FeelingInitial());
 
   Future<void> loadFeelingHub() async {
     emit(FeelingLoading());
 
-    await getCurrentFeelingUseCase(NoParams());
-    final historyResult = await getFeelingHistoryUseCase(
-      const GetFeelingHistoryParams(limit: 30),
-    );
-    final history = historyResult.fold(
-      (_) => <FeelingEntryEntity>[],
-      (items) => items,
-    );
+    final result = await getLastSelectedFeelingUseCase();
 
-    // Always start the hub with no preselected feeling so users can pick again
-    // after leaving the screen or reopening the app.
-    emit(FeelingLoaded(selectedFeeling: null, history: history));
+    result.fold(
+      (failure) {
+        emit(const FeelingLoaded(
+          selectedFeeling: FeelingType.neutral,
+          hasLockedFeeling: false,
+        ));
+      },
+      (feeling) {
+        emit(FeelingLoaded(
+          selectedFeeling: feeling ?? FeelingType.neutral,
+          hasLockedFeeling: feeling != null,
+        ));
+      },
+    );
   }
 
-  Future<void> selectFeeling(FeelingType feeling, {int intensity = 3}) async {
+  Future<void> selectFeeling(FeelingType feeling) async {
     final currentState = state;
-    final previousHistory = currentState is FeelingLoaded
-        ? currentState.history
-        : <FeelingEntryEntity>[];
 
-    emit(FeelingLoaded(selectedFeeling: feeling, history: previousHistory));
+    if (currentState is FeelingLoaded && currentState.hasLockedFeeling) {
+      return;
+    }
 
-    final saveResult = await saveFeelingUseCase(
-      SaveFeelingParams(feeling: feeling, intensity: intensity),
-    );
+    if (currentState is FeelingError && currentState.hasLockedFeeling) {
+      return;
+    }
 
-    final historyResult = await getFeelingHistoryUseCase(
-      const GetFeelingHistoryParams(limit: 30),
-    );
+    emit(FeelingLoading());
 
-    saveResult.fold(
-      (failure) => emit(
-        FeelingError(
-          failure.errorMessage,
-          selectedFeeling: feeling,
-          history: previousHistory,
-        ),
-      ),
-      (_) {
-        final history = historyResult.fold(
-          (_) => previousHistory,
-          (items) => items,
-        );
-        emit(FeelingLoaded(selectedFeeling: feeling, history: history));
-      },
+    try {
+      await saveLastSelectedFeelingUseCase(feeling);
+
+      emit(FeelingLoaded(
+        selectedFeeling: feeling,
+        hasLockedFeeling: true,
+      ));
+    } catch (e) {
+      emit(FeelingError(
+        message: e.toString(),
+        selectedFeeling: feeling,
+        hasLockedFeeling: true,
+      ));
+    }
+  }
+
+  Future<void> resetFeeling() async {
+    emit(FeelingLoading());
+    try {
+      await saveLastSelectedFeelingUseCase(FeelingType.neutral);
+      emit(const FeelingLoaded(
+        selectedFeeling: FeelingType.neutral,
+        hasLockedFeeling: false,
+      ));
+    } catch (e) {
+      emit(FeelingError(
+        message: e.toString(),
+        selectedFeeling: FeelingType.neutral,
+        hasLockedFeeling: false,
+      ));
+    }
+  }
+
+  Future<void> getFeelingHistory() async {
+    final result = await getFeelingHistoryUseCase();
+    result.fold(
+      (failure) => emit(FeelingError(
+        message: failure.errorMessage,
+        hasLockedFeeling: false,
+      )),
+      (_) {},
     );
   }
 }

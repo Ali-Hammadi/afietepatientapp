@@ -106,7 +106,10 @@ class _MyAppState extends State<MyApp> {
           BlocProvider<PaymentCubit>(create: (_) => sl<PaymentCubit>()),
           BlocProvider<ReportCubit>(create: (_) => sl<ReportCubit>()),
           BlocProvider<SettingsCubit>(create: (_) => sl<SettingsCubit>()),
-          BlocProvider<ArticlesCubit>(create: (_) => sl<ArticlesCubit>()),
+          BlocProvider<ArticlesCubit>(
+              create: (_) => sl<ArticlesCubit>()
+                ..loadArticlesForHome()
+                ..refreshArticlesOnLanguageChange()),
         ],
         child: BlocListener<LanguageCubit, Locale>(
           listenWhen: (previous, current) =>

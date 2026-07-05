@@ -1,16 +1,19 @@
-// feature/notes/presentation/cubit/notes_state.dart
+// lib/feature/notes/presentation/cubit/notes_state.dart
 part of 'notes_cubit.dart';
 
 abstract class NotesState extends Equatable {
   const NotesState();
+}
 
+class NotesInitial extends NotesState {
   @override
   List<Object?> get props => [];
 }
 
-class NotesInitial extends NotesState {}
-
-class NotesLoading extends NotesState {}
+class NotesLoading extends NotesState {
+  @override
+  List<Object?> get props => [];
+}
 
 class NotesLoaded extends NotesState {
   final List<MedicalNoteEntity> notes;
@@ -24,11 +27,8 @@ class NotesLoaded extends NotesState {
   List<MedicalNoteEntity> get filteredNotes {
     if (searchQuery.isEmpty) return notes;
     return notes.where((note) {
-      final titleMatch =
-          note.title.toLowerCase().contains(searchQuery.toLowerCase());
-      final contentMatch =
+      return note.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
           note.content.toLowerCase().contains(searchQuery.toLowerCase());
-      return titleMatch || contentMatch;
     }).toList();
   }
 
@@ -36,38 +36,43 @@ class NotesLoaded extends NotesState {
   List<Object?> get props => [notes, searchQuery];
 }
 
-class NoteCreating extends NotesState {}
-
-class NoteCreated extends NotesState {}
-
-class NoteUpdating extends NotesState {}
-
-class NoteUpdated extends NotesState {}
-
-class NoteDeleting extends NotesState {}
-
-class NoteDeleted extends NotesState {}
-
-class DoctorsLoading extends NotesState {}
-
-class DoctorsLoaded extends NotesState {
-  final List<DoctorEntity> doctors;
-
-  const DoctorsLoaded({required this.doctors});
-
+class NoteCreating extends NotesState {
   @override
-  List<Object?> get props => [doctors];
+  List<Object?> get props => [];
 }
 
-class NoteSharing extends NotesState {}
+class NoteCreated extends NotesState {
+  final MedicalNoteEntity note;
+  const NoteCreated({required this.note});
+  @override
+  List<Object?> get props => [note];
+}
 
-class NoteShared extends NotesState {}
+class NoteUpdating extends NotesState {
+  @override
+  List<Object?> get props => [];
+}
+
+class NoteUpdated extends NotesState {
+  final MedicalNoteEntity note;
+  const NoteUpdated({required this.note});
+  @override
+  List<Object?> get props => [note];
+}
+
+class NoteDeleting extends NotesState {
+  @override
+  List<Object?> get props => [];
+}
+
+class NoteDeleted extends NotesState {
+  @override
+  List<Object?> get props => [];
+}
 
 class NotesError extends NotesState {
   final String message;
-
   const NotesError({required this.message});
-
   @override
   List<Object?> get props => [message];
 }

@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:afiete/core/ln10/settings_strings.dart';
 import 'package:afiete/core/constants/styles.dart';
 import 'package:afiete/feature/music_and_breathing/domain/entities/music_entity.dart';
@@ -41,27 +40,21 @@ class _MusicTabState extends State<MusicTab>
     );
 
     _positionSub = _audioPlayer.positionStream.listen((value) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
       setState(() {
         _position = value;
       });
     });
 
     _durationSub = _audioPlayer.durationStream.listen((value) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
       setState(() {
         _duration = value ?? const Duration(seconds: 1);
       });
     });
 
     _playerStateSub = _audioPlayer.playerStateStream.listen((playerState) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
       _syncDiscRotation();
       if (playerState.processingState == ProcessingState.completed) {
         final musicState = context.read<MusicCubit>().state;
@@ -91,7 +84,6 @@ class _MusicTabState extends State<MusicTab>
       }
       return;
     }
-
     if (_discRotationController.isAnimating) {
       _discRotationController.stop();
     }
@@ -99,9 +91,7 @@ class _MusicTabState extends State<MusicTab>
 
   Future<void> _prepareTrack(MusicEntity track, {bool autoPlay = false}) async {
     final wasPlaying = _audioPlayer.playing;
-    if (_loadedTrackId == track.id && !autoPlay) {
-      return;
-    }
+    if (_loadedTrackId == track.id && !autoPlay) return;
 
     setState(() {
       _isLoadingAudio = true;
@@ -137,18 +127,14 @@ class _MusicTabState extends State<MusicTab>
   }
 
   void _playTrackAtIndex(MusicLoaded state, int index, {bool autoPlay = true}) {
-    if (index < 0 || index >= state.tracks.length) {
-      return;
-    }
+    if (index < 0 || index >= state.tracks.length) return;
     final track = state.tracks[index];
     context.read<MusicCubit>().selectTrack(track);
     unawaited(_prepareTrack(track, autoPlay: autoPlay));
   }
 
   void _playNext(MusicLoaded state, {bool loopToStart = false}) {
-    if (state.tracks.isEmpty) {
-      return;
-    }
+    if (state.tracks.isEmpty) return;
 
     final currentId = state.activeTrack?.id;
     final currentIndex = state.tracks.indexWhere((t) => t.id == currentId);
@@ -169,15 +155,11 @@ class _MusicTabState extends State<MusicTab>
   }
 
   void _playPrevious(MusicLoaded state) {
-    if (state.tracks.isEmpty) {
-      return;
-    }
+    if (state.tracks.isEmpty) return;
 
     final currentId = state.activeTrack?.id;
     final currentIndex = state.tracks.indexWhere((t) => t.id == currentId);
-    if (currentIndex <= 0) {
-      return;
-    }
+    if (currentIndex <= 0) return;
 
     _playTrackAtIndex(state, currentIndex - 1);
   }
@@ -379,9 +361,7 @@ class _MusicTabState extends State<MusicTab>
                               await _audioPlayer.play();
                             }
                             _syncDiscRotation();
-                            if (mounted) {
-                              setState(() {});
-                            }
+                            if (mounted) setState(() {});
                           },
                     iconSize: 40,
                     color: colorScheme.onPrimary,
@@ -421,18 +401,17 @@ class _MusicTabState extends State<MusicTab>
               style: AppStyles.headingMedium,
             ),
             const SizedBox(height: 10),
-            ...state.tracks.map(
-              (item) => MusicTrackCard(
-                track: item,
-                isSelected: state.activeTrack?.id == item.id,
-                onPlay: () {
-                  _playTrackAtIndex(
-                    state,
-                    state.tracks.indexWhere((element) => element.id == item.id),
-                  );
-                },
-              ),
-            ),
+            // الاستدعاء الجديد للكرت مع تمرير الـ index لتفعيل الـ Sliding التتابعي
+            ...state.tracks.asMap().entries.map(
+                  (entry) => MusicTrackCard(
+                    index: entry.key,
+                    track: entry.value,
+                    isSelected: state.activeTrack?.id == entry.value.id,
+                    onPlay: () {
+                      _playTrackAtIndex(state, entry.key);
+                    },
+                  ),
+                ),
             const SizedBox(height: 8),
             OutlinedButton.icon(
               onPressed: widget.onOpenExercise,

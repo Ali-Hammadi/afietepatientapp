@@ -85,6 +85,11 @@ class ArticlesCubit extends Cubit<ArticlesState> {
   // =========================
   // HOME PIPELINE
   // =========================
+  Future<void> refreshArticlesOnLanguageChange() async {
+    reset(); // تصفير الكاش
+    await loadArticlesForHome();
+  }
+
   Future<void> loadArticlesForHome() async {
     _currentSource = "home"; // تأكيد توجيه المؤشر للهوم
 

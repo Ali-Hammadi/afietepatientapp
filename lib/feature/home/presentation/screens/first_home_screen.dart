@@ -38,12 +38,6 @@ class _FirstHomeScreenState extends State<FirstHomeScreen> {
     });
   }
 
-  FeelingType? _selectedFeelingFromState(FeelingState state) {
-    if (state is FeelingLoaded) return state.selectedFeeling;
-    if (state is FeelingError) return state.selectedFeeling;
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,12 +49,29 @@ class _FirstHomeScreenState extends State<FirstHomeScreen> {
         ],
         child: MultiBlocListener(
           listeners: [
+            // في FirstHomeScreen
             BlocListener<FeelingCubit, FeelingState>(
-              listenWhen: (previous, current) =>
-                  _selectedFeelingFromState(previous) !=
-                  _selectedFeelingFromState(current),
+              listenWhen: (previous, current) {
+                // ✅ التأكد من إن الـ state هو FeelingLoaded أو FeelingError
+                if (previous is FeelingLoaded && current is FeelingLoaded) {
+                  return previous.selectedFeeling != current.selectedFeeling;
+                }
+                if (previous is FeelingError && current is FeelingError) {
+                  return previous.selectedFeeling != current.selectedFeeling;
+                }
+                return false;
+              },
               listener: (context, state) {
-                final selectedFeeling = _selectedFeelingFromState(state);
+                final FeelingType? selectedFeeling;
+
+                if (state is FeelingLoaded) {
+                  selectedFeeling = state.selectedFeeling;
+                } else if (state is FeelingError) {
+                  selectedFeeling = state.selectedFeeling;
+                } else {
+                  selectedFeeling = null;
+                }
+
                 if (selectedFeeling == null) return;
 
                 final musicState = context.read<MusicCubit>().state;

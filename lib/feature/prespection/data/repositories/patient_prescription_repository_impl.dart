@@ -1,3 +1,4 @@
+// lib/feature/prespection/data/repositories/patient_prescription_repository_impl.dart
 import 'package:afiete/feature/prespection/domain/repositories/patient_prescription_repo.dart';
 
 import '../../domain/entities/prescription.dart';
@@ -17,5 +18,10 @@ class PatientPrescriptionRepositoryImpl
   @override
   Future<Prescription> getPrescriptionDetail(int id) async {
     return await remoteDataSource.getPrescriptionDetail(id);
+  }
+
+  @override
+  Future<String> downloadPrescriptionHtml(int id) async {
+    return await remoteDataSource.downloadPrescriptionHtml(id);
   }
 }

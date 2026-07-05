@@ -51,6 +51,10 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
         widget.compactMode ? AppStyles.padding * 0.8 : AppStyles.padding;
     final avatarSize = widget.compactMode ? 44.0 : 50.0;
 
+    // ✅ استخدام المحتوى المترجم
+    final localizedTitle = widget.article.localizedTitle;
+    final localizedContent = widget.article.localizedContent;
+
     final content = Padding(
       padding: EdgeInsets.symmetric(
         vertical: widget.flatMode ? 10 : cardPadding,
@@ -75,7 +79,7 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
             ),
           ],
           Text(
-            widget.article.title,
+            localizedTitle, // ✅
             style: (widget.compactMode
                     ? AppStyles.bodyLarge
                     : AppStyles.headingSmall)
@@ -85,7 +89,7 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
           ),
           const SizedBox(height: 12),
           Text(
-            widget.article.content,
+            localizedContent, // ✅
             style:
                 widget.compactMode ? AppStyles.bodySmall : AppStyles.bodyMedium,
             maxLines: widget.compactMode
@@ -140,7 +144,6 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
               setState(() {
                 _isExpanded = !_isExpanded;
               });
-              // navigate to details when user taps read more
               if (widget.onReadMore == null) {
                 Navigator.pushNamed(
                   context,
@@ -240,16 +243,12 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
                   ),
       ),
     );
-// lib/feature/articles/presentation/widgets/article_card_widget.dart
 
-// السطر 283 - إصلاح name
     final nameWidget = Text(
-      widget.article.doctor.name ??
-          'Unknown Doctor', // ✅ إزالة ! وإضافة fallback
+      widget.article.doctor.name ?? 'Unknown Doctor',
       style: AppStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
     );
 
-// السطر 291 - إصلاح specialization
     final metaWidget = Text.rich(
       TextSpan(
         children: [
@@ -257,7 +256,7 @@ class _ArticleCardWidgetState extends State<ArticleCardWidget> {
             text: SettingsStrings.specialtyLabel(
               widget.article.doctor.specialties.isNotEmpty
                   ? widget.article.doctor.specialties.join(', ')
-                  : 'General', // ✅ استخدام specialties بدلاً من specialization
+                  : 'General',
             ),
             style: AppStyles.bodySmall.copyWith(
               color: colorScheme.outlineVariant,
